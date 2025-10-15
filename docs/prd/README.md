@@ -510,8 +510,574 @@ Capture learning data from printed worksheets offline.
 | Parents report better understanding of child progress     | ≥4.2/5 satisfaction                                 |
 | System adapts difficulty effectively                      | ≥70% of activities completed with improvement trend |
 
-## Technology stack: What programming languages, frameworks, and tools align with your project goals and constraints?
+## 🧰 Technology Stack
 
-## Data requirements: What information will your application need to store, process, or display?
+### Layered Architecture Diagram
 
-## Security considerations: Are there privacy concerns, sensitive data, or compliance requirements to address?
+```text
+                ┌────────────────────────────────────────────┐
+                │               FRONTEND (App)               │
+                │────────────────────────────────────────────│
+                │ React Native (Expo)                        │
+                │ React Native Paper & Skia (Canvas, UI)     │
+                │ Firebase Auth (Client Auth)                │
+                │ WebSocket Client (Realtime Tasks)          │
+                │ Local Cache / Offline Mode                 │
+                └──────────────────────┬─────────────────────┘
+                                       │
+                                       │ HTTPS / WebSocket
+                                       ▼
+                ┌────────────────────────────────────────────┐
+                │            EDGE API (Backend)              │
+                │────────────────────────────────────────────│
+                │ Cloudflare Workers (TypeScript API Layer)  │
+                │ Durable Objects (WS sessions, locks)       │
+                │ Cron Triggers (Background Jobs)            │
+                │ Presigned Upload URLs (R2)                 │
+                │ Auth Validation (Firebase Tokens)          │
+                └──────────────────────┬─────────────────────┘
+                                       │
+                ┌──────────────────────┴───────────────────-──┐
+                │      AI & ORCHESTRATION SERVICES (LangChain)│
+                │──────────────────────────────────────────-──│
+                │ Node.js / LangChain                         │
+                │ Prompt Templates & Lesson Generation        │
+                │ Curriculum Embeddings via Vectorize         │
+                │ AI-driven Personalisation Logic             │
+                └──────────────┬──────────────┬────────────-──┘
+                               │              │
+               Embeddings/API  │              │ Asset Gen (PDF/Image)
+                               │              ▼
+                ┌──────────────┴──────────────┴──────────────┐
+                │         DATA & STORAGE LAYER               │
+                │────────────────────────────────────────────│
+                │ Cloudflare D1 (Structured Data)            │
+                │ Cloudflare Vectorize (Vector Store)        │
+                │ Cloudflare R2 (Images, PDFs, uploads)      │
+                │ Firebase Auth (Identity only)              │
+                └────────────────────────────────────────────┘
+
+        Background & Ops:
+        - Cloudflare Cron Triggers → Worker Jobs → DO coordination
+        - Durable Objects manage live sessions & real-time updates
+        - Monorepo with CI/CD, feature flags, and environment mgmt
+```
+
+#### Short rationale (one-liners)
+
+- React Native + Expo: single codebase for iOS/Android tablets + phones; fast iteration.
+- RN Skia + RN Paper: high-performance stylus/canvas capture + consistent UI primitives.
+- Cloudflare Workers (monolith): low-latency edge API, proxied LLM orchestration, central logic without microservices complexity.
+- D1: serverless relational store close to Workers for curriculum and progress.
+- R2: low-cost, S3-compatible storage for uploaded images and printable PDFs.
+- Cloudflare Vectorize: edge-native vector search for semantic retrieval.
+- LangChain Service: keeps LLM orchestration out of Workers, where heavier processing and stateful chains are easier to manage.
+- Firestore: delegated auth (Firebase Auth), Workers validate tokens — keeps identity simple.
+- Durable Objects + WebSocket: live review, preview and lightweight coordination (locks, small queues).
+- Cron Triggers: scheduled background jobs to refresh profiles and schedule lessons.
+
+### Main data flows
+
+1. Onboarding: RN app → Worker → verify Firebase token → create child profile in D1 → seed interests into Vectorize (via LangChain).
+2. Create Exercise: Parent uploads photo or picks topic → Worker stores image in R2 → Worker calls LangChain svc (topic + interests) → LangChain uses Vectorize, returns tasks + PDF → Worker stores metadata in D1 + PDF in R2, notifies client via DO/WebSocket.
+3. Paper mode: Parent prints PDF → child does worksheet → parent photographs sheet → RN app uploads to Worker → Worker stores in R2, triggers OCR/validation (LangChain svc / OCR) → Worker updates progress in D1.
+4. Scheduled jobs: Cron Trigger → Worker scans D1 → enqueues jobs (locks via DO) → LangChain svc generates next lessons → Worker persists and notifies.
+
+### Client / Frontend
+
+- Framework: React Native (TypeScript) — Expo managed workflow.
+  Why: Single codebase for iOS/Android tablets + phones; fast iteration and OTA.
+- UI: React Native Paper (Material primitives).
+- Canvas / Stylus: React Native Skia (stroke capture, pressure, performance).
+- Auth (client): Firebase Auth SDK (issue ID tokens). Firestore used only for authentication identity (no learning data).
+- Realtime client: WebSocket client connecting to Durable Objects (via Worker).
+- Local storage / offline queue: AsyncStorage / SecureStore for queued uploads, stroke caching, small state.
+- Testing: Vitest (unit tests for shared logic), React Native Testing Library for components.
+
+### Edge / API (Monolith)
+
+- Runtime: Cloudflare Workers (TypeScript) — single monolithic API for MVP.
+- Stateful primitives: Cloudflare Durable Objects — WebSocket session manager, pub/sub, locks, feature flags.
+- Scheduling: Cloudflare Cron Triggers to hit Worker cron endpoints.
+- File presign & upload flow: Worker issues presigned URLs to Cloudflare R2.
+- Auth bridge: Worker validates Firebase ID tokens per request and maps to D1 user IDs.
+- Secrets/config: Cloudflare KV for non-sensitive config; CI secrets for deployment.
+- CLI / deploy: Wrangler for Workers.
+
+### AI Orchestration
+
+- Orchestrator service: LangChain (LangChain.js) running as a small Node service (TypeScript) in Cloudflare.
+- LLM providers / embeddings: OpenAI (GPT-4-turbo family) or other chosen LLM; use provider for embeddings as needed.
+- Vector store: Cloudflare Vectorize (edge-native). LangChain service upserts embeddings into Vectorize and queries it for retrieval.
+- Exercise generation + templates: Prompt templates & chains managed in LangChain service. Returns JSON tasks and optional HTML/PDF payloads.
+- Integration pattern: Workers proxy to LangChain service (heavy LLM work off-edge). LangChain writes assets to R2 via Worker callbacks or returns payload for Worker to store.
+
+### Data & Storage
+
+- Relational store (canonical): Cloudflare D1 — holds child profiles, curriculum graph (subjects → topics → lessons → tasks), progress, scheduled lessons metadata and subscription records (lightweight).
+- Object storage (assets): Cloudflare R2 — uploaded worksheet images, generated PDFs, thumbnails, and large binary blobs.
+- Embeddings / semantic retrieval: Cloudflare Vectorize.
+- Auth (identity only): Firebase Auth / Firestore tokens. D1 stores firebase_uid mapping only.
+
+### Media & OCR / PDF
+
+- OCR (initial): Initially multimodal LLM like gemini, as a fallback Google Cloud Vision API (fastest, best accuracy).
+- PDF / printable generation: HTML → PDF conversion done in LangChain service (Puppeteer / Playwright or a PDF generation library) and saved to R2. Include QR/task ID in PDF metadata.
+- Image processing: Cloudflare Images or Worker-side lightweight image transforms prior to OCR.
+
+### Payments & Notifications
+
+- Payments / subscriptions: Stripe (Checkout + Billing).
+- Email (transactional): Postmark / Resend (choose one) for reliable transactional emails.
+- Push notifications: Firebase Cloud Messaging for Android / APNs for iOS (via Expo tooling or native integration).
+- In-app notifications: WebSocket + Durable Objects for immediate events.
+
+### Realtime & Jobs
+
+- Live streaming & pub/sub: Durable Objects (WebSocket broker) — handles stroke streaming, live review presence, and notifications.
+- Background scheduled jobs: Cloudflare Cron Triggers → Worker cron endpoints → DO locks → LangChain service generation jobs.
+- Queueing pattern: Durable Object small queue or simple HTTP enqueue to LangChain svc for batch processing.
+
+### Observability, Testing & CI/CD
+
+- Repo / monorepo: pnpm + Turborepo (with pnpm workspaces). Structure: `/apps/mobile`, `/apps/worker`, `/apps/langchain`, `/packages/*`.
+- Version control & CI: `GitHub` + `GitHub Actions` for `lint`, `vitest`, build, deploy.
+- Monitoring & errors: `Cloudflare Analytics` + `Sentry` (LangChain service + RN app).
+- Feature flags: `Durable Objects` or lightweight JSON in KV for MVP toggles.
+- E2E testing: `Playwright` (if web later) or Detox for RN if needed.
+
+### Dev / Hosting & Deployment
+
+- Workers: Cloudflare Workers via Wrangler + GitHub Actions.
+- LangChain service host: Render / Fly / Railway / Vercel (server choice depends on concurrency needs; Render is simple).
+- CI/CD pipeline: GH Actions build → tests → deploy Workers (wrangler) & LangChain svc (auto-deploy).
+- Local dev: Expo dev client for RN; wrangler dev for Workers; local LangChain dev server.
+
+### Security, Privacy & Compliance
+
+- Parental consent: explicit during onboarding stored in D1; no PII stored without consent.
+- Data encryption: R2 at rest + TLS in transit. D1 encrypted at rest as per Cloudflare.
+- Auth validation: Workers verify Firebase ID tokens on each request.
+- Export & deletion: parents can export or delete child profile (D1 + R2 assets) via API.
+- Compliance posture: plan for GDPR-K / COPPA considerations (consent, limited retention, parental control).
+
+### Recommended Libraries / Versions (practical)
+
+- React Native & Expo: latest stable RN + Expo SDK (use Expo SDK 48+ depending on release).
+- React Native Skia: @shopify/react-native-skia (match RN/Expo compatibility).
+- LangChain: LangChain.js (latest stable), Node 18+.
+- Workers: TypeScript target compatible with Wrangler2.
+- Cloud SDKs: Cloudflare Workers SDK, Cloudflare Vectorize client, R2 SDK helpers.
+- OCR: Google gemini flash model or Google Cloud Vision client.
+- PDF: puppeteer-core + chrome-aws-lambda if using serverless, or pdf-lib for programmatic generation.
+
+### Trade-offs & rationale (short)
+
+- Monolith Workers keeps operations simple and low-friction early; Durable Objects handle needed stateful pieces (websockets & locks).
+- LangChain separate svc avoids heavy LLM logic in Workers (bundle/runtime issues) while allowing complex chains and 3rd-party SDKs.
+- Cloudflare-first stack (D1 / R2 / Vectorize) reduces network latency and vendor sprawl; Vectorize gives edge vector search.
+- Firestore for auth centralises identity with a mature provider; D1 remains canonical for learning data to avoid coupling.
+- Google Vision OCR gives best accuracy out of the box — faster to pilot; Tesseract is cheaper but less accurate (fallback).
+
+### Minimal infra & services to provision (MVP)
+
+- Cloudflare account with: Workers, Durable Objects, D1, R2, Vectorize, KV, Cron Triggers.
+- Firebase project (Auth only).
+- LangChain service hosting (Render / Fly) + domain / TLS.
+- Stripe account + webhook endpoints.
+- Google Cloud project.
+- GitHub repo + Actions, Turborepo/pnpm.
+- Sentry & Postmark/Resend accounts.
+
+## 📚 Data Requirements
+
+### High-level summary
+
+- Short-lived, real-time, session & streaming data → store in Durable Objects (per-child / per-session DOs). Examples: stroke deltas, live presence, attempt buffers, job locks, ephemeral review drafts.
+- Canonical, queryable, long-term data → store in Cloudflare D1. Examples: user accounts, canonical child profiles, curriculum graph, finalized attempts, progress snapshots, scheduled lessons, job/audit logs, subscriptions, assets metadata.
+- Large binary assets → store in Cloudflare R2 (images, PDFs, stroke blobs). D1/DO store references/IDs.
+- Embeddings & semantic retrieval → store in Cloudflare Vectorize (embeddings + metadata pointing to topic/lesson IDs).
+- Auth / Identity → Firebase Auth (tokens only). D1 stores firebase_uid mapping.
+- AI orchestration → LangChain svc uses Vectorize + returns task JSON / printable HTML; Worker persists results.
+
+### What to store (by category & location)
+
+#### Identity & Accounts
+
+- Where: D1 (canonical users) + Firebase Auth (auth tokens)
+- What: user_id, firebase_uid, email, display_name, role, created_at, last_login, settings_json
+- Purpose: login, account management, billing mapping
+
+#### Child Profiles & Onboarding
+
+- Where: D1 (children) as canonical; per-child DO caches sessionProfile
+- What: child_id, parent_user_id, display_name/alias, DOB (optional), preferences_json (interests, learning_style), consent flags (wearable/third-party), onboarding timestamps
+- Purpose: personalize content, seed AI, UI personalization
+- Displayed to: parent dashboard, child UI (limited view)
+
+#### Curriculum & Topics
+
+- Where: D1 (curriculum_topics, lessons, tasks) + Vectorize (snippets)
+- What: subject, topic_id, title, code (UK ref), description, prerequisites, task templates, difficulty
+- Purpose: map generated exercises to curriculum; power discovery & retrieval
+
+#### Generated Lessons & Tasks (definitions)
+
+- Where: D1 (lesson/task metadata), R2 for PDF assets, Vectorize for example snippets
+- What: task_id, prompt, expected_answer_json, style, difficulty, asset_r2_url, created_by (ai/user)
+- Purpose: present lessons, grade attempts, schedule
+
+#### Attempts & Attempts Buffering
+
+- Where: DO (attemptBuffer) → flush to D1 (attempts) + R2 assets for stroke blobs
+- What (buffer): attempt draft, stroke delta ref, preliminary score, client device info, timestamp
+- What (persisted): attempt_id, child_id, task_id, user_answer_json, score, presentation_score, correct flag, timestamp
+- Purpose: progress calculation, historical reporting, parental feedback
+- Displayed to: parent dashboard, tutor view (later)
+
+#### Progress & Mastery Snapshots
+
+- Where: D1 (progress) — computed snapshots; DO caches working values for active sessions
+- What: topic_id, mastery (0..1), attempts_count, last_practiced_at, history_json
+- Purpose: curriculum map, scheduling decisions
+- Displayed to: parent dashboard, scheduling engine
+
+#### Live Session State & Stroke Streams
+
+- Where: DO (per-child DO instance)
+- What: connected clients, stroke deltas buffer, currentTaskId, session metadata, live presence, draft comments
+- Persistence pattern: compact periodic snapshot → R2 + DO meta pointer → D1 asset reference
+- Purpose: live review, instant feedback, replay, collaborative sessions
+- Displayed to: parent/tutor live view, child preview
+
+#### Assets & Media
+
+- Where: R2 (actual blobs), D1 (assets) for metadata, DO for transient references
+- What: r2_url, type (scan/pdf/stroke_blob), ocr_text (optional), created_at, owned_by_child_id
+- Purpose: re-ingest scanned worksheets, printable delivery, archival
+
+#### Embeddings & Semantic Metadata
+
+- Where: Cloudflare Vectorize (+ metadata in D1 referencing vector IDs)
+- What: embedding vectors, source text snippet ID, topic_id, content_type, created_at, model_version
+- Purpose: semantic retrieval for LangChain to generate contextually relevant exercises
+
+#### Scheduled Lessons & Job Metadata
+
+- Where: D1 (scheduled_lessons, jobs)
+- What: scheduled_for, status, source, job_payload, result_meta, audit logs
+- Purpose: cron/scheduling, monitoring, retries, idempotency
+
+#### Billing & Subscription
+
+- Where: D1 (subscriptions) + Stripe (truth)
+- What: stripe_customer_id, plan, status, billing dates
+- Purpose: enforce paid features, reporting
+
+### What to process (compute & transforms)
+
+On ingestion
+
+- OCR on uploaded images → extract text (LangChain/OCR), write OCR summary to assets.meta_json in D1.
+- Create embeddings from generated or ingested text → upsert to Vectorize (LangChain svc).
+
+In DO (real-time)
+
+- Compute immediate presentation_score heuristics for strokes (density, spacing) and quick answer checks.
+- Buffer attempts and strokes; compute quick feedback (correct/incorrect hint).
+
+Batch / Cron
+
+- Periodic mastery recomputation per child/topic using attempts in D1 → update progress.
+- Schedule lesson generation jobs for children with gaps or low practice rates.
+- Re-index or re-embed content if embedding model changes.
+
+AI
+
+- LangChain uses curriculum snippets (Vectorize) + child preferences + progress snapshot to generate tasks and printable HTML/PDF.
+
+Sync
+
+- DO → Worker flushes buffered attempts/strokes to D1/R2 on interval or on session end.
+
+### What to display (by persona)
+
+Child
+
+- Short progress indicator (level/badges), today’s tasks, live feedback, encourage messages; no raw backend details.
+
+Parent
+
+- Curriculum map with mastery per topic, scheduled lessons, recent attempts with scores & presentation notes, suggested activities/outings, subscription status.
+
+Tutor (later)
+
+- Student history, pending homework, scheduled lessons, notes from parents.
+
+Teacher (later)
+
+- Class-level aggregates (when integrated), suggested interventions.
+
+### DO ↔ D1 sync rules & patterns
+
+- Write-first to DO for fast UX: client writes strokes/attempts to DO; DO acknowledges instantly.
+- Flush policy (typical):
+- Time-based flush (e.g., every 30–60s) OR buffer-size-based flush (e.g., every 10 attempts).
+- On session end or network reconnect flush immediately.
+- On flush: DO bundles attempts/strokes → Worker persists to D1 (attempts), R2 (stroke blob) and returns persisted IDs. DO then marks buffer entries as persisted.
+- Idempotency: use attempt_client_id (uuid) and job_id in payloads to dedupe writes when retries occur.
+- Consistency: D1 is canonical; DOs must rehydrate from D1 on creation/restart (read last progress + last persisted assets).
+- Failure handling: If DO → Worker persist fails, do exponential backoff, write job entry in D1 jobs to retry. Keep DO buffer bounded to prevent unbounded memory growth — if full, persist directly to R2 with temporary flag and return soft error to client.
+
+### Retention, privacy & consent
+
+- Minimal PII: store only necessary identifiers. Keep display_name as alias; limit DOB to month/year or optional.
+- Consent flags: required for wearable data, third-party content sharing, or tutor sharing. Stored in children.preferences_json.
+- Retention policy:
+- Active data: retained while account active.
+- Inactivity: after 12 months, archive to R2 snapshot + mark for deletion; notify parent.
+- Deletion: on parent request, remove D1 rows, delete R2 blobs, remove Vectorize entries associated to child (or anonymize).
+- Export: provide parent export (JSON + zipped assets) endpoint.
+- Regulatory: plan for COPPA & GDPR-K: parental consent recorded, no direct child account creation without parent consent.
+
+### Indexing & performance guidance (D1 & Vectorize)
+
+- D1 indexes: children.parent_user_id, attempts.child_id, progress.child_id, scheduled_lessons.child_id, curriculum_topics.subject.
+- Pagination: always use cursor-based pagination for lists.
+- Vectorize usage: store snippet metadata linking to topic_id and source_type. Keep vector length moderate (embed short sentences).
+- DO sizing: flush often; store minimal in-memory footprint; archive stroke blobs to R2.
+
+### Auditing, monitoring & telemetry
+
+- Capture: job runs, failed flushes, DO buffer overflows, OCR errors, LLM cost per job, attempts per child, daily active children.
+- Tables/logs: jobs table in D1 for audit (status, payload, errors), attempts final rows, assets metadata for audits.
+- Alerts: persistent DO flush failures, job failure rates above threshold, LLM error spikes.
+
+### API & contract surface (summary, DO-aware)
+
+Client → Worker
+
+- POST /auth/verify (token) → returns user_id
+- POST /children → create child (writes to D1)
+- GET /children/:id → read child + progress (D1)
+- POST /assets/upload-url → returns presigned R2 URL (Worker)
+- POST /assets/notify → Worker stores metadata in D1 and enqueues OCR (if required)
+- POST /tasks/generate → Worker enqueues LangChain generation job
+- GET /lessons/scheduled?child_id= → D1 read
+- POST /attempts → prefer via DO (WebSocket) message: attempt.create OR HTTP fallback to Worker (which writes to DO buffer)
+
+DO ↔ Worker
+
+- POST /persist/attempts → Worker persists buffered attempts to D1
+- POST /persist/strokes → Worker stores stroke blob to R2 and writes assets row in D1
+
+Worker ↔ LangChain
+
+- POST /langchain/generate → returns lesson + asset payload (LangChain writes to R2 or returns asset HTML)
+- LangChain calls Worker callback /jobs/callback/langchain on completion (HMAC-signed)
+
+### Security / access control considerations
+
+- Authenticate all client connections with Firebase ID tokens. Worker validates and maps to user_id.
+- For DO WebSocket join, Worker issues short-lived signed session token for DO to validate.
+- Access checks: all D1 reads/writes filter by parent_user_id or child_owner (never return data outside parent scope).
+- Enforce rate limits and quotas (per-child and per-parent) to avoid abuse.
+
+## 🔐 Security Plan — Education App (MVP) — Draft v1
+
+### Security goals (high level)
+
+- Protect children’s personal data and parental account data.
+- Ensure confidentiality, integrity, and availability of learning data and assets.
+- Provide parental control & explicit consent for any data collection.
+- Secure AI/third-party integrations and payment flows.
+- Maintain auditability and rapid incident handling.
+
+### Threat model (top risks)
+
+- Unauthorized access to child profiles, attempts, or PII (data breach).
+- Account takeover (parent account compromised).
+- Unauthorized manipulation of progress/attempt records (fraud).
+- Exfiltration of scanned worksheets, stroke data, or generated assets.
+- Abuse of AI endpoints causing data leakage of other children’s data.
+- Malicious client input (image payloads, prompt injection).
+- Denial of Service or resource exhaustion (LLM cost spikes).
+- Regulatory non-compliance (COPPA, GDPR-K).
+- Third-party risk (Stripe, Firebase, LLM provider, Vectorize).
+
+### Authentication & Access Control
+
+Design
+
+- Auth provider: Firebase Auth (client). Worker validates Firebase ID tokens on every request.
+- Role model: parent, child (no direct auth), tutor/teacher (later), admin.
+- Mapping: D1 stores firebase_uid → user_id mapping. All D1 reads/writes filter by parent_user_id.
+
+Controls
+
+- Token validation: Workers validate JWT signatures & exp; reject tokens with missing claims.
+- Least privilege: APIs enforce authorization (owner-only access to children). No cross-tenant reads.
+- Short-lived session tokens for DO WebSocket sessions issued by Worker (signed, TTL).
+- Admin access: MFA required for admin accounts; admin actions audited.
+- Password rules / MFA: Encourage/require strong passwords; support MFA for parents (recommendation).
+
+### Network & Transport Security
+
+- TLS everywhere: HTTPS/TLS enforced for all client ↔ Worker and Worker ↔ LangChain/third-party communications.
+- Hardened endpoints: Rate limits, API keys, and request validation on all endpoints.
+- Private secrets: All service keys kept in CI secrets and Cloudflare KV where appropriate; never checked into repo.
+- Service-to-service auth: HMAC-signed callbacks (LangChain → Worker), mutual TLS or API keys for internal calls.
+
+### Data protection (storage & processing)
+
+At-rest
+
+- R2: object storage encrypted at rest by Cloudflare. Use signed URLs with short TTL for access to assets.
+- D1: uses Cloudflare encryption. Minimise PII stored; store alias instead of full names where feasible.
+- Vectorize: treat as sensitive — only store curriculum/embedding metadata; avoid storing direct child-identifying text in vector payloads.
+- DO state: DO holds ephemeral sensitive data; flush to D1/R2 quickly; ensure DO persisted state inherits Cloudflare protections.
+
+In transit
+
+- TLS for all endpoints; validate certs for external APIs.
+
+Sensitive fields & minimisation
+
+- Store minimal PII (alias, DOB optional). Keep email only in users.
+- Wearable/health data stored only with explicit parental consent; flag in D1 preferences_json.
+- For audits, avoid logging raw images or stroke blobs; log references/IDs only.
+
+### Durable Objects & Live Data Controls
+
+- Auth handshake: Worker issues signed session token (short TTL) for DO WebSocket join; DO rejects unsigned sessions.
+- Session isolation: DO instances keyed by child:<child_id> to isolate per-child state.
+- Buffer limits: cap strokeBuffer and attemptBuffer size to prevent memory exhaustion. If buffer near capacity, persist chunk to R2 and continue.
+- Flush integrity: attempts flushed to D1 must be idempotent (use client-generated attempt_client_id) to avoid duplication on retries.
+- Audit sync: DO should log flush events to jobs table in D1 (or to R2) for traceability.
+
+### API & Input Validation
+
+- Strict schema validation for all endpoints (e.g., JSON Schema / Zod) to prevent injection attacks.
+- Image handling: validate image MIME types and size limits; process images in trusted worker environment; scan for malware if necessary.
+- Prompt safety: sanitize any user-provided text before sending to LLM. Separate child-specific data and avoid placing other children’s PII in prompts.
+- Rate limiting: per-user and global quotas on generation requests to prevent LLM abuse and cost spikes.
+
+### AI & LLM-specific controls
+
+- No PII in prompts: scrub or tokenise direct identifiers before sending to LLMs; use child_alias only and avoid explicit PII.
+- Prompt injection defense: apply guardrails and structured prompt templates; isolate user content into data fields, not raw prompt concatenation.
+- Logging & retention: log model usage metadata (model, tokens, cost) but never store full prompts with sensitive PII in logs. Store prompt hashes for audit.
+- Content filtering: run LLM outputs through a simple filter to catch unsafe suggestions (e.g., medical/legal advice) and replace with safe guidance or “ask a professional”.
+- Quota controls: implement spending caps and alerting for LLM usage.
+
+### Payment & Billing security
+
+- Stripe for subscriptions: redirect/host checkout pages when possible (Stripe Checkout) to minimise PCI scope.
+- Webhook validation: validate Stripe webhooks (signing secret) and reconcile against D1 records.
+- Minimal storage: do not store card details; store only stripe_customer_id and subscription_id.
+
+### Logging, monitoring & auditability
+
+- Audit logs: write jobs and key admin events to D1; store security-relevant events in an append-only log with timestamps (or use external log service).
+- Error monitoring: Sentry for server and client; Cloudflare Analytics for edge metrics.
+- Alerting: alerts for failed DO flush rates, repeated auth failures, high LLM spend, or R2 failures.
+- Retention: keep security logs for at least 90 days; longer if required by policy.
+
+### Backups & disaster recovery
+
+- D1 backups: daily export snapshots to R2 (SQL dump or JSON). Keep rolling 30 days (initially).
+- R2 assets: periodic replication policy / maintain index in D1 to correlate assets. For critical assets, keep checksum metadata.
+- Vectorize: maintain backups of original text + embedding metadata in R2/D1 to allow reindexing.
+- Recovery drills: schedule quarterly restore tests for D1 + R2 to validate backup integrity.
+
+### Privacy, consent & regulatory
+
+- Parental consent: required during onboarding; store consent record (timestamp, scope) in D1 children.preferences_json.
+- COPPA: treat children under 13 as minors — require parental approval for account, prevent direct child signup, limit third-party data sharing.
+- GDPR: fulfil rights — data access, export, correction, deletion. Provide automated export endpoint for parents. Log deletion actions.
+- Data minimisation: default opt-out for telemetry/wearable data; explicit opt-in for sensitive telemetry.
+- Data retention policy: archive after 12 months inactivity; deletion on request within legal SLA (e.g., 30 days).
+
+### Third-party risk management
+
+- Vendor list: Firebase (Auth), Cloudflare (Workers, D1, R2, Vectorize), LangChain + LLM provider (OpenAI), Stripe, Postmark/Resend, Google Vision (OCR) or Tesseract fallback.
+- Controls: maintain vendor inventory, SLAs, data processing agreements (DPA), and ensure LLM provider DPA covers use of child-related data (if using for embeddings or prompts).
+- Minimum data sharing: send minimal, non-identifiable data to vendors when possible.
+
+### Secure development & QA practices
+
+- Code reviews: mandatory pull requests + PR reviews for server code. Security owner sign-off for changes touching auth/data flows.
+- Static analysis: run linters and SAST where possible (e.g., ESLint + TypeScript strict modes).
+- Dependency monitoring: automated scanning for vulnerabilities (Dependabot/GitHub).
+- Secrets management: no secrets in source; rely on CI secret store & Cloudflare KV.
+- Pen testing: schedule pen-test prior to wider pilot; include client & server surface.
+
+### Incident response & playbook (summary)
+
+    1.	Detection / Triage: alert from monitoring (Sentry / Cloudflare) triggers on-call.
+    2.	Containment: revoke API keys / rotate affected tokens; scale DO throttle; disable LLM calls if cost spike.
+    3.	Eradication & Recovery: patch vulnerability; restore from backups if needed; replay critical jobs.
+    4.	Notification: notify affected parents per policy and regulatory requirements (72-hour GDPR window for breaches).
+    5.	Post-incident: root cause analysis, update controls, update runbooks.
+
+Create a short incident response doc with contacts, escalation, and template notification messages.
+
+### Privacy & Security documentation to produce (recommended)
+
+- Data Protection Impact Assessment (DPIA) for COPPA/GDPR.
+- Parental consent & privacy policy pages (clear UX copy).
+- Incident Response Playbook (contact list, triage steps).
+- Vendor DPA and security checklist.
+- Access Control policy (who can access production D1/R2/Vectorize/Cloudflare console).
+- Developer Security Handbook (secrets, PR rules, QA).
+
+### Initial security checklist (practical tasks)
+
+- Enforce HTTPS and strict TLS for all endpoints.
+- Implement Firebase token validation in Workers.
+- Issue signed short-lived DO session tokens via Worker.
+- Enforce input schema validation on all endpoints.
+- Cap DO buffers & implement flush-to-D1 logic with idempotency keys.
+- Configure Cloudflare KV/Secrets & remove any local dev secrets.
+- Implement presigned R2 upload with content type/size limits.
+- Setup Stripe Checkout + webhook validation.
+- Setup Sentry + Cloudflare Analytics + alerting for high-cost LLM usage.
+- Implement parental consent capture & storage during onboarding.
+- Create DPA with LLM provider & email provider (if required).
+- Plan pen-test at end of MVP dev cycle.
+
+### Quick templates & examples (to hand to engineers)
+
+- HMAC callback verification: LangChain → Worker callbacks must include X-Signature header (HMAC-SHA256 of payload using shared secret). Worker verifies before processing.
+- Idempotency header: clients include X-Idempotency-Key for attempt submissions; Worker/D1 enforces uniqueness.
+- Session token: Worker returns do_session_token = HMAC(user_id|child_id|exp) for DO join; DO verifies signature and expiry.
+
+## Next Steps
+
+### Technical Short next-steps (practical checklist)
+
+1. Create Cloudflare account & provision Workers, D1, R2, Vectorize, KV, Durable Objects.
+2. Set up Firebase Auth (enable email sign-in) and publish keys.
+3. Scaffold monorepo (Expo mobile, Workers, LangChain svc, shared-types).
+4. Provision Stripe + test keys, Postmark/Resend for emails.
+5. Implement onboarding flow client → Worker → D1 and Firebase token verification.
+6. Build LangChain stub /generate-exercise via simple prompt + Vectorize retrieval.
+7. Implement presigned R2 upload flow, OCR pipeline, and minimal printable PDF pipeline.
+8. Add Cron Trigger + Worker cron endpoint stub and Durable Object lock.
+9. Run pilot with 10–20 families, collect feedback & iterate.
+
+### Implementation & rollout priorities (next actions)
+
+1. Define DO interface: messages (stroke.delta, attempt.create, flush.request, session.join). I can draft this next.
+2. Implement D1 schema: create canonical tables for users, children, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs.
+3. Implement DO flush strategy (time/buffer thresholds + idempotent persist).
+4. Integrate R2 upload flow and OCR stub.
+5. LangChain job contract for generation; store resulting assets in R2 and metadata in D1.
+6. Build minimal client flows: onboarding → create child → session start → attempt → flush → parent dashboard reads D1.
+
+### Offer: I can produce these artifacts next (pick one or more)
+
+• A compact Durable Object interface spec (message schema for WebSocket & Worker calls).
+• A revised D1 schema SQL reflecting DO-managed buffering and no raw strokes columns.
+• Pseudocode for DO flush logic (timers, batching, retry/backoff, idempotency).
+• API OpenAPI (YAML) for the endpoints listed (MVP subset).
