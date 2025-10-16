@@ -84,6 +84,7 @@
 
 - Naming: kebab-case for files, camelCase for vars, PascalCase for types/components.
 - Modules: keep functions pure; side effects isolated (API, DO handlers).
+- Module system: ESM only across the repo. Use `export`/`import` syntax. Configs that need JS should be `.mjs` (or `.js` under a package with `"type": "module"`). Do not use CommonJS (`require`, `module.exports`).
 - Errors: never throw raw; use typed error helpers; sanitize messages.
 - Logging: no PII; use IDs; log levels structured (debug/info/warn/error).
 - Config: .env.* or Wrangler secrets; never commit secrets.
@@ -138,4 +139,3 @@
 - docs/prd/data-requirements/README.md
 - docs/prd/security-plan/README.md
 - docs/prd/next-steps.md
-

@@ -12,6 +12,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 
 - Node 22+
 - pnpm 10+
+ - ESM-only modules: use `export`/`import`. JS configs must be `.mjs` or live in packages with `"type": "module"`. Avoid CommonJS (`require`, `module.exports`).
 
 ## Commands
 
@@ -24,6 +25,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 
 - Follow AGENTS.md for data rules, security, and testing.
 - Avoid PII in logs/prompts; validate inputs; enforce auth on API routes.
+ - Module system: ESM-only across the repo. Prefer `.mjs` for config files at the root.
 
 ## Migration note (LangChain consolidation)
 

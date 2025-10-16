@@ -13,10 +13,19 @@
     "dev:mobile": "turbo run dev --filter=mobile",
     "dev:worker": "turbo run dev --filter=worker",
     "test": "turbo run test",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "typescript": "^5.6.0"
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^9.25.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-vitest": "^0.5.4",
+    "prettier": "^3.4.2",
+    "turbo": "^2.2.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.12.2"
   }
 }
