@@ -17,7 +17,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts}'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -40,7 +40,7 @@ export default [
     },
   },
   {
-    files: ['apps/worker/**/*.{ts,tsx}'],
+    files: ['apps/worker/**/*.{ts}'],
     languageOptions: {
       globals: {
         fetch: 'readonly',
@@ -54,7 +54,7 @@ export default [
     },
   },
   {
-    files: ['**/*.{test,spec}.ts', '**/__tests__/**/*.{ts,tsx}'],
+    files: ['**/*.{test,spec}.ts', '**/__tests__/**/*.{ts}'],
     plugins: {
       vitest: vitestPlugin,
     },
