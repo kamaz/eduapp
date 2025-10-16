@@ -1,5 +1,3 @@
-# AGENTS.md
-
 ## Purpose
 
 - Give agents and contributors concise, actionable guidance grounded in the PRD.
@@ -8,7 +6,7 @@
 ## Scope & Precedence
 
 - Scope: Entire repository (root-level). Applies to all code and docs.
-- Precedence: Direct user/developer instructions > AGENT.md > other docs.
+- Precedence: Direct user/developer instructions > AGENTS.md > other docs.
 
 ## Product Summary (from PRD)
 
@@ -20,11 +18,10 @@
 
 - Apps
   - Mobile (React Native + Expo): child + parent client.
-  - Edge API (Cloudflare Workers / TypeScript): monolith API, auth, upload URLs, job orchestration.
-  - AI Orchestration (Node.js + LangChain): generation, embeddings, PDF build.
+  - Edge API (Cloudflare Workers / TypeScript): monolith API, auth, upload URLs, job orchestration, generation pipeline (no separate LangChain service).
 - Data & Infra
   - D1: canonical relational data (users, children, curriculum, tasks, attempts, progress, jobs, assets metadata, subscriptions).
-  - Durable Objects (DO): ephemeral session state, WebSockets, buffering (strokes/attempts), locks.
+  - Durable Objects (DO): ephemeral session state, WebSockets, buffering (strokes/attempts), locks; also used for generation orchestration.
   - R2: binary assets (images, PDFs, stroke blobs).
   - Vectorize: embeddings for retrieval.
   - Firebase Auth: identity tokens only (mapped in D1).
@@ -33,9 +30,8 @@
 ## Repository Structure (expected)
 
 - apps/mobile — Expo app
-- apps/worker — Cloudflare Workers API (TypeScript)
-- apps/langchain — LangChain service (Node 18+)
-- packages/\* — shared types, utils, schema, ui, config
+- apps/worker — Cloudflare Workers API (TypeScript) including generation pipeline
+- packages/* — shared types, utils, schema, config
 - docs/prd — product docs (split per section)
 
 ## Languages, Tooling & Versions
@@ -70,9 +66,9 @@
   - POST /tasks/generate (enqueue)
   - GET /lessons/scheduled?child_id=
   - WebSocket via DO: attempt.create, stroke.delta, flush.request
-- Worker ↔ LangChain
-  - POST /langchain/generate → lesson/tasks + assets
-  - Callback /jobs/callback/langchain (HMAC-signed)
+- Worker (internal generation pipeline)
+  - Generation orchestrated via DO; outputs stored in R2; metadata in D1.
+  - Callback: POST /jobs/callback/generation (HMAC-signed)
 - DO ↔ Worker
   - /persist/attempts, /persist/strokes (idempotent)
 
@@ -81,7 +77,7 @@
 1. Define DO interface (messages, flush policy, idempotency keys).
 2. D1 schema (users, children, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions).
 3. R2 presigned upload and OCR stub wiring.
-4. LangChain generation job contract; store outputs in R2, metadata in D1.
+4. Generation job contract in Worker; store outputs in R2, metadata in D1.
 5. Minimal client flow: onboarding → create child → session start → attempt → flush → parent dashboard reads D1.
 
 ## Coding Conventions
@@ -90,13 +86,13 @@
 - Modules: keep functions pure; side effects isolated (API, DO handlers).
 - Errors: never throw raw; use typed error helpers; sanitize messages.
 - Logging: no PII; use IDs; log levels structured (debug/info/warn/error).
-- Config: .env.\* or Wrangler secrets; never commit secrets.
+- Config: .env.* or Wrangler secrets; never commit secrets.
 
 ## Testing Guidance
 
 - Unit: vitest for pure logic (schema, mappers, guards, prompts builders).
 - API: contract tests for key endpoints and auth guards.
-- DO: simulate message flows (attempt buffering, flush, idempotency).
+- DO: simulate message flows (attempt buffering, flush, idempotency, generation orchestration).
 - Snapshots: stable for schema/contract JSON where helpful.
 
 ## Definition of Done (feature)
@@ -121,7 +117,6 @@
 
 - Mobile: pnpm -w dev:mobile (Expo dev client)
 - Worker: pnpm -w dev:worker (wrangler dev)
-- LangChain: pnpm -w dev:langchain (Node server)
 - Shared packages build: pnpm -w build
 
 ## PR Checklist
@@ -143,3 +138,4 @@
 - docs/prd/data-requirements/README.md
 - docs/prd/security-plan/README.md
 - docs/prd/next-steps.md
+
