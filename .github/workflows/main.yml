@@ -1,13 +1,13 @@
-name: Lint
+name: Main
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  lint:
+  main:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,3 +28,5 @@ jobs:
       - name: Lint (exclude mobile)
         run: pnpm -w lint
 
+      - name: Run tests
+        run: pnpm -w test

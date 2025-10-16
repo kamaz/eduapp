@@ -7,7 +7,10 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "vitest run tests --passWithNoTests",
+    "test:watch": "vitest tests --passWithNoTests",
+    "test:coverage": "vitest run tests --coverage --passWithNoTests"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

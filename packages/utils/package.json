@@ -9,6 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "lint": "pnpm -w exec eslint . --ext .ts",
-    "test": "echo 'test utils'"
+    "test": "vitest run tests",
+    "test:watch": "vitest tests",
+    "test:coverage": "vitest run tests --coverage"
   }
 }
