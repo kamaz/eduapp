@@ -31,7 +31,7 @@
 
 - apps/mobile — Expo app
 - apps/worker — Cloudflare Workers API (TypeScript) including generation pipeline
-- packages/* — shared types, utils, schema, config
+- packages/\* — shared types, utils, schema, config
 - docs/prd — product docs (split per section)
 
 ## Languages, Tooling & Versions
@@ -87,7 +87,7 @@
 - Module system: ESM only across the repo. Use `export`/`import` syntax. Configs that need JS should be `.mjs` (or `.js` under a package with `"type": "module"`). Do not use CommonJS (`require`, `module.exports`).
 - Errors: never throw raw; use typed error helpers; sanitize messages.
 - Logging: no PII; use IDs; log levels structured (debug/info/warn/error).
-- Config: .env.* or Wrangler secrets; never commit secrets.
+- Config: .env.\* or Wrangler secrets; never commit secrets.
 
 ## Testing Guidance
 
@@ -119,6 +119,7 @@
 - Mobile: pnpm -w dev:mobile (Expo dev client)
 - Worker: pnpm -w dev:worker (wrangler dev)
 - Shared packages build: pnpm -w build
+- Clean: pnpm clean (removes all node_modules across workspaces, dist folders, and .turbo cache; run pnpm install afterwards)
 
 ## PR Checklist
 
@@ -127,6 +128,7 @@
 - Are inputs validated and outputs typed?
 - Are idempotency keys and rate limits applied where needed?
 - Are tests and docs updated?
+- Pre-commit: Husky + lint-staged must pass (ESLint/Prettier) before commit.
 
 ## References
 

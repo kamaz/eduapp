@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+# Run linting/formatting on staged files before commit
+pnpm lint-staged
+
