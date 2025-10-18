@@ -7,6 +7,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - apps/mobile — Expo app (child + parent)
 - apps/worker — Cloudflare Worker API and AI orchestration
 - packages/\* — shared types, utils, schema, ui, config
+- devtools/\* — local developer tools (e.g., Firebase Emulator)
 
 ## Requirements
 
@@ -19,6 +20,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - `pnpm dev` — run all dev servers (parallel)
 - `pnpm dev:mobile` — mobile app via Expo
 - `pnpm dev:worker` — worker via Wrangler
+- `pnpm dev:emulators` — start local dev emulators (Firebase Auth)
 - `pnpm build` — build all packages/apps
 - `pnpm lint` — run lint in all workspaces, including `apps/mobile`
 - `pnpm lint:fix` — run lint with auto-fix
@@ -44,6 +46,14 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - Avoid PII in logs/prompts; validate inputs; enforce auth on API routes.
 - Module system: ESM-only across the repo. Prefer `.mjs` for config files at the root.
 - Git hooks: Pre-commit runs ESLint/Prettier via Husky + lint-staged. Install hooks with `pnpm install` (runs `prepare`). To bypass in emergencies, use `--no-verify` (not recommended).
+
+## Devtools: Firebase Auth Emulator
+
+- Location: `devtools/firebase-emulator`
+- Start: `pnpm -w dev:emulators` (or `pnpm --filter @eduapp/firebase-emulator dev`)
+- UI: `http://127.0.0.1:4000`
+- Seed demo users: `pnpm --filter @eduapp/firebase-emulator seed`
+- Worker validation: ensure `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099` when validating tokens in dev.
 
 ## Migration note (LangChain consolidation)
 

@@ -118,6 +118,7 @@
 
 - Mobile: pnpm -w dev:mobile (Expo dev client)
 - Worker: pnpm -w dev:worker (wrangler dev)
+- Emulators: pnpm -w dev:emulators (Firebase Auth emulator)
 - Shared packages build: pnpm -w build
 - Clean: pnpm clean (removes all node_modules across workspaces, dist folders, and .turbo cache; run pnpm install afterwards)
 

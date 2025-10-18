@@ -5,6 +5,7 @@
 3. R2 presigned upload and OCR stub wiring
 4. Generation job contract in Worker; store outputs in R2; metadata in D1; HMAC callback `/jobs/callback/generation`
 5. Minimal client flow: onboarding → create child → session start → attempt → flush → parent dashboard reads D1
+6. Local dev: Firebase Auth Emulator wired for token validation
 
 ## Testing
 

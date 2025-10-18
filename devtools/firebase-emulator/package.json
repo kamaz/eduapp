@@ -1,0 +1,25 @@
+{
+  "name": "@eduapp/firebase-emulator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Firebase Emulator Suite for Auth (and optional Firestore/Storage) used for development.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm run start",
+    "start": "pnpm exec firebase emulators:start --project dev-eduapp --import ./emulator-data --export-on-exit",
+    "clean": "rimraf emulator-data && mkdir -p emulator-data",
+    "seed": "pnpm tsx src/seed.ts"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.31.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "rimraf": "^6.0.1"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0"
+  }
+}

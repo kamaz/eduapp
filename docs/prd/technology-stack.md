@@ -154,3 +154,9 @@
 - Google Cloud project.
 - GitHub repo + Actions, Turborepo/pnpm.
 - Sentry & Postmark/Resend accounts.
+
+### Local Emulators (Development)
+
+- Firebase Auth Emulator is provided in `devtools/firebase-emulator`.
+- Start via `pnpm -w dev:emulators`; UI at `http://127.0.0.1:4000`.
+- Workers validate emulator-issued ID tokens when `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099` is set.
