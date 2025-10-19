@@ -27,12 +27,12 @@ You can start developing by editing the files inside the **app** directory. This
 
 ## Firebase Auth (Email/Password) — Dev Wiring
 
-- The app initializes Firebase in `lib/firebase.ts` using config from `app.json > expo.extra.firebase`.
-- In development (`__DEV__`), it connects to the local Auth Emulator at `127.0.0.1:9099`.
-- Start the emulator first: `pnpm -w dev:emulators`.
+- The app configures Firebase in `lib/firebase.ts`. In development, if `app.json > expo.extra.useEmulators` is `true`, Auth connects to the emulator at `127.0.0.1:9099`.
+- Start the emulator: `pnpm -w dev:emulators`.
+- Auth modal route: `/auth` (presents as a modal). Toggle between “Sign in” and “Create account”.
 - Worker should validate emulator tokens (set `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`).
 
-Config location: `app.json` → `expo.extra.firebase` (for dev placeholders).
+Config location: `app.json` → `expo.extra.useEmulators` and `expo.extra.firebase` (placeholders for dev).
 
 ## Get a fresh project
 

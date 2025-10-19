@@ -39,6 +39,7 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <Link href="/modal">Open Modal</Link>
+        <Link href="/auth">Sign in / Register</Link>
 
         <ThemedText>
           {`Tap the Explore tab to learn more about what's included in this starter app.`}
