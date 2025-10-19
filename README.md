@@ -22,8 +22,15 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - `pnpm dev:worker` — worker via Wrangler
 - `pnpm dev:emulators` — start local dev emulators (Firebase Auth)
 - `pnpm build` — build all packages/apps
-- `pnpm lint` — run lint in all workspaces, including `apps/mobile`
-- `pnpm lint:fix` — run lint with auto-fix
+- `pnpm check` — run format check, lint, and tests
+- `pnpm check:fix` — run auto-fixes for format and lint
+- `pnpm check:format` — Prettier check across the repo
+- `pnpm check:format:fix` — Prettier write across the repo
+- `pnpm check:lint` — ESLint across workspaces
+- `pnpm check:lint:fix` — ESLint with auto-fix across workspaces
+- `pnpm check:test` — run tests across workspaces
+- `pnpm lint` — legacy alias used by Turbo tasks
+- `pnpm lint:fix` — legacy alias used by Turbo tasks
 - `pnpm clean` — remove all `node_modules` (workspace-wide), `dist` folders, and `.turbo` cache
 
 ## Clean
@@ -45,7 +52,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - Follow AGENTS.md for data rules, security, and testing.
 - Avoid PII in logs/prompts; validate inputs; enforce auth on API routes.
 - Module system: ESM-only across the repo. Prefer `.mjs` for config files at the root.
-- Git hooks: Pre-commit runs ESLint/Prettier via Husky + lint-staged. Install hooks with `pnpm install` (runs `prepare`). To bypass in emergencies, use `--no-verify` (not recommended).
+- Git hooks: Pre-commit runs staged ESLint/Prettier (lint-staged) and then `pnpm check` for full validation. Install hooks with `pnpm install` (runs `prepare`). To bypass in emergencies, use `--no-verify` (not recommended).
 
 ## Devtools: Firebase Auth Emulator
 

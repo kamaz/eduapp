@@ -3,4 +3,8 @@ dist
 build
 .turbo
 coverage
+apps/mobile/.expo
+apps/mobile/ios
+apps/mobile/android
+pnpm-lock.yaml
 

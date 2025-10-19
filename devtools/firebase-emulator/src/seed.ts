@@ -7,13 +7,14 @@
   Usage: pnpm seed
 */
 
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
+import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 
-const PROJECT_ID = process.env.FB_PROJECT_ID || 'dev-eduapp';
+const PROJECT_ID = process.env.FB_PROJECT_ID || 'dev-eduapp'
 
 // Point Admin SDK at the emulator without service account by providing minimal credentials.
-process.env.FIREBASE_AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099';
+process.env.FIREBASE_AUTH_EMULATOR_HOST =
+  process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099'
 
 // Initialize only once
 if (!getApps().length) {
@@ -25,31 +26,29 @@ if (!getApps().length) {
     }),
     projectId: PROJECT_ID,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+  } as any)
 }
 
-const auth = getAuth();
+const auth = getAuth()
 
 async function ensureUser(uid: string, email: string, displayName: string) {
   try {
-    await auth.getUser(uid);
+    await auth.getUser(uid)
 
-    console.log(`User exists: ${uid}`);
+    console.log(`User exists: ${uid}`)
   } catch {
-    await auth.createUser({ uid, email, emailVerified: true, displayName });
+    await auth.createUser({ uid, email, emailVerified: true, displayName })
 
-    console.log(`Created user: ${uid}`);
+    console.log(`Created user: ${uid}`)
   }
 }
 
 async function main() {
-  await ensureUser('parent_demo', 'parent@example.com', 'Parent Demo');
-  await ensureUser('child_demo', 'child@example.com', 'Child Demo');
+  await ensureUser('parent_demo', 'parent@example.com', 'Parent Demo')
+  await ensureUser('child_demo', 'child@example.com', 'Child Demo')
 }
 
 main().catch((err) => {
-
-  console.error(err);
-  process.exit(1);
-});
-
+  console.error(err)
+  process.exit(1)
+})

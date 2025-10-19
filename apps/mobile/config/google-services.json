@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "3450139533",
+    "project_id": "eduapp-e9e7c",
+    "storage_bucket": "eduapp-e9e7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3450139533:android:763c4da387c950001603c4",
+        "android_client_info": {
+          "package_name": "com.kamilzuzda.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDemBwneC0y5LjPvhJwWZ40jflFcyE3zDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

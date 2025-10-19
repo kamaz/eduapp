@@ -8,17 +8,24 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types",
     "lint": "pnpm -w exec eslint . --ext .ts",
+    "check:format": "pnpm -w exec prettier --check .",
+    "check:format:fix": "pnpm -w exec prettier --write .",
+    "check:lint": "pnpm run lint",
+    "check:lint:fix": "pnpm -w exec eslint . --ext .ts --fix",
+    "check:test": "pnpm run test",
+    "check": "pnpm run check:format && pnpm run check:lint && pnpm run check:test",
+    "check:fix": "pnpm run check:format:fix && pnpm run check:lint:fix",
     "test": "vitest run tests",
     "test:watch": "vitest tests",
     "test:coverage": "vitest run tests --coverage"
   },
   "dependencies": {
-    "chanfana": "^2.6.3",
-    "hono": "^4.6.20",
-    "zod": "^3.24.1"
+    "chanfana": "^2.8.3",
+    "hono": "^4.10.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "22.13.0",
+    "@types/node": "24.8.1",
     "@types/service-worker-mock": "^2.0.4",
     "wrangler": "^4.43.0"
   }

@@ -1,7 +1,7 @@
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import importPlugin from 'eslint-plugin-import';
-import vitestPlugin from 'eslint-plugin-vitest';
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import importPlugin from 'eslint-plugin-import'
+import vitestPlugin from 'eslint-plugin-vitest'
 
 export default [
   {
@@ -62,5 +62,4 @@ export default [
       globals: vitestPlugin.environments?.globals?.globals ?? {},
     },
   },
-];
-
+]

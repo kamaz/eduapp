@@ -2,7 +2,7 @@ export const flags = {
   experimental: {
     newFlows: false,
   },
-};
+}
 
 export const runtime = {
   worker: {
@@ -11,5 +11,4 @@ export const runtime = {
   langchain: {
     port: 8788,
   },
-};
-
+}

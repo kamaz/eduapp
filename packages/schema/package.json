@@ -9,6 +9,13 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "lint": "pnpm -w exec eslint . --ext .ts",
+    "check:format": "pnpm -w exec prettier --check .",
+    "check:format:fix": "pnpm -w exec prettier --write .",
+    "check:lint": "pnpm run lint",
+    "check:lint:fix": "pnpm -w exec eslint . --ext .ts --fix",
+    "check:test": "pnpm run test",
+    "check": "pnpm run check:format && pnpm run check:lint && pnpm run check:test",
+    "check:fix": "pnpm run check:format:fix && pnpm run check:lint:fix",
     "test": "vitest run tests",
     "test:watch": "vitest tests",
     "test:coverage": "vitest run tests --coverage"

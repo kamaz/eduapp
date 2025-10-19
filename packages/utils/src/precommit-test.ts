@@ -1,1 +1,1 @@
-export const precommitOk = 1;
+export const precommitOk = 1

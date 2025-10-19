@@ -13,6 +13,13 @@
     "dev:mobile": "turbo run dev --filter=mobile",
     "dev:worker": "turbo run dev --filter=worker",
     "dev:emulators": "turbo run dev --filter=@eduapp/firebase-emulator",
+    "check:format": "pnpm exec prettier --check .",
+    "check:format:fix": "pnpm exec prettier --write .",
+    "check:lint": "turbo run lint",
+    "check:lint:fix": "turbo run lint -- --fix",
+    "check:test": "turbo run test",
+    "check": "pnpm run check:format && pnpm run check:lint && pnpm run check:test",
+    "check:fix": "pnpm run check:format:fix && pnpm run check:lint:fix",
     "test": "turbo run test",
     "test:watch": "pnpm -r test:watch",
     "test:coverage": "pnpm -r test:coverage",
@@ -22,25 +29,25 @@
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'dist' -type d -prune -exec rm -rf '{}' + && rm -rf .turbo"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.12.2",
-    "@typescript-eslint/parser": "^8.12.2",
-    "eslint": "^9.25.0",
-    "eslint-config-prettier": "^9.1.2",
-    "eslint-plugin-import": "^2.31.0",
+    "@eslint/js": "^9.38.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-vitest": "^0.5.4",
-    "prettier": "^3.4.2",
-    "husky": "^9.1.6",
-    "lint-staged": "^15.2.10",
-    "turbo": "^2.2.3",
-    "typescript": "^5.6.3",
-    "typescript-eslint": "^8.12.2",
-    "@eslint/js": "^9.37.0",
-    "vitest": "^2.1.5",
-    "@vitest/coverage-v8": "^2.1.9"
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.8",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "pnpm exec eslint --fix --max-warnings 0"
+      "pnpm exec eslint --fix --no-warn-ignored --max-warnings 0"
     ],
     "*.{md,mdx,json,yml,yaml}": [
       "pnpm exec prettier --write"

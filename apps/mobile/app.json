@@ -9,7 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kamilzuzda.mobile",
+      "googleServicesFile": "./config/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +21,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kamilzuzda.mobile",
+      "googleServicesFile": "./config/google-services.json"
     },
     "web": {
       "output": "static",
@@ -38,11 +42,31 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "forceStaticLinking": ["RNFBApp"]
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "useEmulators": true,
+      "firebase": {
+        "apiKey": "dev-placeholder",
+        "authDomain": "localhost",
+        "projectId": "dev-eduapp",
+        "appId": "dev-eduapp-mobile"
+      }
     }
   }
 }

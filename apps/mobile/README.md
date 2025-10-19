@@ -25,6 +25,15 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Firebase Auth (Email/Password) — Dev Wiring
+
+- The app initializes Firebase in `lib/firebase.ts` using config from `app.json > expo.extra.firebase`.
+- In development (`__DEV__`), it connects to the local Auth Emulator at `127.0.0.1:9099`.
+- Start the emulator first: `pnpm -w dev:emulators`.
+- Worker should validate emulator tokens (set `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`).
+
+Config location: `app.json` → `expo.extra.firebase` (for dev placeholders).
+
 ## Get a fresh project
 
 When you're ready, run:

@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
-# Run linting/formatting on staged files before commit
+set -e
+
+# Format/lint staged files first for quick feedback
 pnpm lint-staged
 
+# Run full project checks (prettier check, eslint, and tests)
+pnpm -w check
