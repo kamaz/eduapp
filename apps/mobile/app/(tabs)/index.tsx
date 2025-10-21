@@ -1,11 +1,12 @@
 import { Image } from 'expo-image'
 import { Platform, StyleSheet } from 'react-native'
+import { Link } from 'expo-router'
 
 import { HelloWave } from '@/components/hello-wave'
+import AppHeader from '@/components/app-header'
 import ParallaxScrollView from '@/components/parallax-scroll-view'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
-import { Link } from 'expo-router'
 
 export default function HomeScreen() {
   return (
@@ -18,6 +19,7 @@ export default function HomeScreen() {
         />
       }
     >
+      <AppHeader title="Home" />
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
@@ -39,8 +41,6 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <Link href="/modal">Open Modal</Link>
-        <Link href="/auth">Sign in / Register</Link>
-
         <ThemedText>
           {`Tap the Explore tab to learn more about what's included in this starter app.`}
         </ThemedText>

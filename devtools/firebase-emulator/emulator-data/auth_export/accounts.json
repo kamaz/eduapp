@@ -1,1 +1,25 @@
-{ "kind": "identitytoolkit#DownloadAccountResponse", "users": [] }
+{
+  "kind": "identitytoolkit#DownloadAccountResponse",
+  "users": [
+    {
+      "localId": "PMrvfbUcceFh2TZpl1tL5PNFKTw5",
+      "lastLoginAt": "1760905904046",
+      "emailVerified": false,
+      "email": "kamilzuzda@gmail.com",
+      "salt": "fakeSaltn5yW1WLYCaSzrTrYNCEU",
+      "passwordHash": "fakeHash:salt=fakeSaltn5yW1WLYCaSzrTrYNCEU:password=Password1!",
+      "passwordUpdatedAt": 1760905892638,
+      "validSince": "1760905892",
+      "createdAt": "1760905892638",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "kamilzuzda@gmail.com",
+          "federatedId": "kamilzuzda@gmail.com",
+          "rawId": "kamilzuzda@gmail.com"
+        }
+      ],
+      "lastRefreshAt": "2025-10-19T20:31:44.046Z"
+    }
+  ]
+}

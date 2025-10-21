@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import 'react-native-reanimated'
 
 import { useColorScheme } from '@/hooks/use-color-scheme'
-import { AuthProvider } from '@/auth/auth-provider'
+import { AuthProvider, useAuth } from '@/auth/auth-provider'
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -16,13 +16,27 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          <Stack.Screen name="auth" options={{ presentation: 'modal', title: 'Sign in' }} />
-        </Stack>
+        <RootNavigation />
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
+  )
+}
+
+function RootNavigation() {
+  const { user } = useAuth()
+  console.log('what is user', user)
+  return (
+    <Stack>
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="account" options={{ presentation: 'modal', title: 'Account' }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="auth" />
+      </Stack.Protected>
+    </Stack>
   )
 }

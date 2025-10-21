@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, TextInput, View, Pressable, ActivityIndicator } from 'react-native'
 import { router } from 'expo-router'
 
@@ -11,12 +11,26 @@ import { validateEmail, validatePassword } from '@/auth/validators'
 type Mode = 'signIn' | 'signUp'
 
 export default function AuthModal() {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, user, initializing } = useAuth()
   const [mode, setMode] = useState<Mode>('signIn')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!initializing && user) {
+      router.replace('/(tabs)')
+    }
+  }, [initializing, user])
+
+  if (initializing || user) {
+    return (
+      <ThemedView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </ThemedView>
+    )
+  }
 
   async function onSubmit() {
     const emailErr = validateEmail(email)
@@ -33,7 +47,6 @@ export default function AuthModal() {
       } else {
         await signUp(email.trim(), password)
       }
-      router.back()
     } catch (e) {
       setError(mapAuthError(e))
     } finally {
@@ -121,6 +134,11 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 16,
     padding: 20,
+    justifyContent: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   title: {

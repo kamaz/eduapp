@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native'
 import { Tabs } from 'expo-router'
 import React from 'react'
 
@@ -34,3 +35,11 @@ export default function TabLayout() {
     </Tabs>
   )
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})
