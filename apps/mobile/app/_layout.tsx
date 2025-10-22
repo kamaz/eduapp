@@ -5,6 +5,7 @@ import 'react-native-reanimated'
 
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { AuthProvider, useAuth } from '@/auth/auth-provider'
+import { ChildrenProvider } from '@/children/children-provider'
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -16,7 +17,9 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <RootNavigation />
+        <ChildrenProvider>
+          <RootNavigation />
+        </ChildrenProvider>
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
