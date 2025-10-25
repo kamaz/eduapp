@@ -1,0 +1,70 @@
+%% Domain: Generation & Ingestion
+erDiagram
+    GENERATION_REQUESTS {
+        string id PK "ULID. Example: 01HGENREQABC"
+        string requested_by_user_id FK "FK → users.id (initiator)"
+        string target_child_id FK "FK → children.id (personalization subject, nullable)"
+        string source "upload|email|app_prompt|system. Example: upload"
+        string intent "create_lesson|create_tasks|augment_examples|ocr_only"
+        string notes "Optional short note/context"
+        string idempotency_key UK "Unique per (requested_by_user_id, source, intent). Example: 'email:msgid123'"
+        string status "pending|processing|completed|canceled|failed. Example: pending"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+        int completed_at "Epoch ms completed (nullable)"
+    }
+
+    REQUEST_ASSETS {
+        string id PK "ULID. Example: 01HREQASSETX"
+        string request_id FK "FK → generation_requests.id"
+        string asset_id FK "FK → assets.id"
+        string role "image|email|document|description|other"
+        int created_at "Epoch ms created"
+    }
+
+    JOBS {
+        string id PK "ULID. Example: 01HJOBABC"
+        string request_id FK "FK → generation_requests.id"
+        string child_id FK "FK → children.id (dedicated child context, nullable)"
+        string kind "generation|ocr|persist|email. Example: generation"
+        string status "queued|running|succeeded|failed|canceled. Example: queued"
+        string idempotency_key UK "Unique per (request_id, kind). Example: 'gen-01HGENREQABC'"
+        int run_at "Epoch ms scheduled run (nullable)"
+        int attempts "Retry count"
+        string input_asset_id FK "FK → assets.id (nullable, single main input)"
+        string output_asset_id FK "FK → assets.id (nullable)"
+        string error_asset_id FK "FK → assets.id (nullable)"
+        string error_code "Short code. Example: MODEL_TIMEOUT"
+        string error_message_redacted "Redacted message; no PII"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    JOB_STEPS {
+        string id PK "ULID. Example: 01HJOBSTEP1"
+        string job_id FK "FK → jobs.id"
+        string step_kind "ocr|extract|map|generate_tasks|schedule_lesson|persist"
+        string status "queued|running|succeeded|failed|skipped"
+        string input_asset_id FK "FK → assets.id (nullable)"
+        string output_asset_id FK "FK → assets.id (nullable)"
+        string error_code "Short code (nullable)"
+        string error_message_redacted "Redacted message; no PII (nullable)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    %% Relationships
+    USERS_REF_ONBOARDING ||--o{ GENERATION_REQUESTS : requested
+    CHILDREN_REF_ONBOARDING ||--o{ GENERATION_REQUESTS : targeted
+    GENERATION_REQUESTS ||--o{ REQUEST_ASSETS : inputs
+    ASSETS_REF_ONBOARDING ||--o{ REQUEST_ASSETS : asset
+
+    GENERATION_REQUESTS ||--o{ JOBS : enqueues
+    CHILDREN_REF_ONBOARDING ||--o{ JOBS : for_child
+    ASSETS_REF_ONBOARDING ||--o{ JOBS : input
+    ASSETS_REF_ONBOARDING ||--o{ JOBS : output
+    ASSETS_REF_ONBOARDING ||--o{ JOBS : error
+
+    JOBS ||--o{ JOB_STEPS : has
+    ASSETS_REF_ONBOARDING ||--o{ JOB_STEPS : step_input
+    ASSETS_REF_ONBOARDING ||--o{ JOB_STEPS : step_output

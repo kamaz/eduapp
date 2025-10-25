@@ -7,7 +7,7 @@
 - Large binary assets → store in Cloudflare R2 (images, PDFs, stroke blobs). D1/DO store references/IDs.
 - Embeddings & semantic retrieval → store in Cloudflare Vectorize (embeddings + metadata pointing to topic/lesson IDs).
 - Auth / Identity → Firebase Auth (tokens only). D1 stores firebase_uid mapping.
-- AI orchestration → LangChain svc uses Vectorize + returns task JSON / printable HTML; Worker persists results.
+- AI orchestration → Workers monolith uses Vectorize + orchestrates generation; persists results to D1/R2.
 
 ## What to store (by category & location)
 
@@ -87,7 +87,7 @@
 
 - Where: Cloudflare Vectorize (+ metadata in D1 referencing vector IDs)
 - What: embedding vectors, source text snippet ID, topic_id, content_type, created_at, model_version
-- Purpose: semantic retrieval for LangChain to generate contextually relevant exercises
+- Purpose: semantic retrieval for generation to produce contextually relevant exercises
 
 ### Scheduled Lessons & Job Metadata
 
@@ -105,8 +105,8 @@
 
 On ingestion
 
-- OCR on uploaded images → extract text (LangChain/OCR), write OCR summary to assets.meta_json in D1.
-- Create embeddings from generated or ingested text → upsert to Vectorize (LangChain svc).
+- OCR on uploaded images → extract text (OCR), write OCR summary to assets.meta_json in D1.
+- Create embeddings from generated or ingested text → upsert to Vectorize (Worker pipeline).
 
 In DO (real-time)
 
@@ -121,7 +121,7 @@ Batch / Cron
 
 AI
 
-- LangChain uses curriculum snippets (Vectorize) + child preferences + progress snapshot to generate tasks and printable HTML/PDF.
+- Generation pipeline uses curriculum snippets (Vectorize) + child preferences + progress snapshot to generate tasks and printable HTML/PDF.
 
 Sync
 
@@ -194,7 +194,7 @@ Client → Worker
 - DELETE /children/:id/share/:membership_id → revoke access (cannot remove Primary; only Primary can remove Parents)
 - POST /assets/upload-url → returns presigned R2 URL (Worker)
 - POST /assets/notify → Worker stores metadata in D1 and enqueues OCR (if required)
-- POST /tasks/generate → Worker enqueues LangChain generation job
+- POST /generation/requests → Worker creates GENERATION_REQUEST (idempotent) and enqueues internal job
 - GET /lessons/scheduled?child_id= → D1 read
 - POST /attempts → prefer via DO (WebSocket) message: attempt.create OR HTTP fallback to Worker (which writes to DO buffer)
 
@@ -213,10 +213,10 @@ DO ↔ Worker
 - POST /persist/attempts → Worker persists buffered attempts to D1
 - POST /persist/strokes → Worker stores stroke blob to R2 and writes assets row in D1
 
-Worker ↔ LangChain
+Generation pipeline (internal in Workers)
 
-- POST /langchain/generate → returns lesson + asset payload (LangChain writes to R2 or returns asset HTML)
-- LangChain calls Worker callback /jobs/callback/langchain on completion (HMAC-signed)
+- DO orchestrates steps: ocr → extract → map → generate_tasks → schedule_lesson → persist
+- Status exposed via D1 rows (GENERATION_REQUESTS/JOBS/JOB_STEPS); no external callbacks required
 
 ## Security / access control considerations
 

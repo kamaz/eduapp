@@ -63,7 +63,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - Seed demo users: `pnpm --filter @eduapp/firebase-emulator seed`
 - Worker validation: ensure `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099` when validating tokens in dev.
 
-## Migration note (LangChain consolidation)
+## Migration note (Generation consolidation)
 
-- The standalone LangChain service has been removed from the architecture. Generation now runs inside the Worker with Durable Objects orchestration.
-- Callback route renamed to `POST /jobs/callback/generation` (HMAC-signed). If you previously targeted `/jobs/callback/langchain`, update your clients/webhooks.
+- The standalone generation service has been removed. Generation now runs inside the Worker with Durable Objects orchestration.
+- No external callbacks are required for generation; status is persisted in D1 (GENERATION_REQUESTS/JOBS/JOB_STEPS).

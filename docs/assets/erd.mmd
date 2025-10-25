@@ -145,24 +145,7 @@ erDiagram
         INTEGER updated_at
     }
 
-    JOBS {
-        TEXT id PK
-        TEXT kind  "generation|ocr|persist|email"
-        TEXT status  "queued|running|succeeded|failed|canceled"
-        TEXT child_id FK
-        TEXT idempotency_key "UNIQUE_SCOPE"
-        INTEGER run_at
-        INTEGER attempts
-        INTEGER run_at
-        INTEGER attempts
-        TEXT input_asset_id FK
-        TEXT output_asset_id FK
-        TEXT error_asset_id FK
-        TEXT error_code
-        TEXT error_message_redacted
-        INTEGER created_at
-        INTEGER updated_at
-    }
+    %% Generation & ingestion entities are modeled in docs/assets/erd-generation.mmd
 
 
     %% Relationships (one-to-many where possible)
@@ -188,10 +171,7 @@ erDiagram
     USERS ||--o{ ACCESS_REQUESTS : "requests"
     USERS ||--o{ ACCESS_REQUESTS : "targets" 
 
-    CHILDREN ||--o{ JOBS : "related"
-    ASSETS ||--o{ JOBS : "input"
-    ASSETS ||--o{ JOBS : "output"
-    ASSETS ||--o{ JOBS : "error"
+    %% See erd-generation.mmd for JOBS and related relationships
 
     %% Asset references from attempts
     ASSETS ||--o{ ATTEMPTS : "answer_asset"
@@ -200,5 +180,4 @@ erDiagram
     %% Additional user relationships
     USERS ||--o{ TASKS : "created_by (optional)"
     USERS ||--o{ CHILD_ACCESS : "invited_by (optional)"
-
 

@@ -1,84 +1,53 @@
 %% Domain: Task & Lessons Creation
 erDiagram
     CURRICULUM_TOPICS {
-        string id
-        string subject
-        string code
-        string title
-        string description
-        string prerequisites_json
-        string grade_band
-        int created_at
+        string id PK "ULID. Example: 01HCURRABC"
+        string subject "Subject key. Example: maths"
+        string code UK "Curriculum code. Example: MATH.KS2.N1"
+        string title "Short title. Example: Place Value"
+        string description "Long description (optional)"
+        string prerequisites_json "JSON array of topic codes/ids. Example: ['MATH.KS1.N3']"
+        string grade_band "KS1|KS2|KS3. Example: KS2"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
     }
 
     TASKS {
-        string id
-        string topic_id
-        string title
-        string style
-        int difficulty
-        string definition_asset_id
-        string created_by
-        string created_by_user_id
-        string status
-        int created_at
+        string id PK "ULID. Example: 01HTASKABC"
+        string topic_id FK "FK → curriculum_topics.id"
+        string title "Task title. Example: Add two-digit numbers"
+        string style "story|visual|puzzle|experiment. Example: visual"
+        int difficulty "1..5 (relative difficulty). Example: 3"
+        string definition_asset_id FK "FK → assets.id (task definition JSON/PDF)"
+        string created_by "ai|user. Example: ai"
+        string created_by_user_id FK "FK → users.id (nullable if ai)"
+        string status "active|archived. Example: active"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
     }
 
-    ASSETS {
-        string id
-        string owner_child_id
-        string type
-        string r2_bucket
-        string r2_key
-        string mime_type
-        int size_bytes
-        string checksum_sha256
-        int created_at
-    }
-
-    JOBS {
-        string id
-        string kind
-        string status
-        string child_id
-        string idempotency_key
-        int run_at
-        int attempts
-        string input_asset_id
-        string output_asset_id
-        string error_asset_id
-        string error_code
-        string error_message_redacted
-        int created_at
-        int updated_at
-    }
+    %% USERS and ASSETS are defined in onboarding ERD; referenced here only.
 
     SCHEDULED_LESSONS {
-        string id
-        string child_id
-        string topic_id
-        string task_id
-        int scheduled_for
-        string source
-        string status
-        string notes
-        int created_at
-        int updated_at
+        string id PK "ULID. Example: 01HSCHEDABC"
+        string child_id FK "FK → children.id"
+        string topic_id FK "FK → curriculum_topics.id"
+        string task_id FK "FK → tasks.id (nullable, when specific task chosen)"
+        int scheduled_for "Epoch ms scheduled start"
+        string source "system|parent|tutor. Example: system"
+        string status "scheduled|completed|canceled|expired. Example: scheduled"
+        string notes "Optional short note"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
     }
 
-    USERS {
-        string id
-        string display_name
-    }
-
+    %% Relationships
     CURRICULUM_TOPICS ||--o{ TASKS : has
-    USERS ||--o{ TASKS : created_by
-    ASSETS ||--o{ TASKS : definition
+    USERS_REF_ONBOARDING ||--o{ TASKS : created_by
+    ASSETS_REF_ONBOARDING ||--o{ TASKS : definition
 
+    CHILDREN_REF_ONBOARDING ||--o{ SCHEDULED_LESSONS : scheduled
     CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : for
     TASKS ||--o{ SCHEDULED_LESSONS : specific
 
-    ASSETS ||--o{ JOBS : input
-    ASSETS ||--o{ JOBS : output
-    ASSETS ||--o{ JOBS : error
-
+    %% Generation jobs are modeled in docs/assets/erd-generation.mmd

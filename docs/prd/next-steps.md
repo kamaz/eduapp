@@ -1,9 +1,9 @@
 # Next Steps (MVP)
 
 1. Define DO interface (messages, flush policy, idempotency keys)
-2. D1 schema (users, children, child_access [with is_primary_parent], access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions)
+2. D1 schema (users, children, child_access [with is_primary_parent], access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, generation_requests, request_assets, jobs, job_steps, subscriptions)
 3. R2 presigned upload and OCR stub wiring
-4. Generation job contract in Worker; store outputs in R2; metadata in D1; HMAC callback `/jobs/callback/generation`
+4. Generation & ingestion pipeline in Worker; store outputs in R2; metadata in D1 (GENERATION_REQUESTS/JOBS/JOB_STEPS); no external callbacks
 5. Minimal client flow: onboarding → create child (Primary) → share child (parent/tutor/teacher/family) → session start → attempt → flush → parent dashboard reads D1
 6. Local dev: Firebase Auth Emulator wired for token validation
 

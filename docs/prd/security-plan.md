@@ -59,10 +59,10 @@ Access requests by non‑primary personas (must)
 
 ### Network & Transport Security
 
-- TLS everywhere: HTTPS/TLS enforced for all client ↔ Worker and Worker ↔ LangChain/third-party communications.
+- TLS everywhere: HTTPS/TLS enforced for all client ↔ Worker and Worker ↔ third-party provider communications.
 - Hardened endpoints: Rate limits, API keys, and request validation on all endpoints.
 - Private secrets: All service keys kept in CI secrets and Cloudflare KV where appropriate; never checked into repo.
-- Service-to-service auth: HMAC-signed callbacks (LangChain → Worker), mutual TLS or API keys for internal calls.
+- Service-to-service auth: HMAC-signed callbacks (for webhooks/providers), mutual TLS or API keys for external calls.
 
 ### Data protection (storage & processing)
 
@@ -137,7 +137,7 @@ Sensitive fields & minimisation
 
 ### Third-party risk management
 
-- Vendor list: Firebase (Auth), Cloudflare (Workers, D1, R2, Vectorize), LangChain + LLM provider (OpenAI), Stripe, Postmark/Resend, Google Vision (OCR) or Tesseract fallback.
+- Vendor list: Firebase (Auth), Cloudflare (Workers, D1, R2, Vectorize), LLM provider (e.g., OpenAI), Stripe, Postmark/Resend, Google Vision (OCR) or Tesseract fallback.
 - Controls: maintain vendor inventory, SLAs, data processing agreements (DPA), and ensure LLM provider DPA covers use of child-related data (if using for embeddings or prompts).
 - Minimum data sharing: send minimal, non-identifiable data to vendors when possible.
 
@@ -185,6 +185,6 @@ Create a short incident response doc with contacts, escalation, and template not
 
 ### Quick templates & examples (to hand to engineers)
 
-- HMAC callback verification: LangChain → Worker callbacks must include X-Signature header (HMAC-SHA256 of payload using shared secret). Worker verifies before processing.
+- HMAC callback verification: third-party callbacks (for example, Stripe or email provider webhooks) must include X-Signature header (HMAC-SHA256 of payload using shared secret). Worker verifies before processing.
 - Idempotency header: clients include X-Idempotency-Key for attempt submissions; Worker/D1 enforces uniqueness.
 - Session token: Worker returns do_session_token = HMAC(user_id|child_id|exp) for DO join; DO verifies signature and expiry.

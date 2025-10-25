@@ -25,17 +25,17 @@
                 │ Auth Validation (Firebase Tokens)          │
                 └──────────────────────┬─────────────────────┘
                                        │
-                ┌──────────────────────┴───────────────────-──┐
-                │      AI & ORCHESTRATION SERVICES (LangChain)│
-                │──────────────────────────────────────────-──│
-                │ Node.js / LangChain                         │
-                │ Prompt Templates & Lesson Generation        │
-                │ Curriculum Embeddings via Vectorize         │
-                │ AI-driven Personalisation Logic             │
-                └──────────────┬──────────────┬────────────-──┘
-                               │              │
-               Embeddings/API  │              │ Asset Gen (PDF/Image)
-                               │              ▼
+                ┌──────────────────────┴──────────────────────┐
+                │      AI & ORCHESTRATION (Within Workers)    │
+                │─────────────────────────────────────────────│
+                │ Generation pipeline (Durable Objects)        │
+                │ Prompt templates & lesson/task generation    │
+                │ Curriculum embeddings via Vectorize          │
+                │ Personalisation logic                        │
+                └─────────────────────────────────────────────┘
+                               │
+                         Embeddings/API
+                               │
                 ┌──────────────┴──────────────┴──────────────┐
                 │         DATA & STORAGE LAYER               │
                 │────────────────────────────────────────────│
@@ -59,7 +59,7 @@
 - D1: serverless relational store close to Workers for curriculum and progress.
 - R2: low-cost, S3-compatible storage for uploaded images and printable PDFs.
 - Cloudflare Vectorize: edge-native vector search for semantic retrieval.
-- LangChain Service: keeps LLM orchestration out of Workers, where heavier processing and stateful chains are easier to manage.
+- Workers monolith: orchestrates generation/ingestion without a separate LangChain service; DOs coordinate steps and state.
 - Firestore: delegated auth (Firebase Auth), Workers validate tokens — keeps identity simple.
 - Durable Objects + WebSocket: live review, preview and lightweight coordination (locks, small queues).
 - Cron Triggers: scheduled background jobs to refresh profiles and schedule lessons.
@@ -82,7 +82,7 @@
 
 ### AI Orchestration
 
-- Node.js-based LangChain service for orchestration and generation.
+- Cloudflare Workers monolith orchestrates generation and ingestion using Durable Objects for multi-step flows.
 - Uses Vectorize for embeddings and retrieval.
 
 ### Data & Storage
@@ -106,18 +106,17 @@
 
 ### Observability, Testing & CI/CD
 
-- Repo / monorepo: pnpm + Turborepo (with pnpm workspaces). Structure: `/apps/mobile`, `/apps/worker`, `/apps/langchain`, `/packages/*`.
+- Repo / monorepo: pnpm + Turborepo (with pnpm workspaces). Structure: `/apps/mobile`, `/apps/worker`, `/packages/*`.
 - Version control & CI: GitHub + GitHub Actions for lint, vitest, build, deploy.
-- Monitoring & errors: Cloudflare Analytics + Sentry (LangChain service + RN app).
+- Monitoring & errors: Cloudflare Analytics + Sentry (Workers + RN app).
 - Feature flags: Durable Objects or lightweight JSON in KV for MVP toggles.
 - E2E testing: Playwright (if web later) or Detox for RN if needed.
 
 ### Dev / Hosting & Deployment
 
 - Workers: Cloudflare Workers via Wrangler + GitHub Actions.
-- LangChain service host: Render / Fly / Railway / Vercel (server choice depends on concurrency needs; Render is simple).
-- CI/CD pipeline: GH Actions build → tests → deploy Workers (wrangler) & LangChain svc (auto-deploy).
-- Local dev: Expo dev client for RN; wrangler dev for Workers; local LangChain dev server.
+- CI/CD pipeline: GH Actions build → tests → deploy Workers (wrangler).
+- Local dev: Expo dev client for RN; wrangler dev for Workers.
 
 ### Security, Privacy & Compliance
 
@@ -131,7 +130,7 @@
 
 - React Native & Expo: latest stable RN + Expo SDK (use Expo SDK 48+ depending on release).
 - React Native Skia: @shopify/react-native-skia (match RN/Expo compatibility).
-- LangChain: LangChain.js (latest stable), Node 18+.
+- LLM client: Workers-compatible HTTP client or Workers AI.
 - Workers: TypeScript target compatible with Wrangler2.
 - Cloud SDKs: Cloudflare Workers SDK, Cloudflare Vectorize client, R2 SDK helpers.
 - OCR: Google gemini flash model or Google Cloud Vision client.
@@ -139,8 +138,7 @@
 
 ### Trade-offs & rationale (short)
 
-- Monolith Workers keeps operations simple and low-friction early; Durable Objects handle needed stateful pieces (websockets & locks).
-- LangChain separate svc avoids heavy LLM logic in Workers (bundle/runtime issues) while allowing complex chains and 3rd-party SDKs.
+- Monolith Workers keeps operations simple and low-friction early; Durable Objects handle needed stateful pieces (websockets, locks, orchestration).
 - Cloudflare-first stack (D1 / R2 / Vectorize) reduces network latency and vendor sprawl; Vectorize gives edge vector search.
 - Firestore for auth centralises identity with a mature provider; D1 remains canonical for learning data to avoid coupling.
 - Google Vision OCR gives best accuracy out of the box — faster to pilot; Tesseract is cheaper but less accurate (fallback).
@@ -149,7 +147,7 @@
 
 - Cloudflare account with: Workers, Durable Objects, D1, R2, Vectorize, KV, Cron Triggers.
 - Firebase project (Auth only).
-- LangChain service hosting (Render / Fly) + domain / TLS.
+- (No separate LangChain service to provision.)
 - Stripe account + webhook endpoints.
 - Google Cloud project.
 - GitHub repo + Actions, Turborepo/pnpm.
