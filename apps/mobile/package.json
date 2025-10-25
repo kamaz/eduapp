@@ -5,6 +5,7 @@
   "scripts": {
     "_dev": "expo start// we can't use because firebase auth requires compiled version",
     "dev": "expo run:ios",
+    "dev:ios:device": "expo run:ios --device 00008150-001231D42198401C",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",

@@ -62,6 +62,18 @@ Tracks completed activities, learning gaps, and progress trends.
 
 - Gentle reminders for breaks, hydration, and rest balance.
 
+### Child Primary Parent & Sharing
+
+- Only a Parent can create a Child profile.
+- The Parent who creates the Child becomes the Primary (initial parent) for that Child.
+- The Primary can:
+  - Share the Child with other Parents (grant or revoke management for them).
+  - Share the Child with Tutors, Teachers, and Family members (viewer or contributor access).
+- Non-primary Parents cannot remove the Primary, and cannot change other Parents’ management rights.
+- Any Parent (Primary or invited Parent) may share with Tutors/Teachers/Family (viewer/contributor) unless the Primary restricts this in settings.
+- The Primary can revoke management rights from other Parents and revoke access for any non-parent persona at any time.
+- All shares are auditable; invitations are idempotent by target user and child.
+
 ## System & AI
 
 ### UK National Curriculum Graph
@@ -131,6 +143,17 @@ Tracks engagement, learning gains, and parental satisfaction for iteration.
   - Suggested next exercises.
   - Gentle reminders for wellbeing breaks.
 - Event-based notification rules (e.g., “new worksheet available” or “review ready”).
+
+### 📨 Access Requests (Non‑Primary Personas)
+
+- Any non‑primary persona (Tutor, Teacher, Family, or another Parent) can initiate a request to the Primary Parent to gain access to a Child.
+- If the Primary Parent already has an account: send an in‑app notification and an email with accept/decline links.
+- If the Primary Parent is not yet on the system (pre‑onboarding case): send an email with a secure invite link and instructions to create an account and enroll their Child.
+- The Primary Parent remains in full control: only the Primary can create the Child and approve role + access level.
+- On acceptance:
+  - Parent role → invited as Parent with viewer/contributor, and optionally manager (Primary decides; non‑primary Parents can never remove the Primary).
+  - Tutor/Teacher/Family roles → invited with viewer or contributor (manager not applicable).
+  - System creates or updates `child_access` accordingly.
 
 ### 🔐 Data & Security
 

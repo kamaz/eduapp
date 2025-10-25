@@ -1,0 +1,204 @@
+erDiagram
+    USERS {
+        TEXT id PK
+        TEXT firebase_uid UNIQUE
+        TEXT email UNIQUE
+        TEXT display_name
+        TEXT role  "parent|admin"
+        TEXT billing_customer_id
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    CHILDREN {
+        TEXT id PK
+        TEXT primary_parent_user_id FK
+        TEXT alias
+        INTEGER dob_year
+        INTEGER dob_month
+        TEXT preferences_json
+        TEXT consent_json
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    CHILD_ACCESS {
+        TEXT id PK
+        TEXT child_id FK
+        TEXT user_id FK
+        TEXT persona_role  "parent|tutor|teacher|family"
+        TEXT access_level  "viewer|contributor|manager"
+        INTEGER is_manager  "0|1"
+        TEXT invited_by_user_id FK
+        INTEGER revoked_at
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    CURRICULUM_TOPICS {
+        TEXT id PK
+        TEXT subject
+        TEXT code
+        TEXT title
+        TEXT description
+        TEXT prerequisites_json
+        TEXT grade_band
+        INTEGER created_at
+    }
+
+    TASKS {
+        TEXT id PK
+        TEXT topic_id FK
+        TEXT title
+        TEXT style
+        INTEGER difficulty
+        TEXT definition_asset_id FK
+        TEXT created_by  "ai|user"
+        TEXT created_by_user_id FK
+        TEXT status  "active|archived"
+        INTEGER created_at
+    }
+
+    ATTEMPTS {
+        TEXT id PK
+        TEXT child_id FK
+        TEXT task_id FK
+        TEXT attempt_client_id "UNIQUE_SCOPE"
+        TEXT source  "digital|printed"
+        TEXT answer_asset_id FK
+        TEXT strokes_asset_id FK
+        REAL score
+        REAL presentation_score
+        INTEGER correct  "0|1"
+        TEXT summary_json
+        INTEGER duration_ms
+        INTEGER created_at
+    }
+
+    PROGRESS {
+        TEXT id PK
+        TEXT child_id FK
+        TEXT topic_id FK
+        REAL mastery  "0..1"
+        INTEGER attempts_count
+        INTEGER last_practiced_at
+        TEXT history_json
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    SCHEDULED_LESSONS {
+        TEXT id PK
+        TEXT child_id FK
+        TEXT topic_id FK
+        TEXT task_id FK
+        INTEGER scheduled_for
+        TEXT source  "system|parent|tutor"
+        TEXT status  "scheduled|completed|canceled|expired"
+        TEXT notes
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    ASSETS {
+        TEXT id PK
+        TEXT owner_child_id FK
+        TEXT type  "image|pdf|stroke_blob|task_definition|ocr_text"
+        TEXT r2_bucket
+        TEXT r2_key
+        TEXT mime_type
+        INTEGER size_bytes
+        TEXT checksum_sha256
+        INTEGER created_at
+    }
+
+    
+
+    ACCESS_REQUESTS {
+        TEXT id PK
+        TEXT requester_user_id FK
+        TEXT target_parent_user_id FK
+        TEXT target_parent_email
+        TEXT desired_persona_role  "parent|tutor|teacher|family"
+        TEXT desired_access_level  "viewer|contributor|manager"
+        TEXT status  "pending|accepted|declined|expired|canceled"
+        TEXT token
+        INTEGER expires_at
+        TEXT message
+        INTEGER created_at
+        INTEGER updated_at
+        INTEGER acted_at
+        TEXT acted_by_user_id FK
+    }
+
+    SUBSCRIPTIONS {
+        TEXT id PK
+        TEXT user_id FK
+        TEXT provider  "stripe"
+        TEXT provider_customer_id
+        TEXT provider_subscription_id
+        TEXT plan_id
+        TEXT status  "trialing|active|past_due|canceled|incomplete|incomplete_expired"
+        INTEGER current_period_end
+        INTEGER cancel_at_period_end  "0|1"
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    JOBS {
+        TEXT id PK
+        TEXT kind  "generation|ocr|persist|email"
+        TEXT status  "queued|running|succeeded|failed|canceled"
+        TEXT child_id FK
+        TEXT idempotency_key "UNIQUE_SCOPE"
+        INTEGER run_at
+        INTEGER attempts
+        INTEGER run_at
+        INTEGER attempts
+        TEXT input_asset_id FK
+        TEXT output_asset_id FK
+        TEXT error_asset_id FK
+        TEXT error_code
+        TEXT error_message_redacted
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+
+    %% Relationships (one-to-many where possible)
+    USERS ||--o{ CHILDREN : "primary_parent"
+    USERS ||--o{ CHILD_ACCESS : "has"
+    CHILDREN ||--o{ CHILD_ACCESS : "memberships"
+
+    CURRICULUM_TOPICS ||--o{ TASKS : "has"
+    CHILDREN ||--o{ ATTEMPTS : "has"
+    TASKS ||--o{ ATTEMPTS : "attempts"
+
+    CHILDREN ||--o{ PROGRESS : "has"
+    CURRICULUM_TOPICS ||--o{ PROGRESS : "tracked"
+
+    CHILDREN ||--o{ SCHEDULED_LESSONS : "scheduled"
+    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : "for"
+    TASKS ||--o{ SCHEDULED_LESSONS : "specific"
+
+    CHILDREN ||--o{ ASSETS : "owns (optional)"
+
+    USERS ||--o{ SUBSCRIPTIONS : "has"
+
+    USERS ||--o{ ACCESS_REQUESTS : "requests"
+    USERS ||--o{ ACCESS_REQUESTS : "targets" 
+
+    CHILDREN ||--o{ JOBS : "related"
+    ASSETS ||--o{ JOBS : "input"
+    ASSETS ||--o{ JOBS : "output"
+    ASSETS ||--o{ JOBS : "error"
+
+    %% Asset references from attempts
+    ASSETS ||--o{ ATTEMPTS : "answer_asset"
+    ASSETS ||--o{ ATTEMPTS : "strokes_asset"
+
+    %% Additional user relationships
+    USERS ||--o{ TASKS : "created_by (optional)"
+    USERS ||--o{ CHILD_ACCESS : "invited_by (optional)"
+
+

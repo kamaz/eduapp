@@ -26,15 +26,36 @@ Design
 
 - Auth provider: Firebase Auth (client). Worker validates Firebase ID tokens on every request.
 - Role model: parent, child (no direct auth), tutor/teacher (later), admin.
-- Mapping: D1 stores firebase_uid → user_id mapping. All D1 reads/writes filter by parent_user_id.
+- Mapping: D1 stores firebase_uid → user_id mapping. Tenant boundary anchored to children.primary_parent_user_id with per-child membership via child_access.
 
 Controls
 
 - Token validation: Workers validate JWT signatures & exp; reject tokens with missing claims.
-- Least privilege: APIs enforce authorization (owner-only access to children). No cross-tenant reads.
+- Least privilege: APIs enforce authorization (primary-only access to children). No cross-tenant reads.
 - Short-lived session tokens for DO WebSocket sessions issued by Worker (signed, TTL).
 - Admin access: MFA required for admin accounts; admin actions audited.
 - Password rules / MFA: Encourage/require strong passwords; support MFA for parents (recommendation).
+
+Child primary parent & sharing policy (must)
+
+- Only a Parent can create a Child; creator becomes Primary (children.primary_parent_user_id).
+- child_access controls who can see a Child: user_id, persona_role (parent|tutor|teacher|family), access_level (viewer|contributor|manager), is_primary_parent (boolean).
+- Only Primary can:
+  - Invite/remove Parents.
+  - Grant/revoke Parent management rights (manager).
+  - Restrict whether invited Parents can share with non-parent personas.
+- Non-primary Parents cannot remove the Primary and cannot adjust other Parents’ management rights.
+- Parents (Primary or invited) may invite/remove Tutor/Teacher/Family as viewer/contributor unless Primary restricts.
+- All membership mutations are audited and idempotent (e.g., X-Idempotency-Key) and subject to rate limits.
+
+Access requests by non‑primary personas (must)
+
+- Only authenticated requesters (Parent/Tutor/Teacher/Family) may send access requests; enforce per‑requester rate limits and domain throttling.
+- Emails contain a short‑lived, single‑use token (HMAC‑signed) to a secure acceptance page.
+- If Primary Parent exists: require in‑app confirmation by the Primary account; email is informational and a fallback.
+- If Primary Parent does not exist: acceptance link drives onboarding; Primary must create account and explicitly create/select a Child before granting access.
+- No requester gains access unless the Primary accepts; acceptance grants `child_access` with least privilege (viewer by default; Parent may be upgraded by Primary to contributor/manager).
+- Audit all requests (created/accepted/declined/expired) and email deliveries (provider message ID) for abuse monitoring.
 
 ### Network & Transport Security
 
@@ -58,8 +79,8 @@ In transit
 
 Sensitive fields & minimisation
 
-- Store minimal PII (alias, DOB optional). Keep email only in users.
-- Wearable/health data stored only with explicit parental consent; flag in D1 preferences_json.
+- Store minimal PII (alias, DOB optional). Children may include given_name/family_name/preferred_name/short_name/nickname if provided; internal child email is for routing only (no external delivery). Keep parent email only in users.
+- Wearable/health data stored only with explicit parental consent; enforce via latest effective event in `consent_records` (type: wearables). Do not rely on flags embedded in child records.
 - For audits, avoid logging raw images or stroke blobs; log references/IDs only.
 
 ### Durable Objects & Live Data Controls
@@ -76,6 +97,7 @@ Sensitive fields & minimisation
 - Image handling: validate image MIME types and size limits; process images in trusted worker environment; scan for malware if necessary.
 - Prompt safety: sanitize any user-provided text before sending to LLM. Separate child-specific data and avoid placing other children’s PII in prompts.
 - Rate limiting: per-user and global quotas on generation requests to prevent LLM abuse and cost spikes.
+- Anti‑abuse for invitations: strict caps on access requests per requester per time window, validation of email domains, and content sanitization.
 
 ### AI & LLM-specific controls
 
@@ -93,7 +115,7 @@ Sensitive fields & minimisation
 
 ### Logging, monitoring & auditability
 
-- Audit logs: write jobs and key admin events to D1; store security-relevant events in an append-only log with timestamps (or use external log service).
+- Audit logs: write jobs, membership changes (child_access invites/revokes), and key admin events to D1; store security-relevant events in an append-only log with timestamps (or use external log service).
 - Error monitoring: Sentry for server and client; Cloudflare Analytics for edge metrics.
 - Alerting: alerts for failed DO flush rates, repeated auth failures, high LLM spend, or R2 failures.
 - Retention: keep security logs for at least 90 days; longer if required by policy.
@@ -107,7 +129,7 @@ Sensitive fields & minimisation
 
 ### Privacy, consent & regulatory
 
-- Parental consent: required during onboarding; store consent record (timestamp, scope) in D1 children.preferences_json.
+- Parental consent: captured as audited events in `consent_records` per (user_id, child_id, consent_type) with action (granted|revoked), policy version, optional scope/reason, and timestamp. Use latest effective event to determine consent. No consent stored on `children`.
 - COPPA: treat children under 13 as minors — require parental approval for account, prevent direct child signup, limit third-party data sharing.
 - GDPR: fulfil rights — data access, export, correction, deletion. Provide automated export endpoint for parents. Log deletion actions.
 - Data minimisation: default opt-out for telemetry/wearable data; explicit opt-in for sensitive telemetry.

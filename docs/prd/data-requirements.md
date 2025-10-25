@@ -17,12 +17,30 @@
 - What: user_id, firebase_uid, email, display_name, role, created_at, last_login, settings_json
 - Purpose: login, account management, billing mapping
 
-### Child Profiles & Onboarding
+### Child Identity & Onboarding
 
-- Where: D1 (children) as canonical; per-child DO caches sessionProfile
-- What: child_id, parent_user_id, display_name/alias, DOB (optional), preferences_json (interests, learning_style), consent flags (wearable/third-party), onboarding timestamps
-- Purpose: personalize content, seed AI, UI personalization
-- Displayed to: parent dashboard, child UI (limited view)
+- Where: D1 (`children` canonical identity) + D1 (`child_profile`, `child_profile_items`, `child_observations`); DO caches transient session state.
+- Children (identity): id, primary_parent_user_id, alias (pseudonymous), given_name (optional), family_name (optional), preferred_name (optional), short_name, nickname, internal email (routing only), avatar_asset_id (FK assets), locale (optional), DOB fields, timestamps.
+- Child Profile (structured per-user perspective): one active profile per (child_id, user_id).
+  - `child_profile`: id, child_id, created_by_user_id, updated_by_user_id (nullable), authored_by_child (boolean), persona_role (parent|tutor|teacher|family), status (active|archived), learning_style, profile_summary, sensitivities, timestamps.
+  - `child_profile_items`: id, profile_id, type (interest|book|movie|game), value, created_at.
+- Observations (time series): `child_observations`: id, child_id, user_id, note_type, body, status (active|superseded|archived), superseded_by_observation_id (nullable), timestamps.
+- Purpose: richer AI personalization using multiple persona inputs without overwriting; auditability of who provided what.
+- Displayed to: parent dashboard, tutor/teacher views (as applicable), child UI (curated subset).
+
+### Child Primary & Sharing Model
+
+- Where: D1 (children, child_access)
+- What: child_access rows define which users can access a child and at what permission level
+  - child_id, user_id, persona_role (parent|tutor|teacher|family), access_level (viewer|contributor|manager), is_primary_parent (boolean), created_at
+  - Constraints:
+    - Exactly one Primary per child: children.primary_parent_user_id references users.id
+    - Unique membership per (child_id, user_id)
+    - Only Primary can: invite/remove Parents, grant/revoke Parent management (manager) rights
+    - Parents (Primary or invited) can: invite/remove Tutors, Teachers, Family (viewer/contributor), unless Primary restricts
+    - No one can remove the Primary; Primary can revoke any other membership
+  - Audit: store inviter_user_id, revoked_at for revoked memberships (optional follow-up)
+  - Idempotency: dedupe invitations by (child_id, target_user_id, persona_role)
 
 ### Curriculum & Topics
 
@@ -141,7 +159,7 @@ Teacher (later)
 ## Retention, privacy & consent
 
 - Minimal PII: store only necessary identifiers. Keep display_name as alias; limit DOB to month/year or optional.
-- Consent flags: required for wearable data, third-party content sharing, or tutor sharing. Stored in children.preferences_json.
+- Consents are stored as audited events in `consent_records` (user_id ↔ child_id ↔ consent_type). Each event has action (granted|revoked), policy version, optional scope/reason, and timestamp. Evaluate latest effective consent per (user, child, type) before processing data. No consent fields are stored directly on `children`.
 - Retention policy:
 - Active data: retained while account active.
 - Inactivity: after 12 months, archive to R2 snapshot + mark for deletion; notify parent.
@@ -151,7 +169,9 @@ Teacher (later)
 
 ## Indexing & performance guidance (D1 & Vectorize)
 
-- D1 indexes: children.parent_user_id, attempts.child_id, progress.child_id, scheduled_lessons.child_id, curriculum_topics.subject.
+- D1 indexes: children.primary_parent_user_id, child_access.child_id, child_access.user_id,
+  access_requests.requester_user_id, access_requests.target_parent_user_id, access_requests.target_parent_email, access_requests.token,
+  attempts.child_id, progress.child_id, scheduled_lessons.child_id, curriculum_topics.subject.
 - Pagination: always use cursor-based pagination for lists.
 - Vectorize usage: store snippet metadata linking to topic_id and source_type. Keep vector length moderate (embed short sentences).
 - DO sizing: flush often; store minimal in-memory footprint; archive stroke blobs to R2.
@@ -167,13 +187,26 @@ Teacher (later)
 Client → Worker
 
 - POST /auth/verify (token) → returns user_id
-- POST /children → create child (writes to D1)
+- POST /children → create child (Primary only; writes to D1)
 - GET /children/:id → read child + progress (D1)
+- POST /children/:id/share → invite user to access child (roles: parent/tutor/teacher/family; levels: viewer|contributor|manager)
+- PATCH /children/:id/share/:membership_id → update access level (Primary limits for parent management)
+- DELETE /children/:id/share/:membership_id → revoke access (cannot remove Primary; only Primary can remove Parents)
 - POST /assets/upload-url → returns presigned R2 URL (Worker)
 - POST /assets/notify → Worker stores metadata in D1 and enqueues OCR (if required)
 - POST /tasks/generate → Worker enqueues LangChain generation job
 - GET /lessons/scheduled?child_id= → D1 read
 - POST /attempts → prefer via DO (WebSocket) message: attempt.create OR HTTP fallback to Worker (which writes to DO buffer)
+
+Access Requests
+
+- POST /access-requests → create non‑primary → primary request
+  - Body: target_parent_user_id OR target_parent_email; desired_persona_role; desired_access_level; optional message (sanitized)
+  - AuthZ: requester must be authenticated; rate‑limited per requester; idempotent by (requester, target)
+- POST /access-requests/:id/accept → Primary accepts, selects/creates Child, assigns access level (manager only for Parent role)
+- POST /access-requests/:id/decline → Primary declines
+- GET /access-requests (requester) → list own sent requests (filter by status)
+- GET /access-requests (parent) → list incoming requests (pending)
 
 DO ↔ Worker
 
@@ -189,5 +222,28 @@ Worker ↔ LangChain
 
 - Authenticate all client connections with Firebase ID tokens. Worker validates and maps to user_id.
 - For DO WebSocket join, Worker issues short-lived signed session token for DO to validate.
-- Access checks: all D1 reads/writes filter by parent_user_id or child_owner (never return data outside parent scope).
+- Access checks:
+  - Tenant boundary anchored to children.primary_parent_user_id.
+  - Per-request authorization via child_access membership: must have appropriate access_level for operation.
+  - Only Primary can grant/revoke Parent management and invite/remove Parents; Parents can share with Tutor/Teacher/Family unless restricted.
 - Enforce rate limits and quotas (per-child and per-parent) to avoid abuse.
+
+### Access Requests (Non‑Primary Personas)
+
+- Where: D1 (`access_requests`) + Email provider (Postmark/Resend) for delivery.
+- Purpose: allow non‑primary personas (Tutor/Teacher/Family/Parent) to request access from the Primary Parent.
+- What: request_id, requester_user_id, target_parent_user_id (nullable if unknown), target_parent_email,
+  desired_persona_role (parent|tutor|teacher|family), desired_access_level (viewer|contributor|manager),
+  status (pending|accepted|declined|expired|canceled), token (secure random), expires_at,
+  message (optional, sanitized), created_at, updated_at, acted_at, acted_by_user_id.
+- Constraints & behavior:
+  - If `target_parent_user_id` is known: create in‑app notification and send email.
+  - If only `target_parent_email` is provided: send email with a secure invite link to onboard and accept.
+- Only the Primary Parent may accept; only a Parent can create the Child during acceptance.
+- On acceptance: Primary selects an existing Child or creates a new Child, then the system grants `child_access` according to Primary’s choice:
+  - Parent role → viewer/contributor; manager optional and settable only by Primary.
+  - Tutor/Teacher/Family → viewer or contributor (no manager).
+  - Idempotency: dedupe by (requester_user_id, target_parent_email, desired_persona_role, status='pending')
+    OR (requester_user_id, target_parent_user_id, desired_persona_role, status='pending').
+  - Rate limits: per‑requester daily cap and domain throttling to prevent abuse.
+  - Audit: store acted_by_user_id, acted_at, and email delivery metadata (separate log or provider id).

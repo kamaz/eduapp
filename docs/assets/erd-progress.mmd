@@ -1,0 +1,87 @@
+%% Domain: Child Education Progress
+erDiagram
+    CHILDREN {
+        string id
+        string alias
+        int created_at
+        int updated_at
+    }
+
+    CURRICULUM_TOPICS {
+        string id
+        string subject
+        string code
+        string title
+    }
+
+    TASKS {
+        string id
+        string topic_id
+        string title
+        int difficulty
+        int created_at
+    }
+
+    ATTEMPTS {
+        string id
+        string child_id
+        string task_id
+        string attempt_client_id
+        string source
+        string answer_asset_id
+        string strokes_asset_id
+        float score
+        float presentation_score
+        boolean correct
+        string summary_json
+        int duration_ms
+        int created_at
+    }
+
+    PROGRESS {
+        string id
+        string child_id
+        string topic_id
+        float mastery
+        int attempts_count
+        int last_practiced_at
+        string history_json
+        int created_at
+        int updated_at
+    }
+
+    SCHEDULED_LESSONS {
+        string id
+        string child_id
+        string topic_id
+        string task_id
+        int scheduled_for
+        string source
+        string status
+        int created_at
+        int updated_at
+    }
+
+    ASSETS {
+        string id
+        string type
+        string r2_bucket
+        string r2_key
+        string mime_type
+        int size_bytes
+        int created_at
+    }
+
+    CHILDREN ||--o{ ATTEMPTS : has
+    TASKS ||--o{ ATTEMPTS : attempts
+
+    ASSETS ||--o{ ATTEMPTS : answer
+    ASSETS ||--o{ ATTEMPTS : strokes
+
+    CHILDREN ||--o{ PROGRESS : has
+    CURRICULUM_TOPICS ||--o{ PROGRESS : tracked
+
+    CHILDREN ||--o{ SCHEDULED_LESSONS : scheduled
+    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : for
+    TASKS ||--o{ SCHEDULED_LESSONS : specific
+

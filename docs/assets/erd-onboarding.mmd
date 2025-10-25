@@ -1,0 +1,152 @@
+erDiagram
+    USERS {
+        string id PK "ULID. Example: 01HXYZ123ABC"
+        string firebase_uid UK "Firebase UID. Example: qweRtY12345"
+        string email UK "Login email. Example: parent@example.com"
+        string display_name "Public name. Example: Alex P."
+        string billing_customer_id "Stripe customer. Example: cus_1234"
+        string settings_json "Account prefs JSON. Example: {'locale':'en-GB'}"
+        int created_at "Epoch ms created. Example: 1718035200000"
+        int updated_at "Epoch ms updated. Example: 1718640000000"
+    }
+
+    CHILDREN {
+        string id PK "ULID. Example: 01HCHILDABC"
+        string primary_parent_user_id FK "FK → users.id (creator/owner)"
+        string alias "Pseudonymous display. Example: Explorer Fox"
+        string given_name "Legal given name (optional). Example: Charlie"
+        string family_name "Legal family name (optional). Example: Smith"
+        string preferred_name "What the child prefers to be called (optional). Example: Charlie"
+        string short_name "Short UI name (explicit). Example: Char"
+        string nickname "Colloquial nickname (explicit). Example: Champ"
+        string email UK "Internal routing email only; not deliverable. Example: child_01HCHILDABC@internal"
+        string avatar_asset_id FK "FK → assets.id (optional avatar image)"
+        string locale "Child content locale (optional). Example: en-GB"
+        int dob_year "Year of birth (optional). Example: 2015"
+        int dob_month "Month (1..12, optional). Example: 6"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+        int deleted_at "Epoch ms soft delete (nullable)"
+    }
+
+    CHILD_ACCESS {
+        string id PK "ULID. Example: 01HACCESSXYZ"
+        string child_id FK "FK → children.id"
+        string user_id FK "FK → users.id (member)"
+        string persona_role "parent|tutor|teacher|family. Example: parent"
+        string access_level "viewer|contributor|manager. Example: contributor"
+        boolean is_primary_parent "True only for primary parent membership"
+        string invited_by_user_id FK "FK → users.id (inviter)"
+        int revoked_at "Epoch ms revoked (nullable)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    ACCESS_REQUESTS {
+        string id PK "ULID. Example: 01HREQ123"
+        string requester_user_id FK "FK → users.id (requester)"
+        string target_parent_user_id FK "FK → users.id (nullable)"
+        string target_parent_email "Email when parent unknown"
+        string desired_persona_role "parent|tutor|teacher|family"
+        string desired_access_level "viewer|contributor|manager"
+        string status "pending|accepted|declined|expired|canceled"
+        string token UK "Single-use HMAC token"
+        int expires_at "Epoch ms expiry"
+        string message "Optional short message"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+        int acted_at "Epoch ms acted (nullable)"
+        string acted_by_user_id FK "FK → users.id (nullable)"
+    }
+
+    SUBSCRIPTIONS {
+        string id PK "ULID. Example: 01HSUBABC"
+        string user_id FK "FK → users.id"
+        string provider "stripe"
+        string provider_customer_id "Stripe customer. Example: cus_1234"
+        string provider_subscription_id UK "Stripe sub. Example: sub_1234"
+        string plan_id "Business plan key. Example: premium-monthly"
+        string status "trialing|active|past_due|canceled|incomplete|incomplete_expired"
+        int current_period_end "Epoch ms period end"
+        boolean cancel_at_period_end "True if will cancel at period end"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    CONSENT_RECORDS {
+        string id PK "ULID. Example: 01HCONSENTX"
+        string user_id FK "FK → users.id (granting parent)"
+        string child_id FK "FK → children.id (subject child)"
+        string consent_type "data_processing|wearables|third_party_sharing|email_notifications"
+        string action "granted|revoked"
+        string version "Policy version. Example: v1"
+        string scope "Optional scope label. Example: wellbeing_data"
+        string reason "Optional note or context"
+        boolean was_primary_parent "Snapshot if user was primary at the time"
+        int created_at "Epoch ms event time"
+    }
+
+    CHILD_PROFILE {
+        string id PK "ULID profile"
+        string child_id FK "FK → children.id"
+        string created_by_user_id FK "FK → users.id (collector/author); one active profile per (child, user)"
+        string updated_by_user_id FK "FK → users.id (last editor, nullable)"
+        boolean authored_by_child "True when content was entered by the child during session"
+        string persona_role "parent|tutor|teacher|family"
+        string status "active|archived"
+        string learning_style "story|visual|puzzle|experiment"
+        string profile_summary "Short sanitized summary. Example: Loves LEGO & space"
+        string sensitivities "Short tags CSV. Example: fine-motor-challenges"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    CHILD_PROFILE_ITEMS {
+        string id PK "ULID item"
+        string profile_id FK "FK → child_profile.id"
+        string type "interest|book|movie|game"
+        string value "Short tag or title. Example: LEGO, Finding Nemo"
+        int created_at "Epoch ms created"
+    }
+
+    CHILD_OBSERVATIONS {
+        string id PK "ULID observation"
+        string child_id FK "FK → children.id"
+        string user_id FK "FK → users.id (author)"
+        string note_type "observation|wellbeing|progress|other"
+        string body "Sanitized short note"
+        string status "active|superseded|archived"
+        string superseded_by_observation_id FK "FK → child_observations.id (nullable)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    ASSETS {
+        string id PK "ULID. Example: 01HASSETABC"
+        string owner_child_id FK "FK → children.id (optional owner)"
+        string type "image|pdf|stroke_blob|task_definition|ocr_text"
+        string r2_bucket "R2 bucket name"
+        string r2_key "R2 object key"
+        string mime_type "MIME type. Example: image/png"
+        int size_bytes "Object size in bytes"
+        string checksum_sha256 "Hex checksum for integrity"
+        int created_at "Epoch ms created"
+    }
+
+    USERS ||--o{ CHILDREN : primary_parent
+    USERS ||--o{ CHILD_ACCESS : has
+    CHILDREN ||--o{ CHILD_ACCESS : memberships
+    USERS ||--o{ ACCESS_REQUESTS : requests
+    USERS ||--o{ SUBSCRIPTIONS : subscribes
+    USERS ||--o{ CONSENT_RECORDS : grants
+    CHILDREN ||--o{ CONSENT_RECORDS : consents_for
+
+    CHILDREN ||--o{ CHILD_PROFILE : profiles
+    USERS ||--o{ CHILD_PROFILE : authored
+    USERS ||--o{ CHILD_PROFILE : edited
+    CHILD_PROFILE ||--o{ CHILD_PROFILE_ITEMS : items
+
+    CHILDREN ||--o{ CHILD_OBSERVATIONS : observations
+    USERS ||--o{ CHILD_OBSERVATIONS : authored
+    CHILDREN ||--o{ ASSETS : owns
+    ASSETS ||--o{ CHILDREN : avatar

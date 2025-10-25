@@ -3,14 +3,11 @@
   "users": [
     {
       "localId": "PMrvfbUcceFh2TZpl1tL5PNFKTw5",
-      "lastLoginAt": "1760905904046",
-      "emailVerified": false,
-      "email": "kamilzuzda@gmail.com",
-      "salt": "fakeSaltn5yW1WLYCaSzrTrYNCEU",
-      "passwordHash": "fakeHash:salt=fakeSaltn5yW1WLYCaSzrTrYNCEU:password=Password1!",
-      "passwordUpdatedAt": 1760905892638,
-      "validSince": "1760905892",
       "createdAt": "1760905892638",
+      "lastLoginAt": "1760996434536",
+      "passwordHash": "fakeHash:salt=fakeSaltn5yW1WLYCaSzrTrYNCEU:password=Password1!",
+      "salt": "fakeSaltn5yW1WLYCaSzrTrYNCEU",
+      "passwordUpdatedAt": 1761166787569,
       "providerUserInfo": [
         {
           "providerId": "password",
@@ -19,7 +16,33 @@
           "rawId": "kamilzuzda@gmail.com"
         }
       ],
-      "lastRefreshAt": "2025-10-19T20:31:44.046Z"
+      "validSince": "1761166787",
+      "email": "kamilzuzda@gmail.com",
+      "emailVerified": false,
+      "disabled": false
+    },
+    {
+      "localId": "ukLQtX6PR6rzHXeSYrEPk5JUGFFp",
+      "createdAt": "1761164687033",
+      "lastLoginAt": "1761167197784",
+      "displayName": "First Last",
+      "passwordHash": "fakeHash:salt=fakeSaltraq8K4tVmiO7yWfVYjKL:password=Password1!",
+      "salt": "fakeSaltraq8K4tVmiO7yWfVYjKL",
+      "passwordUpdatedAt": 1761166787569,
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "kamil@gmail.com",
+          "federatedId": "kamil@gmail.com",
+          "rawId": "kamil@gmail.com",
+          "displayName": "First Last"
+        }
+      ],
+      "validSince": "1761166787",
+      "email": "kamil@gmail.com",
+      "emailVerified": false,
+      "disabled": false,
+      "lastRefreshAt": "2025-10-22T21:06:37.784Z"
     }
   ]
 }

@@ -12,6 +12,7 @@ export function configureFirebaseForDev() {
       // React Native Firebase: connect to emulator
       // Note: Calling more than once throws; guard with try/catch.
       connectAuthEmulator(getAuth(), 'http://127.0.0.1:9099')
+      // connectAuthEmulator(getAuth(), 'http://192.168.1.5:9099')
     } catch {
       // no-op if already configured
     }

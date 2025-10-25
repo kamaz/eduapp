@@ -62,7 +62,7 @@ Needs:
 - Get help explaining difficult topics — the AI provides multiple approaches to present the same concept in ways that suit the child’s learning style.
 - Plan learning activities and daily routines: reminders for breaks, hydration, mindfulness, and rest.
 - Receive guidance on how to support their child’s academic journey and long-term goals, including exam readiness and future career orientation.
-- Access a shared child profile that collects inputs from teachers, tutors, and smart devices — offering a holistic picture of progress and wellbeing.
+- Access a shared child profile space: each authorized persona (parent, tutor, teacher, family) can author their own structured profile for the child. The system aggregates active profiles to provide a holistic picture of progress and wellbeing.
   - For homeschooling parents:
   - Easily create lessons aligned with the national curriculum.
   - Generate printable or tablet-ready exercises tailored to the child’s level.
@@ -99,7 +99,7 @@ Needs:
 - Receive suggestions for addressing learning gaps or preparing for exams.
 - Assess homework directly within the app, even outside tutoring hours, with AI support for grading and feedback.
 - Collaborate seamlessly with parents and teachers to align on the child’s progress.
-- Log observations about focus, comprehension, or wellbeing — contributing to the unified child profile.
+- Log observations about focus, comprehension, or wellbeing — stored as time‑series notes linked to the child and the authoring user; distinct from structured profiles.
 
 Value Provided:
 

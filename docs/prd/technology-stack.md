@@ -66,7 +66,7 @@
 
 ### Main data flows
 
-1. Onboarding: RN app → Worker → verify Firebase token → create child profile in D1 → s
+1. Onboarding: RN app → Worker → verify Firebase token → create child + authored profile in D1
 
 ### Client / Frontend
 
@@ -121,10 +121,10 @@
 
 ### Security, Privacy & Compliance
 
-- Parental consent: explicit during onboarding stored in D1; no PII stored without consent.
+- Parental consent: explicit during onboarding, stored as audited events in D1 (`consent_records`); no PII stored without effective consent.
 - Data encryption: R2 at rest + TLS in transit. D1 encrypted at rest as per Cloudflare.
 - Auth validation: Workers verify Firebase ID tokens on each request.
-- Export & deletion: parents can export or delete child profile (D1 + R2 assets) via API.
+- Export & deletion: parents can export or delete child identity and profiles (D1 + R2 assets) via API.
 - Compliance posture: plan for GDPR-K / COPPA considerations (consent, limited retention, parental control).
 
 ### Recommended Libraries / Versions (practical)

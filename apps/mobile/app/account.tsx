@@ -5,23 +5,28 @@ import { router } from 'expo-router'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { useAuth } from '@/auth/auth-provider'
+import { useProfile } from '@/profile/profile-provider'
 
 export default function AccountModal() {
   const { user, signOut } = useAuth()
+  const { profile, clearProfile } = useProfile()
 
-  const { firstName, lastName, email } = useMemo(() => {
+  const { firstName, lastName, email, phone, dob } = useMemo(() => {
     const displayName = user?.displayName?.trim() ?? ''
     const [first, ...rest] = displayName.split(/\s+/).filter(Boolean)
     return {
       firstName: first ?? '',
       lastName: rest?.length ? rest.join(' ') : '',
       email: user?.email ?? '',
+      phone: profile?.phone ?? '',
+      dob: profile?.dob ?? '',
     }
-  }, [user])
+  }, [user, profile])
 
   async function handleSignOut() {
     try {
       await signOut()
+      clearProfile()
       // After sign-out, the Protected routes will switch to auth.
       // Replace to root to ensure a clean stack.
       router.replace('/')
@@ -46,12 +51,24 @@ export default function AccountModal() {
       <View style={styles.section}>
         <ThemedText type="subtitle">Profile</ThemedText>
         <View style={styles.item}>
-          <ThemedText type="defaultSemiBold">Name</ThemedText>
-          <ThemedText>{[firstName, lastName].filter(Boolean).join(' ') || '—'}</ThemedText>
+          <ThemedText type="defaultSemiBold">First name</ThemedText>
+          <ThemedText>{firstName || '—'}</ThemedText>
+        </View>
+        <View style={styles.item}>
+          <ThemedText type="defaultSemiBold">Last name</ThemedText>
+          <ThemedText>{lastName || '—'}</ThemedText>
         </View>
         <View style={styles.item}>
           <ThemedText type="defaultSemiBold">Email</ThemedText>
           <ThemedText>{email || '—'}</ThemedText>
+        </View>
+        <View style={styles.item}>
+          <ThemedText type="defaultSemiBold">Phone</ThemedText>
+          <ThemedText>{phone || '—'}</ThemedText>
+        </View>
+        <View style={styles.item}>
+          <ThemedText type="defaultSemiBold">Date of birth</ThemedText>
+          <ThemedText>{dob || '—'}</ThemedText>
         </View>
       </View>
 

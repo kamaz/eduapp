@@ -1,0 +1,84 @@
+%% Domain: Task & Lessons Creation
+erDiagram
+    CURRICULUM_TOPICS {
+        string id
+        string subject
+        string code
+        string title
+        string description
+        string prerequisites_json
+        string grade_band
+        int created_at
+    }
+
+    TASKS {
+        string id
+        string topic_id
+        string title
+        string style
+        int difficulty
+        string definition_asset_id
+        string created_by
+        string created_by_user_id
+        string status
+        int created_at
+    }
+
+    ASSETS {
+        string id
+        string owner_child_id
+        string type
+        string r2_bucket
+        string r2_key
+        string mime_type
+        int size_bytes
+        string checksum_sha256
+        int created_at
+    }
+
+    JOBS {
+        string id
+        string kind
+        string status
+        string child_id
+        string idempotency_key
+        int run_at
+        int attempts
+        string input_asset_id
+        string output_asset_id
+        string error_asset_id
+        string error_code
+        string error_message_redacted
+        int created_at
+        int updated_at
+    }
+
+    SCHEDULED_LESSONS {
+        string id
+        string child_id
+        string topic_id
+        string task_id
+        int scheduled_for
+        string source
+        string status
+        string notes
+        int created_at
+        int updated_at
+    }
+
+    USERS {
+        string id
+        string display_name
+    }
+
+    CURRICULUM_TOPICS ||--o{ TASKS : has
+    USERS ||--o{ TASKS : created_by
+    ASSETS ||--o{ TASKS : definition
+
+    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : for
+    TASKS ||--o{ SCHEDULED_LESSONS : specific
+
+    ASSETS ||--o{ JOBS : input
+    ASSETS ||--o{ JOBS : output
+    ASSETS ||--o{ JOBS : error
+
