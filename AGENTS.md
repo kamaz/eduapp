@@ -142,3 +142,4 @@
 - docs/prd/data-requirements/README.md
 - docs/prd/security-plan/README.md
 - docs/prd/next-steps.md
+- docs/best-practice/mermaid-erd-guidelines.md — Mermaid ERD best practices
