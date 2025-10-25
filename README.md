@@ -49,8 +49,8 @@ This is a Turborepo + pnpm monorepo for EduApp.
 
 ## Notes
 
-- Follow AGENTS.md for data rules, security, and testing.
-- Mermaid ERDs: follow docs/best-practice/mermaid-erd-guidelines.md for syntax, PK/FK/UK markers, and quoting style.
+- Follow [AGENTS.md](AGENTS.md) for data rules, security, and testing.
+- Mermaid ERDs: follow [Mermaid ERD Best Practices](docs/best-practice/mermaid-erd-guidelines.md) for syntax, PK/FK/UK markers, and quoting style.
 - Avoid PII in logs/prompts; validate inputs; enforce auth on API routes.
 - Module system: ESM-only across the repo. Prefer `.mjs` for config files at the root.
 - Git hooks: Pre-commit runs staged ESLint/Prettier (lint-staged) and then `pnpm check` for full validation. Install hooks with `pnpm install` (runs `prepare`). To bypass in emergencies, use `--no-verify` (not recommended).

@@ -52,33 +52,25 @@
 
 - Validate Firebase ID tokens on every API call; enforce tenant isolation by parent_user_id/child_id.
 - DO WebSocket sessions use short-lived signed tokens; reject unsigned/expired.
-- PII minimisation: use child alias; DOB optional; no sensitive data in logs/prompts.
+- PII minimisation: prefer child alias; legal names optional; internal child email is routing-only and never used for delivery; no sensitive data in logs/prompts.
 - Rate limit generation, uploads, and auth endpoints; add idempotency keys for attempt submissions.
 - Stripe via Checkout; never store card data; validate webhooks.
 - Use signed, short-lived R2 URLs; validate MIME and size on uploads.
+- Consents are captured as audited events in `consent_records` per (user_id, child_id, consent_type) with action (granted|revoked), policy version, optional scope/reason, and timestamp. Do not store consent flags on `children`.
 
-## API & Contracts (MVP slice)
+## Onboarding Data (MVP shape)
 
-- Client → Worker
-  - POST /auth/verify (token) → user_id
-  - POST /children, GET /children/:id (with progress)
-  - POST /assets/upload-url, POST /assets/notify
-  - POST /tasks/generate (enqueue)
-  - GET /lessons/scheduled?child_id=
-  - WebSocket via DO: attempt.create, stroke.delta, flush.request
-- Worker (internal generation pipeline)
-  - Generation orchestrated via DO; outputs stored in R2; metadata in D1.
-  - Callback: POST /jobs/callback/generation (HMAC-signed)
-- DO ↔ Worker
-  - /persist/attempts, /persist/strokes (idempotent)
+- Children identity: alias (pseudonymous), given_name/family_name/preferred_name (optional), short_name, nickname, internal email (routing), avatar_asset_id (FK), locale, DOB fields, timestamps, deleted_at.
+- Multi‑persona child profiles: one active profile per (child_id, user_id) without versioning; fields include persona_role, authored_by_child, learning_style, profile_summary, sensitivities; items normalized in `child_profile_items` (type: interest|book|movie|game).
+- Observations: time‑series notes in `child_observations` with status and supersede pointer.
 
 ## MVP Implementation Priorities (from PRD Next Steps)
 
 1. Define DO interface (messages, flush policy, idempotency keys).
-2. D1 schema (users, children, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions).
+2. D1 schema: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions.
 3. R2 presigned upload and OCR stub wiring.
 4. Generation job contract in Worker; store outputs in R2, metadata in D1.
-5. Minimal client flow: onboarding → create child → session start → attempt → flush → parent dashboard reads D1.
+5. Minimal client flow: onboarding → create child + authored profile → session start → attempt → flush → parent dashboard reads D1.
 
 ## Coding Conventions
 
@@ -92,16 +84,15 @@
 ## Testing Guidance
 
 - Unit: vitest for pure logic (schema, mappers, guards, prompts builders).
-- API: contract tests for key endpoints and auth guards.
 - DO: simulate message flows (attempt buffering, flush, idempotency, generation orchestration).
 - Snapshots: stable for schema/contract JSON where helpful.
 
 ## Definition of Done (feature)
 
 - AuthZ/AuthN enforced; inputs validated (Zod/JSON Schema).
-- Unit/API tests for happy + key error paths.
+- Unit tests for happy + key error paths.
 - Logs redact PII; feature behind flag if experimental.
-- Docs updated (README in app/service + API notes if changed).
+- Docs updated (README and domain docs if changed).
 
 ## Performance & Cost
 
@@ -133,13 +124,12 @@
 
 ## References
 
-- docs/prd/README.md — PRD TOC
-- docs/prd/problem-identification/README.md
-- docs/prd/target-audience/README.md
-- docs/prd/platform-strategy/README.md
-- docs/prd/core-mvp-features/README.md
-- docs/prd/technology-stack/README.md
-- docs/prd/data-requirements/README.md
-- docs/prd/security-plan/README.md
-- docs/prd/next-steps.md
-- docs/best-practice/mermaid-erd-guidelines.md — Mermaid ERD best practices
+- [PRD TOC](docs/prd/README.md)
+- [Problem Identification](docs/prd/problem-identification.md)
+- [Target Audience](docs/prd/target-audience.md)
+- [Platform Strategy](docs/prd/platform-strategy.md)
+- [Core MVP Features](docs/prd/core-mvp-features.md)
+- [Technology Stack](docs/prd/technology-stack.md)
+- [Data Requirements](docs/prd/data-requirements.md)
+- [Security Plan](docs/prd/security-plan.md)
+- [Mermaid ERD Best Practices](docs/best-practice/mermaid-erd-guidelines.md)
