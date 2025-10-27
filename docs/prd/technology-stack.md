@@ -62,7 +62,7 @@
 - Workers monolith: orchestrates generation/ingestion without a separate LangChain service; DOs coordinate steps and state.
 - Firestore: delegated auth (Firebase Auth), Workers validate tokens — keeps identity simple.
 - Durable Objects + WebSocket: live review, preview and lightweight coordination (locks, small queues).
-- Cron Triggers: scheduled background jobs to refresh profiles and schedule lessons.
+- Cron Triggers: scheduled background jobs to refresh profiles and recommend learning plans (lesson scheduling arrives post‑MVP).
 
 ### Main data flows
 
@@ -84,6 +84,8 @@
 
 - Cloudflare Workers monolith orchestrates generation and ingestion using Durable Objects for multi-step flows.
 - Uses Vectorize for embeddings and retrieval.
+- OCR/ingestion pipeline can convert uploaded worksheets/photos into Task Templates; templates are then personalised into Tasks for a specific child/session.
+- Lesson/Task templates materialise as child‑specific instances with parameters snapshotted for auditability and reproducibility.
 
 ### Data & Storage
 

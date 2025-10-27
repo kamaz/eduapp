@@ -14,7 +14,7 @@ erDiagram
         string title
     }
 
-    TASKS {
+    TASK_INSTANCES {
         string id
         string topic_id
         string title
@@ -25,7 +25,7 @@ erDiagram
     ATTEMPTS {
         string id
         string child_id
-        string task_id
+        string task_instance_id
         string attempt_client_id
         string source
         string answer_asset_id
@@ -50,18 +50,6 @@ erDiagram
         int updated_at
     }
 
-    SCHEDULED_LESSONS {
-        string id
-        string child_id
-        string topic_id
-        string task_id
-        int scheduled_for
-        string source
-        string status
-        int created_at
-        int updated_at
-    }
-
     ASSETS {
         string id
         string type
@@ -73,7 +61,7 @@ erDiagram
     }
 
     CHILDREN ||--o{ ATTEMPTS : has
-    TASKS ||--o{ ATTEMPTS : attempts
+    TASK_INSTANCES ||--o{ ATTEMPTS : attempts
 
     ASSETS ||--o{ ATTEMPTS : answer
     ASSETS ||--o{ ATTEMPTS : strokes
@@ -81,7 +69,4 @@ erDiagram
     CHILDREN ||--o{ PROGRESS : has
     CURRICULUM_TOPICS ||--o{ PROGRESS : tracked
 
-    CHILDREN ||--o{ SCHEDULED_LESSONS : scheduled
-    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : for
-    TASKS ||--o{ SCHEDULED_LESSONS : specific
-
+    

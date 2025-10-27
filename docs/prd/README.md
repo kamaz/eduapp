@@ -10,3 +10,6 @@ Below is a table of contents linking to each section, now split into separate RE
 - 📚 [Data Requirements](./data-requirements.md)
 - 🔐 [Security Plan (MVP)](./security-plan.md)
 - [Next Steps](./next-steps.md)
+- 🗓️ [Learning Plans & Scheduling (Post‑MVP)](./learning-plans.md)
+- 🧪 [Assessments & Task Sets (Post‑MVP)](./assessments-and-task-sets.md)
+- 📐 [Templates vs Instances](./templates-and-instances.md)

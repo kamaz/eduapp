@@ -105,11 +105,21 @@ Tracks engagement, learning gains, and parental satisfaction for iteration.
 - Generates AI-personalised exercises and customised printable worksheets aligned to the UK National Curriculum.
 - Suggests different explanation styles (story, visual, practical examples) to suit the learner’s preference.
 
-### 📘 Curriculum, Subject, and Task Management
+### 📘 Curriculum, Subjects, Lessons, and Tasks
 
-- Curriculum Graph Engine mapping UK National Curriculum to:
-  - Subjects → Topics → Lessons → Tasks.
-- Enables easy search and auto-tagging of uploaded materials.
+- Curriculum Graph (UK-first), normalized:
+  - Subjects → Topics (with KS band and recommended age range) → Lesson Templates/Instances → Task Templates/Instances.
+  - Topics include normalized prerequisites (graph traversal and indexing supported).
+- Lessons use a template → instance pattern:
+  - Lesson Templates (explanations/notes, style, difficulty) are canonical per topic.
+  - Lesson Instances are personalised per child (can vary characters, context, tone) and store the parameters used.
+- Tasks use a template → instance pattern:
+  - Task Templates define variable schema and rubric; can be created from uploads (photos/PDFs) or authored.
+  - Task Instances are personalised per child/session with `role` and typed solutions.
+  - `role`: example | practice | assessment; practice items reference their example instance.
+  - `answer_type` and `expected_answer_json` capture the canonical solution; optional `solution_explanation_asset_id` links to worked steps.
+- Parents can upload photos/worksheets or paste examples; the system extracts a Task Template and can generate personalised Tasks for a specific child from that template.
+- Enables easy search and auto‑tagging of uploaded materials.
 - Supports curriculum versioning for regional or future expansions (e.g., Polish curriculum phase 2).
 - Includes admin interface (phase 2) for adding or updating learning materials.
 

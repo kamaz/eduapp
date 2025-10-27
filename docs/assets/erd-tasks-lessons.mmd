@@ -1,24 +1,96 @@
-%% Domain: Task & Lessons Creation
+%% Domain: Tasks, Lessons & Curriculum (UK-first)
 erDiagram
-    CURRICULUM_TOPICS {
-        string id PK "ULID. Example: 01HCURRABC"
-        string subject "Subject key. Example: maths"
-        string code UK "Curriculum code. Example: MATH.KS2.N1"
-        string title "Short title. Example: Place Value"
-        string description "Long description (optional)"
-        string prerequisites_json "JSON array of topic codes/ids. Example: ['MATH.KS1.N3']"
-        string grade_band "KS1|KS2|KS3. Example: KS2"
+    CURRICULUM_SUBJECTS {
+        string id PK "ULID. Example: 01HSUBJUKMATHS"
+        string country_code "ISO code. Example: UK"
+        string key UK "Subject key. Example: maths"
+        string title "Display title. Example: Mathematics"
         int created_at "Epoch ms created"
         int updated_at "Epoch ms updated"
     }
 
-    TASKS {
-        string id PK "ULID. Example: 01HTASKABC"
+    CURRICULUM_TOPICS {
+        string id PK "ULID. Example: 01HCURRABC"
+        string subject "Subject key. Example: maths"
+        string subject_id FK "FK → curriculum_subjects.id"
+        string code UK "Curriculum code. Example: MATH.KS2.N1"
+        string title "Short title. Example: Place Value"
+        string description "Long description (optional)"
+        string grade_band "KS1|KS2|KS3. Example: KS2"
+        int recommended_age_min "Guidance only (years). Example: 7"
+        int recommended_age_max "Guidance only (years). Example: 11"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    CURRICULUM_PREREQS {
+        string id PK "ULID. Example: 01HPREREQ1"
+        string from_topic_id FK "FK → curriculum_topics.id (requires)"
+        string to_topic_id FK "FK → curriculum_topics.id (is prerequisite)"
+        int created_at "Epoch ms created"
+    }
+
+    LESSON_TEMPLATES {
+        string id PK "ULID. Example: 01HLTMPLAB"
         string topic_id FK "FK → curriculum_topics.id"
+        string title "Template. Example: Place Value — Tens & Ones"
+        string overview_asset_id FK "FK → assets.id (explanation/notes PDF/JSON)"
+        string style "story|visual|puzzle|experiment. Example: story"
+        int difficulty "1..5 (relative). Example: 2"
+        string status "active|archived. Example: active"
+        string created_by "ai|user. Example: ai"
+        string created_by_user_id FK "FK → users.id (nullable if ai)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    LESSON_INSTANCES {
+        string id PK "ULID. Example: 01HLINSTAB"
+        string lesson_template_id FK "FK → lesson_templates.id"
+        string child_id FK "FK → children.id (personalised recipient)"
+        string title "Personalised title (optional override)"
+        string overview_asset_id FK "FK → assets.id (personalised explanation)"
+        string style "story|visual|puzzle|experiment"
+        int difficulty "1..5"
+        string personalization_params_json "JSON snapshot of parameters/profile used"
+        string created_by_user_id FK "FK → users.id (nullable)"
+        string status "draft|active|archived"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    TASK_TEMPLATES {
+        string id PK "ULID. Example: 01HTMPLABC"
+        string topic_id FK "FK → curriculum_topics.id"
+        string lesson_template_id FK "FK → lesson_templates.id (nullable)"
+        string title "Template title. Example: Two-digit addition with carry"
+        string style "story|visual|puzzle|experiment. Example: visual"
+        int difficulty "1..5 (relative). Example: 3"
+        string variable_schema_json "JSON schema for parameters (e.g., a,b where a+b<=20)"
+        string rubric_json "Grading/rubric metadata (optional)"
+        string definition_asset_id FK "FK → assets.id (template description/examples)"
+        string created_by "ai|user. Example: user"
+        string created_by_user_id FK "FK → users.id (nullable if ai)"
+        string status "active|archived. Example: active"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    TASK_INSTANCES {
+        string id PK "ULID. Example: 01HTASKINS"
+        string task_template_id FK "FK → task_templates.id (nullable for manual)"
+        string topic_id FK "FK → curriculum_topics.id"
+        string lesson_instance_id FK "FK → lesson_instances.id (nullable)"
+        string child_id FK "FK → children.id"
+        string role "example|practice|assessment. Example: practice"
+        string example_root_task_instance_id FK "FK → task_instances.id (nullable; practice refers back to example)"
         string title "Task title. Example: Add two-digit numbers"
         string style "story|visual|puzzle|experiment. Example: visual"
         int difficulty "1..5 (relative difficulty). Example: 3"
         string definition_asset_id FK "FK → assets.id (task definition JSON/PDF)"
+        string answer_type "numeric|text|multiple_choice|expression|sequence"
+        string expected_answer_json "Serialized correct answer (typed by answer_type)"
+        string solution_explanation_asset_id FK "FK → assets.id (step-by-step solution/explanation)"
         string created_by "ai|user. Example: ai"
         string created_by_user_id FK "FK → users.id (nullable if ai)"
         string status "active|archived. Example: active"
@@ -26,28 +98,108 @@ erDiagram
         int updated_at "Epoch ms updated"
     }
 
-    %% USERS and ASSETS are defined in onboarding ERD; referenced here only.
-
-    SCHEDULED_LESSONS {
-        string id PK "ULID. Example: 01HSCHEDABC"
-        string child_id FK "FK → children.id"
-        string topic_id FK "FK → curriculum_topics.id"
-        string task_id FK "FK → tasks.id (nullable, when specific task chosen)"
-        int scheduled_for "Epoch ms scheduled start"
-        string source "system|parent|tutor. Example: system"
-        string status "scheduled|completed|canceled|expired. Example: scheduled"
-        string notes "Optional short note"
+    TASK_SET_TEMPLATES {
+        string id PK "ULID. Example: 01HSETABC"
+        string topic_id FK "FK → curriculum_topics.id (nullable; cross-topic sets allowed)"
+        string type "exam|quiz|sequence. Example: exam"
+        string title "Set title. Example: KS2 Arithmetic Mock A"
+        string description "Optional notes"
+        int time_limit_ms "Total time limit (nullable for untimed)"
+        float passing_score "0..1 threshold (nullable)"
+        string status "active|archived. Example: active"
+        string created_by "ai|user. Example: user"
+        string created_by_user_id FK "FK → users.id (nullable if ai)"
         int created_at "Epoch ms created"
         int updated_at "Epoch ms updated"
     }
 
-    %% Relationships
-    CURRICULUM_TOPICS ||--o{ TASKS : has
-    USERS_REF_ONBOARDING ||--o{ TASKS : created_by
-    ASSETS_REF_ONBOARDING ||--o{ TASKS : definition
+    TASK_SET_TEMPLATE_ITEMS {
+        string id PK "ULID. Example: 01HSETITM1"
+        string set_template_id FK "FK → task_set_templates.id"
+        string task_template_id FK "FK → task_templates.id"
+        int order_index "0‑based display order"
+        int points "Score weight per item (nullable)"
+        int item_time_limit_ms "Per-item time limit (nullable)"
+        string depends_on_item_id FK "FK → task_set_template_items.id (nullable; sequence dependency)"
+        string propagation_mode "none|carry_numeric|carry_text|expression (nullable)"
+        string propagation_label "Optional label for carried value"
+        int created_at "Epoch ms created"
+    }
 
-    CHILDREN_REF_ONBOARDING ||--o{ SCHEDULED_LESSONS : scheduled
-    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : for
-    TASKS ||--o{ SCHEDULED_LESSONS : specific
+    TASK_SET_INSTANCES {
+        string id PK "ULID. Example: 01HSETINS1"
+        string set_template_id FK "FK → task_set_templates.id (nullable for ad-hoc)"
+        string child_id FK "FK → children.id"
+        string type "exam|quiz|sequence"
+        string title "Instance title (optional)"
+        string description "Optional notes"
+        int time_limit_ms "Total time (nullable)"
+        float passing_score "0..1 threshold (nullable)"
+        string status "draft|running|completed|canceled"
+        string created_by_user_id FK "FK → users.id (nullable)"
+        int started_at "Epoch ms (nullable)"
+        int completed_at "Epoch ms (nullable)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    TASK_SET_INSTANCE_ITEMS {
+        string id PK "ULID. Example: 01HSETIIT1"
+        string set_instance_id FK "FK → task_set_instances.id"
+        string task_instance_id FK "FK → task_instances.id"
+        int order_index "0‑based display order"
+        int points "Score weight per item (nullable)"
+        int item_time_limit_ms "Per-item time limit (nullable)"
+        string depends_on_item_id FK "FK → task_set_instance_items.id (nullable)"
+        string propagation_mode "none|carry_numeric|carry_text|expression (nullable)"
+        string propagation_label "Optional label for carried value"
+        int created_at "Epoch ms created"
+    }
+
+    TASK_SET_TEMPLATE_LESSONS {
+        string id PK "ULID. Example: 01HSTTL1"
+        string set_template_id FK "FK → task_set_templates.id"
+        string lesson_template_id FK "FK → lesson_templates.id"
+        int created_at "Epoch ms created"
+    }
+
+    TASK_SET_INSTANCE_LESSONS {
+        string id PK "ULID. Example: 01HSTIL1"
+        string set_instance_id FK "FK → task_set_instances.id"
+        string lesson_instance_id FK "FK → lesson_instances.id"
+        int created_at "Epoch ms created"
+    }
+
+    %% USERS and ASSETS are defined in onboarding ERD; referenced here only.
+
+    %% Relationships
+    CURRICULUM_SUBJECTS ||--o{ CURRICULUM_TOPICS : has
+    CURRICULUM_TOPICS ||--o{ CURRICULUM_PREREQS : requires
+    CURRICULUM_TOPICS ||--o{ CURRICULUM_PREREQS : prerequisite_of
+
+    CURRICULUM_TOPICS ||--o{ LESSON_TEMPLATES : explains
+    LESSON_TEMPLATES ||--o{ LESSON_INSTANCES : instantiates
+    CURRICULUM_TOPICS ||--o{ TASK_TEMPLATES : templates
+    LESSON_TEMPLATES ||--o{ TASK_TEMPLATES : includes
+    LESSON_INSTANCES ||--o{ TASK_INSTANCES : includes
+    TASK_TEMPLATES ||--o{ TASK_INSTANCES : materializes
+    TASK_INSTANCES ||--o{ TASK_INSTANCES : refers_example
+    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : consists_of
+    TASK_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : appears_in
+    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : consists_of
+    TASK_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : appears_in
+    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_LESSONS : covers
+    LESSON_TEMPLATES ||--o{ TASK_SET_TEMPLATE_LESSONS : linked
+    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : covers
+    LESSON_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : linked
+    USERS_REF_ONBOARDING ||--o{ TASK_TEMPLATES : created_by
+    USERS_REF_ONBOARDING ||--o{ LESSON_TEMPLATES : created_by
+    USERS_REF_ONBOARDING ||--o{ TASK_INSTANCES : created_by
+    USERS_REF_ONBOARDING ||--o{ LESSON_INSTANCES : created_by
+    ASSETS_REF_ONBOARDING ||--o{ TASK_TEMPLATES : definition
+    ASSETS_REF_ONBOARDING ||--o{ TASK_INSTANCES : definition
+    ASSETS_REF_ONBOARDING ||--o{ TASK_INSTANCES : solution_explanation
+    ASSETS_REF_ONBOARDING ||--o{ LESSON_TEMPLATES : overview
+    ASSETS_REF_ONBOARDING ||--o{ LESSON_INSTANCES : overview
 
     %% Generation jobs are modeled in docs/assets/erd-generation.mmd

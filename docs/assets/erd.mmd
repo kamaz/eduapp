@@ -46,23 +46,139 @@ erDiagram
         INTEGER created_at
     }
 
-    TASKS {
+    LESSON_TEMPLATES {
         TEXT id PK
         TEXT topic_id FK
         TEXT title
+        TEXT overview_asset_id FK
         TEXT style
         INTEGER difficulty
+        TEXT status  "active|archived"
+        TEXT created_by  "ai|user"
+        TEXT created_by_user_id FK
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    LESSON_INSTANCES {
+        TEXT id PK
+        TEXT lesson_template_id FK
+        TEXT child_id FK
+        TEXT title
+        TEXT overview_asset_id FK
+        TEXT style
+        INTEGER difficulty
+        TEXT personalization_params_json
+        TEXT created_by_user_id FK
+        TEXT status  "draft|active|archived"
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    TASK_TEMPLATES {
+        TEXT id PK
+        TEXT topic_id FK
+        TEXT lesson_template_id FK
+        TEXT title
+        TEXT style
+        INTEGER difficulty
+        TEXT variable_schema_json
+        TEXT rubric_json
         TEXT definition_asset_id FK
         TEXT created_by  "ai|user"
         TEXT created_by_user_id FK
         TEXT status  "active|archived"
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    TASK_INSTANCES {
+        TEXT id PK
+        TEXT task_template_id FK
+        TEXT topic_id FK
+        TEXT lesson_instance_id FK
+        TEXT child_id FK
+        TEXT role  "example|practice|assessment"
+        TEXT example_root_task_instance_id FK
+        TEXT title
+        TEXT style
+        INTEGER difficulty
+        TEXT definition_asset_id FK
+        TEXT answer_type  "numeric|text|multiple_choice|expression|sequence"
+        TEXT expected_answer_json
+        TEXT solution_explanation_asset_id FK
+        TEXT created_by  "ai|user"
+        TEXT created_by_user_id FK
+        TEXT status  "active|archived"
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    
+    TASK_SET_TEMPLATES {
+        TEXT id PK
+        TEXT topic_id FK
+        TEXT type  "exam|quiz|sequence"
+        TEXT title
+        TEXT description
+        INTEGER time_limit_ms
+        REAL passing_score
+        TEXT status  "active|archived"
+        TEXT created_by  "ai|user"
+        TEXT created_by_user_id FK
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    TASK_SET_TEMPLATE_ITEMS {
+        TEXT id PK
+        TEXT set_template_id FK
+        TEXT task_template_id FK
+        INTEGER order_index
+        INTEGER points
+        INTEGER item_time_limit_ms
+        TEXT depends_on_item_id FK
+        TEXT propagation_mode  "none|carry_numeric|carry_text|expression"
+        TEXT propagation_label
+        INTEGER created_at
+    }
+
+    TASK_SET_INSTANCES {
+        TEXT id PK
+        TEXT set_template_id FK
+        TEXT child_id FK
+        TEXT type  "exam|quiz|sequence"
+        TEXT title
+        TEXT description
+        INTEGER time_limit_ms
+        REAL passing_score
+        TEXT status  "draft|running|completed|canceled"
+        TEXT created_by_user_id FK
+        INTEGER started_at
+        INTEGER completed_at
+        INTEGER created_at
+        INTEGER updated_at
+    }
+
+    TASK_SET_INSTANCE_ITEMS {
+        TEXT id PK
+        TEXT set_instance_id FK
+        TEXT task_instance_id FK
+        INTEGER order_index
+        INTEGER points
+        INTEGER item_time_limit_ms
+        TEXT depends_on_item_id FK
+        TEXT propagation_mode  "none|carry_numeric|carry_text|expression"
+        TEXT propagation_label
         INTEGER created_at
     }
 
     ATTEMPTS {
         TEXT id PK
         TEXT child_id FK
-        TEXT task_id FK
+        TEXT task_instance_id FK
+        TEXT task_set_id FK
+        TEXT task_set_item_id FK
         TEXT attempt_client_id "UNIQUE_SCOPE"
         TEXT source  "digital|printed"
         TEXT answer_asset_id FK
@@ -87,18 +203,7 @@ erDiagram
         INTEGER updated_at
     }
 
-    SCHEDULED_LESSONS {
-        TEXT id PK
-        TEXT child_id FK
-        TEXT topic_id FK
-        TEXT task_id FK
-        INTEGER scheduled_for
-        TEXT source  "system|parent|tutor"
-        TEXT status  "scheduled|completed|canceled|expired"
-        TEXT notes
-        INTEGER created_at
-        INTEGER updated_at
-    }
+    ASSETS ||--o{ TASK_INSTANCES : "solution_explanation"
 
     ASSETS {
         TEXT id PK
@@ -153,16 +258,17 @@ erDiagram
     USERS ||--o{ CHILD_ACCESS : "has"
     CHILDREN ||--o{ CHILD_ACCESS : "memberships"
 
-    CURRICULUM_TOPICS ||--o{ TASKS : "has"
+    LESSON_TEMPLATES ||--o{ LESSON_INSTANCES : "instantiates"
+    CURRICULUM_TOPICS ||--o{ TASK_TEMPLATES : "templates"
+    LESSON_TEMPLATES ||--o{ TASK_TEMPLATES : "includes"
+    LESSON_INSTANCES ||--o{ TASK_INSTANCES : "includes"
+    TASK_TEMPLATES ||--o{ TASK_INSTANCES : "materializes"
+    TASK_INSTANCES ||--o{ TASK_INSTANCES : "refers_example"
     CHILDREN ||--o{ ATTEMPTS : "has"
-    TASKS ||--o{ ATTEMPTS : "attempts"
+    TASK_INSTANCES ||--o{ ATTEMPTS : "attempts"
 
     CHILDREN ||--o{ PROGRESS : "has"
     CURRICULUM_TOPICS ||--o{ PROGRESS : "tracked"
-
-    CHILDREN ||--o{ SCHEDULED_LESSONS : "scheduled"
-    CURRICULUM_TOPICS ||--o{ SCHEDULED_LESSONS : "for"
-    TASKS ||--o{ SCHEDULED_LESSONS : "specific"
 
     CHILDREN ||--o{ ASSETS : "owns (optional)"
 
@@ -176,8 +282,12 @@ erDiagram
     %% Asset references from attempts
     ASSETS ||--o{ ATTEMPTS : "answer_asset"
     ASSETS ||--o{ ATTEMPTS : "strokes_asset"
+    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : "consists_of"
+    TASK_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : "appears_in"
+    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : "consists_of"
+    TASK_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : "appears_in"
 
     %% Additional user relationships
-    USERS ||--o{ TASKS : "created_by (optional)"
+    USERS ||--o{ TASK_TEMPLATES : "created_by (optional)"
+    USERS ||--o{ LESSON_TEMPLATES : "created_by (optional)"
     USERS ||--o{ CHILD_ACCESS : "invited_by (optional)"
-
