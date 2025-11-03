@@ -1,72 +1,70 @@
-%% Domain: Child Education Progress
+%% Domain: Progress & Attempts (canonical in D1)
+%% Notes:
+%% - DO buffers attempts and flushes to D1; idempotency via client-generated key.
+%% - No PII in summaries; assets stored in R2 and referenced here.
 erDiagram
-    CHILDREN {
-        string id
-        string alias
-        int created_at
-        int updated_at
-    }
-
-    CURRICULUM_TOPICS {
-        string id
-        string subject
-        string code
-        string title
-    }
-
-    TASK_INSTANCES {
-        string id
-        string topic_id
-        string title
-        int difficulty
-        int created_at
-    }
+    %% Referenced entities defined in other ERDs
+    CHILDREN_REF_ONBOARDING {}
+    ASSETS_REF_ONBOARDING {}
+    CURRICULUM_TOPICS_REF_TASKS {}
+    TASK_INSTANCES_REF_TASKS {}
+    TASK_SET_INSTANCES_REF_TASKS {}
+    TASK_SET_INSTANCE_ITEMS_REF_TASKS {}
 
     ATTEMPTS {
-        string id
-        string child_id
-        string task_instance_id
-        string attempt_client_id
-        string source
-        string answer_asset_id
-        string strokes_asset_id
-        float score
-        float presentation_score
-        boolean correct
-        string summary_json
-        int duration_ms
-        int created_at
+        string id PK "ULID. Example: 01HATTEMPT1"
+        string child_id FK "FK → children.id"
+        string task_instance_id FK "FK → task_instances.id"
+        string task_set_instance_id FK "FK → task_set_instances.id (nullable)"
+        string task_set_instance_item_id FK "FK → task_set_instance_items.id (nullable)"
+        string attempt_client_id UK "Idempotency key from client/DO buffer"
+        string source "digital|printed. Example: digital"
+        string answer_asset_id FK "FK → assets.id (nullable; structured answer)"
+        string strokes_asset_id FK "FK → assets.id (nullable; stroke blob)"
+        float score "0..1 overall score (nullable)"
+        float presentation_score "0..1 presentation/format score (nullable)"
+        boolean correct "True when fully correct (nullable)"
+        string summary_json "Sanitized summary; no PII"
+        int duration_ms "Client-reported duration in ms (nullable)"
+        int created_at "Epoch ms created"
     }
 
     PROGRESS {
-        string id
-        string child_id
-        string topic_id
-        float mastery
-        int attempts_count
-        int last_practiced_at
-        string history_json
-        int created_at
-        int updated_at
+        string id PK "ULID. Example: 01HPROG001"
+        string child_id FK "FK → children.id"
+        string topic_id FK "FK → curriculum_topics.id"
+        float mastery "0..1 mastery estimate"
+        int attempts_count "Total attempts contributing"
+        int last_practiced_at "Epoch ms (nullable)"
+        string history_json "Optional compact history (may be replaced by events)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
     }
 
-    ASSETS {
-        string id
-        string type
-        string r2_bucket
-        string r2_key
-        string mime_type
-        int size_bytes
-        int created_at
+    %% Optional audit trail of mastery evolution (normalized alternative to history_json)
+    PROGRESS_EVENTS {
+        string id PK "ULID. Example: 01HPEVT001"
+        string child_id FK "FK → children.id"
+        string topic_id FK "FK → curriculum_topics.id"
+        string attempt_id FK "FK → attempts.id (nullable for manual/system)"
+        string reason "attempt|manual_adjust|system"
+        float delta_mastery "Signed change"
+        float mastery_after "Resulting mastery (0..1)"
+        int created_at "Epoch ms event time"
     }
 
-    CHILDREN ||--o{ ATTEMPTS : has
-    TASK_INSTANCES ||--o{ ATTEMPTS : attempts
+    %% Relationships
+    CHILDREN_REF_ONBOARDING ||--o{ ATTEMPTS : has
+    TASK_INSTANCES_REF_TASKS ||--o{ ATTEMPTS : attempts
+    TASK_SET_INSTANCES_REF_TASKS ||--o{ ATTEMPTS : context
+    TASK_SET_INSTANCE_ITEMS_REF_TASKS ||--o{ ATTEMPTS : context_item
 
-    ASSETS ||--o{ ATTEMPTS : answer
-    ASSETS ||--o{ ATTEMPTS : strokes
+    ASSETS_REF_ONBOARDING ||--o{ ATTEMPTS : answer
+    ASSETS_REF_ONBOARDING ||--o{ ATTEMPTS : strokes
 
-    CHILDREN ||--o{ PROGRESS : has
-    CURRICULUM_TOPICS ||--o{ PROGRESS : tracked
+    CHILDREN_REF_ONBOARDING ||--o{ PROGRESS : has
+    CURRICULUM_TOPICS_REF_TASKS ||--o{ PROGRESS : tracked
 
-    
+    CHILDREN_REF_ONBOARDING ||--o{ PROGRESS_EVENTS : has
+    CURRICULUM_TOPICS_REF_TASKS ||--o{ PROGRESS_EVENTS : tracked
+    ATTEMPTS ||--o{ PROGRESS_EVENTS : contributes
