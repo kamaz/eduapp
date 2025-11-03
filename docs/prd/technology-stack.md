@@ -60,7 +60,7 @@
 - R2: low-cost, S3-compatible storage for uploaded images and printable PDFs.
 - Cloudflare Vectorize: edge-native vector search for semantic retrieval.
 - Workers monolith: orchestrates generation/ingestion without a separate LangChain service; DOs coordinate steps and state.
-- Firestore: delegated auth (Firebase Auth), Workers validate tokens — keeps identity simple.
+- Firebase Auth: identity provider; Workers validate tokens — keeps identity simple.
 - Durable Objects + WebSocket: live review, preview and lightweight coordination (locks, small queues).
 - Cron Triggers: scheduled background jobs to refresh profiles and recommend learning plans (lesson scheduling arrives post‑MVP).
 
@@ -142,7 +142,7 @@
 
 - Monolith Workers keeps operations simple and low-friction early; Durable Objects handle needed stateful pieces (websockets, locks, orchestration).
 - Cloudflare-first stack (D1 / R2 / Vectorize) reduces network latency and vendor sprawl; Vectorize gives edge vector search.
-- Firestore for auth centralises identity with a mature provider; D1 remains canonical for learning data to avoid coupling.
+- Firebase Auth centralises identity with a mature provider; D1 remains canonical for learning data to avoid coupling.
 - Google Vision OCR gives best accuracy out of the box — faster to pilot; Tesseract is cheaper but less accurate (fallback).
 
 ### Minimal infra & services to provision (MVP)

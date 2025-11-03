@@ -9,12 +9,10 @@ Cloudflare Worker monolith providing API, auth, uploads, job orchestration, and 
 - GET `/children/:id` — fetch child + progress
 - POST `/assets/upload-url` — presigned R2 URL for uploads
 - POST `/assets/notify` — notify of completed upload
-- POST `/tasks/generate` — enqueue generation job, returns `{ job_id }`
+- POST `/generation/requests` — create generation request (idempotent), returns `{ job_id }`
 - GET `/lessons/scheduled?child_id=` — list scheduled lessons
 - WebSocket (DO)
   - `attempt.create`, `stroke.delta`, `flush.request`
-- Callback (HMAC)
-  - POST `/jobs/callback/generation` — generation completion callback (HMAC-signed)
 
 ## Bindings
 
@@ -34,3 +32,4 @@ Cloudflare Worker monolith providing API, auth, uploads, job orchestration, and 
 - Enforce AuthZ/AuthN on every path; tenant isolation by `parent_user_id`/`child_id`.
 - Rate limit generation, upload, and auth endpoints; apply idempotency keys on attempt submission.
 - Store outputs in R2; record metadata in D1; embeddings must exclude child-identifying text.
+- Generation runs within the Worker (DO orchestration); no external callbacks. Status recorded in D1 (generation requests/jobs/job steps).

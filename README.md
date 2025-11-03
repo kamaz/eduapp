@@ -6,7 +6,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 
 - apps/mobile — Expo app (child + parent)
 - apps/worker — Cloudflare Worker API and AI orchestration
-- packages/\* — shared types, utils, schema, ui, config
+- packages/\* — shared types, utils, schema, config
 - devtools/\* — local developer tools (e.g., Firebase Emulator)
 
 ## Requirements

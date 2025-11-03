@@ -1,19 +1,31 @@
-# Welcome to your Expo app 👋
+# Welcome to the Mobile App 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is the Expo React Native client in a Turborepo monorepo.
+
+Monorepo quickstart (recommended)
+
+- From repo root:
+  - `pnpm install`
+  - `pnpm dev:mobile` (or `pnpm -w dev:mobile`)
+
+Package-only alternative
+
+This package was scaffolded from [`create-expo-app`](https://www.npmjs.com/package/create-expo-app) and can be run directly if needed.
 
 ## Get started
 
 1. Install dependencies
 
    ```bash
-   npm install
+   pnpm install -w   # run at repo root
    ```
 
 2. Start the app
 
    ```bash
-   npx expo start
+   pnpm dev:mobile   # from repo root (preferred)
+   # or, within this package only:
+   pnpm ios          # or pnpm android
    ```
 
 In the output, you'll find options to open the app in a

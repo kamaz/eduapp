@@ -36,7 +36,7 @@
 
 ## Languages, Tooling & Versions
 
-- TypeScript everywhere (strict). Node 18+.
+- TypeScript everywhere (strict). Node 22+.
 - React Native + Expo (latest stable SDK compatible with RN Skia).
 - Package manager: pnpm. Monorepo: Turborepo.
 - Tests: vitest for TS packages/services; Detox/E2E optional later.

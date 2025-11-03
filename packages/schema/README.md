@@ -5,12 +5,10 @@ Purpose
 - Canonical D1 SQL migrations for core entities (users, children, curriculum, tasks, attempts, progress, lessons, assets, jobs, subscriptions, idempotency, sharing).
 - TypeScript row types for strict typing across Workers and DOs.
 
-Files
+Planned structure
 
-- sql/0001_init.sql — initial D1 schema per PRD rules.
-- sql/0002_partition_do.sql — D1↔DO partitioning: move heavy payloads to Assets and add sharing tables.
-- src/types.ts — TypeScript row types (PascalCase), epoch ms timestamps.
-- src/index.ts — exports ApiResponse helper and types.
+- sql/ — D1 migrations per PRD rules (pending)
+- src/ — TypeScript row types and exports (pending)
 
 Notes
 
@@ -23,8 +21,8 @@ Notes
 
 Usage
 
-- Apply migrations via Wrangler D1 migrations referencing sql/\*.sql.
-- Import types from @eduapp/schema for compile-time safety.
+- Migrations and types will be added in upcoming commits aligned to PRD Next Steps.
+- Target tables include: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions, idempotency.
 
 Partitioning summary
 
