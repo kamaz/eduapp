@@ -250,7 +250,7 @@ erDiagram
         INTEGER updated_at
     }
 
-    %% Generation & ingestion entities are modeled in docs/assets/erd-generation.mmd
+    %% Generation & ingestion entities are modeled in docs/erd/erd-generation.mmd
 
 
     %% Relationships (one-to-many where possible)
@@ -277,7 +277,7 @@ erDiagram
     USERS ||--o{ ACCESS_REQUESTS : "requests"
     USERS ||--o{ ACCESS_REQUESTS : "targets" 
 
-    %% See erd-generation.mmd for JOBS and related relationships
+    %% See docs/erd/erd-generation.mmd for JOBS and related relationships
 
     %% Asset references from attempts
     ASSETS ||--o{ ATTEMPTS : "answer_asset"

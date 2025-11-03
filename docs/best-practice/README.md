@@ -8,6 +8,6 @@ This directory captures conventions and patterns to keep these practices consist
 
 ## Source of Truth
 
-- ERDs under `docs/assets/*.mmd` reflect current intent.
+- ERDs under `docs/erd/*.mmd` reflect current intent.
 - PRD sections under `docs/prd/*` must be updated alongside diagram changes.
 - When changing schema intent, update both the ERD(s) and PRD before writing migrations.
