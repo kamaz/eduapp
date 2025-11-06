@@ -8,6 +8,7 @@ This directory captures conventions and patterns to keep these practices consist
 
 ## Source of Truth
 
-- ERDs under `docs/erd/*.mmd` reflect current intent.
+- ERDs under `docs/erd/erd-*.mmd` reflect current intent. Do not edit the combined file directly.
+- Generate the single combined ERD at `docs/erd/erd.mmd` via `pnpm erd:combine`.
 - PRD sections under `docs/prd/*` must be updated alongside diagram changes.
 - When changing schema intent, update both the ERD(s) and PRD before writing migrations.

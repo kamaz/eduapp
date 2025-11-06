@@ -1,0 +1,27 @@
+{
+  "name": "@eduapp/supabase-emulator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Supabase Emulator Suite for DB used for development.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "init": "pnpm exec supabase init",
+    "dev": "supabase start",
+    "start": "supabase start",
+    "stop": "supabase stop",
+    "status": "supabase status",
+    "db:import": "pnpm db:import:schema && pnpm db:import:curriculum",
+    "db:import:schema": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/schema/plsql/schema.sql",
+    "db:import:curriculum": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/english-year-5.sql",
+    "db:clear": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -c \"DROP SCHEMA IF EXISTS eduapp CASCADE;\"",
+    "db:reset": "pnpm db:clear && pnpm db:import",
+    "clean": "supabase stop && docker volume prune -f || true"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "supabase": "^2.54.11"
+  }
+}

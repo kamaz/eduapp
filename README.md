@@ -8,6 +8,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - apps/worker — Cloudflare Worker API and AI orchestration
 - packages/\* — shared types, utils, schema, config
 - devtools/\* — local developer tools (e.g., Firebase Emulator)
+- docs/schema — database schemas (SQLite/D1, PostgreSQL)
 
 ## Requirements
 
@@ -32,6 +33,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - `pnpm lint` — legacy alias used by Turbo tasks
 - `pnpm lint:fix` — legacy alias used by Turbo tasks
 - `pnpm clean` — remove all `node_modules` (workspace-wide), `dist` folders, and `.turbo` cache
+- `pnpm erd:combine` — generate single ERD (`docs/erd/erd.mmd`) from domain ERDs
 
 ## Clean
 
@@ -50,7 +52,7 @@ This is a Turborepo + pnpm monorepo for EduApp.
 ## Notes
 
 - Follow [AGENTS.md](AGENTS.md) for data rules, security, and testing.
-- Mermaid ERDs: follow [Mermaid ERD Best Practices](docs/best-practice/mermaid-erd-guidelines.md) for syntax, PK/FK/UK markers, and quoting style.
+- Mermaid ERDs: follow [Mermaid ERD Best Practices](docs/best-practice/mermaid-erd-guidelines.md) for syntax, PK/FK/UK markers, and quoting style. Domain ERDs live under `docs/erd/erd-*.mmd`; generate the combined ERD with `pnpm erd:combine`. SQLite/D1 schema lives at `docs/schema/sqllite/schema.sql`. PostgreSQL schema lives at `docs/schema/plsql/schema.sql`.
 - Avoid PII in logs/prompts; validate inputs; enforce auth on API routes.
 - Module system: ESM-only across the repo. Prefer `.mjs` for config files at the root.
 - Git hooks: Pre-commit runs staged ESLint/Prettier (lint-staged) and then `pnpm check` for full validation. Install hooks with `pnpm install` (runs `prepare`). To bypass in emergencies, use `--no-verify` (not recommended).
@@ -62,6 +64,26 @@ This is a Turborepo + pnpm monorepo for EduApp.
 - UI: `http://127.0.0.1:4000`
 - Seed demo users: `pnpm --filter @eduapp/firebase-emulator seed`
 - Worker validation: ensure `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099` when validating tokens in dev.
+
+## Devtools: Supabase (Local Postgres)
+
+- Location: `devtools/supabase`
+- Start: `pnpm --filter @eduapp/supabase-emulator dev`
+- Import schema: `pnpm --filter @eduapp/supabase-emulator db:import`
+- Reset schema: `pnpm --filter @eduapp/supabase-emulator db:reset` (drops `eduapp` schema)
+- Stop: `pnpm --filter @eduapp/supabase-emulator stop`
+- Status: `pnpm --filter @eduapp/supabase-emulator status`
+- Default DB URL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+## Sample Data
+
+- Seeds derived from UK National Curriculum (English) for Year 1 and Year 5.
+- Location: `docs/seed` (SQLite/D1 and PostgreSQL variants).
+- Apply (SQLite example):
+  - `sqlite3 app.db < docs/schema/sqllite/schema.sql`
+  - `sqlite3 app.db < docs/seed/sqllite/english-year-1.sql`
+- Apply (Postgres example):
+  - `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/english-year-1.sql`
 
 ## Migration note (Generation consolidation)
 

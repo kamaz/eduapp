@@ -33,6 +33,7 @@
 - apps/worker — Cloudflare Workers API (TypeScript) including generation pipeline
 - packages/\* — shared types, utils, schema, config
 - docs/prd — product docs (split per section)
+- docs/schema — database schemas (SQLite/D1, PostgreSQL)
 
 ## Languages, Tooling & Versions
 
@@ -110,6 +111,7 @@
 - Mobile: pnpm -w dev:mobile (Expo dev client)
 - Worker: pnpm -w dev:worker (wrangler dev)
 - Emulators: pnpm -w dev:emulators (Firebase Auth emulator)
+- DB (Supabase local): pnpm --filter @eduapp/supabase-emulator dev
 - Shared packages build: pnpm -w build
 - Clean: pnpm clean (removes all node_modules across workspaces, dist folders, and .turbo cache; run pnpm install afterwards)
 
@@ -118,6 +120,7 @@
 - Does code follow data rules (D1 canonical, R2 assets, no PII in logs/prompts)?
 - Are auth checks and tenant isolation present on every path?
 - Are inputs validated and outputs typed?
+- Are local schemas up to date (docs/schema) and applied to local DB if needed?
 - Are idempotency keys and rate limits applied where needed?
 - Are tests and docs updated?
 - Pre-commit: Husky + lint-staged must pass (ESLint/Prettier) before commit.
@@ -133,3 +136,6 @@
 - [Data Requirements](docs/prd/data-requirements.md)
 - [Security Plan](docs/prd/security-plan.md)
 - [Mermaid ERD Best Practices](docs/best-practice/mermaid-erd-guidelines.md)
+- SQLite/D1 schema: docs/schema/sqllite/schema.sql
+- PostgreSQL schema: docs/schema/plsql/schema.sql
+- Seed data (English Year 1 & 5): docs/seed

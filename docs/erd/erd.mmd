@@ -1,293 +1,465 @@
 erDiagram
+
     USERS {
-        TEXT id PK
-        TEXT firebase_uid UNIQUE
-        TEXT email UNIQUE
-        TEXT display_name
-        TEXT role  "parent|admin"
-        TEXT billing_customer_id
-        INTEGER created_at
-        INTEGER updated_at
+                string id PK "ULID. Example: 01HXYZ123ABC"
+                string firebase_uid UK "Firebase UID. Example: qweRtY12345"
+                string email UK "Login email. Example: parent@example.com"
+                string display_name "Public name. Example: Alex P."
+                string billing_customer_id "Stripe customer. Example: cus_1234"
+                string settings_json "Account prefs JSON. Example: {'locale':'en-GB'}"
+                int created_at "Epoch ms created. Example: 1718035200000"
+                int updated_at "Epoch ms updated. Example: 1718640000000"
     }
 
     CHILDREN {
-        TEXT id PK
-        TEXT primary_parent_user_id FK
-        TEXT alias
-        INTEGER dob_year
-        INTEGER dob_month
-        TEXT preferences_json
-        TEXT consent_json
-        INTEGER created_at
-        INTEGER updated_at
+                string id PK "ULID. Example: 01HCHILDABC"
+                string primary_parent_user_id FK "FK → users.id (creator/owner)"
+                string alias "Pseudonymous display. Example: Explorer Fox"
+                string given_name "Legal given name (optional). Example: Charlie"
+                string family_name "Legal family name (optional). Example: Smith"
+                string preferred_name "What the child prefers to be called (optional). Example: Charlie"
+                string short_name "Short UI name (explicit). Example: Char"
+                string nickname "Colloquial nickname (explicit). Example: Champ"
+                string email UK "Internal routing email only; not deliverable. Example: child_01HCHILDABC@internal"
+                string avatar_asset_id FK "FK → assets.id (optional avatar image)"
+                string locale "Child content locale (optional). Example: en-GB"
+                int dob_year "Year of birth (optional). Example: 2015"
+                int dob_month "Month (1..12, optional). Example: 6"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+                int deleted_at "Epoch ms soft delete (nullable)"
     }
 
-    CHILD_ACCESS {
-        TEXT id PK
-        TEXT child_id FK
-        TEXT user_id FK
-        TEXT persona_role  "parent|tutor|teacher|family"
-        TEXT access_level  "viewer|contributor|manager"
-        INTEGER is_manager  "0|1"
-        TEXT invited_by_user_id FK
-        INTEGER revoked_at
-        INTEGER created_at
-        INTEGER updated_at
+    ASSETS {
+                string id PK "ULID. Example: 01HASSETABC"
+                string owner_child_id FK "FK → children.id (optional owner)"
+                string type "image|pdf|stroke_blob|task_definition|ocr_text"
+                string r2_bucket "R2 bucket name"
+                string r2_key "R2 object key"
+                string mime_type "MIME type. Example: image/png"
+                int size_bytes "Object size in bytes"
+                string checksum_sha256 "Hex checksum for integrity"
+                int created_at "Epoch ms created"
     }
 
-    CURRICULUM_TOPICS {
-        TEXT id PK
-        TEXT subject
-        TEXT code
-        TEXT title
-        TEXT description
-        TEXT prerequisites_json
-        TEXT grade_band
-        INTEGER created_at
-    }
-
-    LESSON_TEMPLATES {
-        TEXT id PK
-        TEXT topic_id FK
-        TEXT title
-        TEXT overview_asset_id FK
-        TEXT style
-        INTEGER difficulty
-        TEXT status  "active|archived"
-        TEXT created_by  "ai|user"
-        TEXT created_by_user_id FK
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    LESSON_INSTANCES {
-        TEXT id PK
-        TEXT lesson_template_id FK
-        TEXT child_id FK
-        TEXT title
-        TEXT overview_asset_id FK
-        TEXT style
-        INTEGER difficulty
-        TEXT personalization_params_json
-        TEXT created_by_user_id FK
-        TEXT status  "draft|active|archived"
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    TASK_TEMPLATES {
-        TEXT id PK
-        TEXT topic_id FK
-        TEXT lesson_template_id FK
-        TEXT title
-        TEXT style
-        INTEGER difficulty
-        TEXT variable_schema_json
-        TEXT rubric_json
-        TEXT definition_asset_id FK
-        TEXT created_by  "ai|user"
-        TEXT created_by_user_id FK
-        TEXT status  "active|archived"
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    TASK_INSTANCES {
-        TEXT id PK
-        TEXT task_template_id FK
-        TEXT topic_id FK
-        TEXT lesson_instance_id FK
-        TEXT child_id FK
-        TEXT role  "example|practice|assessment"
-        TEXT example_root_task_instance_id FK
-        TEXT title
-        TEXT style
-        INTEGER difficulty
-        TEXT definition_asset_id FK
-        TEXT answer_type  "numeric|text|multiple_choice|expression|sequence"
-        TEXT expected_answer_json
-        TEXT solution_explanation_asset_id FK
-        TEXT created_by  "ai|user"
-        TEXT created_by_user_id FK
-        TEXT status  "active|archived"
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    
-    TASK_SET_TEMPLATES {
-        TEXT id PK
-        TEXT topic_id FK
-        TEXT type  "exam|quiz|sequence"
-        TEXT title
-        TEXT description
-        INTEGER time_limit_ms
-        REAL passing_score
-        TEXT status  "active|archived"
-        TEXT created_by  "ai|user"
-        TEXT created_by_user_id FK
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    TASK_SET_TEMPLATE_ITEMS {
-        TEXT id PK
-        TEXT set_template_id FK
-        TEXT task_template_id FK
-        INTEGER order_index
-        INTEGER points
-        INTEGER item_time_limit_ms
-        TEXT depends_on_item_id FK
-        TEXT propagation_mode  "none|carry_numeric|carry_text|expression"
-        TEXT propagation_label
-        INTEGER created_at
-    }
-
-    TASK_SET_INSTANCES {
-        TEXT id PK
-        TEXT set_template_id FK
-        TEXT child_id FK
-        TEXT type  "exam|quiz|sequence"
-        TEXT title
-        TEXT description
-        INTEGER time_limit_ms
-        REAL passing_score
-        TEXT status  "draft|running|completed|canceled"
-        TEXT created_by_user_id FK
-        INTEGER started_at
-        INTEGER completed_at
-        INTEGER created_at
-        INTEGER updated_at
-    }
-
-    TASK_SET_INSTANCE_ITEMS {
-        TEXT id PK
-        TEXT set_instance_id FK
-        TEXT task_instance_id FK
-        INTEGER order_index
-        INTEGER points
-        INTEGER item_time_limit_ms
-        TEXT depends_on_item_id FK
-        TEXT propagation_mode  "none|carry_numeric|carry_text|expression"
-        TEXT propagation_label
-        INTEGER created_at
+    ACCESS_REQUESTS {
+                string id PK "ULID. Example: 01HREQ123"
+                string requester_user_id FK "FK → users.id (requester)"
+                string target_parent_user_id FK "FK → users.id (nullable)"
+                string target_parent_email "Email when parent unknown"
+                string desired_persona_role "parent|tutor|teacher|family"
+                string desired_access_level "viewer|contributor|manager"
+                string status "pending|accepted|declined|expired|canceled"
+                string token UK "Single-use HMAC token"
+                int expires_at "Epoch ms expiry"
+                string message "Optional short message"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+                int acted_at "Epoch ms acted (nullable)"
+                string acted_by_user_id FK "FK → users.id (nullable)"
     }
 
     ATTEMPTS {
-        TEXT id PK
-        TEXT child_id FK
-        TEXT task_instance_id FK
-        TEXT task_set_id FK
-        TEXT task_set_item_id FK
-        TEXT attempt_client_id "UNIQUE_SCOPE"
-        TEXT source  "digital|printed"
-        TEXT answer_asset_id FK
-        TEXT strokes_asset_id FK
-        REAL score
-        REAL presentation_score
-        INTEGER correct  "0|1"
-        TEXT summary_json
-        INTEGER duration_ms
-        INTEGER created_at
+                string id PK "ULID. Example: 01HATTEMPT1"
+                string child_id FK "FK → children.id"
+                string task_instance_id FK "FK → task_instances.id"
+                string task_set_instance_id FK "FK → task_set_instances.id (nullable)"
+                string task_set_instance_item_id FK "FK → task_set_instance_items.id (nullable)"
+                string attempt_client_id UK "Idempotency key from client/DO buffer"
+                string source "digital|printed. Example: digital"
+                string answer_asset_id FK "FK → assets.id (nullable; structured answer)"
+                string strokes_asset_id FK "FK → assets.id (nullable; stroke blob)"
+                float score "0..1 overall score (nullable)"
+                float presentation_score "0..1 presentation/format score (nullable)"
+                boolean correct "True when fully correct (nullable)"
+                string summary_json "Sanitized summary; no PII"
+                int duration_ms "Client-reported duration in ms (nullable)"
+                int created_at "Epoch ms created"
+    }
+
+    CHILD_ACCESS {
+                string id PK "ULID. Example: 01HACCESSXYZ"
+                string child_id FK "FK → children.id"
+                string user_id FK "FK → users.id (member)"
+                string persona_role "parent|tutor|teacher|family. Example: parent"
+                string access_level "viewer|contributor|manager. Example: contributor"
+                boolean is_primary_parent "True only for primary parent membership"
+                string invited_by_user_id FK "FK → users.id (inviter)"
+                int revoked_at "Epoch ms revoked (nullable)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    CHILD_OBSERVATIONS {
+                string id PK "ULID observation"
+                string child_id FK "FK → children.id"
+                string user_id FK "FK → users.id (author)"
+                string note_type "observation|wellbeing|progress|other"
+                string body "Sanitized short note"
+                string status "active|superseded|archived"
+                string superseded_by_observation_id FK "FK → child_observations.id (nullable)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    CHILD_PROFILE {
+                string id PK "ULID profile"
+                string child_id FK "FK → children.id"
+                string created_by_user_id FK "FK → users.id (collector/author); one active profile per (child, user)"
+                string updated_by_user_id FK "FK → users.id (last editor, nullable)"
+                boolean authored_by_child "True when content was entered by the child during session"
+                string persona_role "parent|tutor|teacher|family"
+                string status "active|archived"
+                string learning_style "story|visual|puzzle|experiment"
+                string profile_summary "Short sanitized summary. Example: Loves LEGO & space"
+                string sensitivities "Short tags CSV. Example: fine-motor-challenges"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    CHILD_PROFILE_ITEMS {
+                string id PK "ULID item"
+                string profile_id FK "FK → child_profile.id"
+                string type "interest|book|movie|game"
+                string value "Short tag or title. Example: LEGO, Finding Nemo"
+                int created_at "Epoch ms created"
+    }
+
+    CONSENT_RECORDS {
+                string id PK "ULID. Example: 01HCONSENTX"
+                string user_id FK "FK → users.id (granting parent)"
+                string child_id FK "FK → children.id (subject child)"
+                string consent_type "data_processing|wearables|third_party_sharing|email_notifications"
+                string action "granted|revoked"
+                string version "Policy version. Example: v1"
+                string scope "Optional scope label. Example: wellbeing_data"
+                string reason "Optional note or context"
+                boolean was_primary_parent "Snapshot if user was primary at the time"
+                int created_at "Epoch ms event time"
+    }
+
+    CURRICULUM_PREREQS {
+                string id PK "ULID. Example: 01HPREREQ1"
+                string from_topic_id FK "FK → curriculum_topics.id (requires)"
+                string to_topic_id FK "FK → curriculum_topics.id (is prerequisite)"
+                int created_at "Epoch ms created"
+    }
+
+    CURRICULUM_SUBJECTS {
+                string id PK "ULID. Example: 01HSUBJUKMATHS"
+                string country_code "ISO code. Example: UK"
+                string key UK "Subject key. Example: maths"
+                string title "Display title. Example: Mathematics"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    CURRICULUM_TOPICS {
+                string id PK "ULID. Example: 01HCURRABC"
+                string subject "Subject key. Example: maths"
+                string subject_id FK "FK → curriculum_subjects.id"
+                string code UK "Curriculum code. Example: MATH.KS2.N1"
+                string title "Short title. Example: Place Value"
+                string description "Long description (optional)"
+                string grade_band "KS1|KS2|KS3. Example: KS2"
+                int recommended_age_min "Guidance only (years). Example: 7"
+                int recommended_age_max "Guidance only (years). Example: 11"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    GENERATION_REQUESTS {
+                string id PK "ULID. Example: 01HGENREQABC"
+                string requested_by_user_id FK "FK → users.id (initiator)"
+                string target_child_id FK "FK → children.id (personalization subject, nullable)"
+                string source "upload|email|app_prompt|system. Example: upload"
+                string intent "create_lesson|create_tasks|augment_examples|ocr_only"
+                string notes "Optional short note/context"
+                string idempotency_key UK "Unique per (requested_by_user_id, source, intent). Example: 'email:msgid123'"
+                string status "pending|processing|completed|canceled|failed. Example: pending"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+                int completed_at "Epoch ms completed (nullable)"
+    }
+
+    JOBS {
+                string id PK "ULID. Example: 01HJOBABC"
+                string request_id FK "FK → generation_requests.id"
+                string child_id FK "FK → children.id (dedicated child context, nullable)"
+                string kind "generation|ocr|persist|email. Example: generation"
+                string status "queued|running|succeeded|failed|canceled. Example: queued"
+                string idempotency_key UK "Unique per (request_id, kind). Example: 'gen-01HGENREQABC'"
+                int run_at "Epoch ms scheduled run (nullable)"
+                int attempts "Retry count"
+                string input_asset_id FK "FK → assets.id (nullable, single main input)"
+                string output_asset_id FK "FK → assets.id (nullable)"
+                string error_asset_id FK "FK → assets.id (nullable)"
+                string error_code "Short code. Example: MODEL_TIMEOUT"
+                string error_message_redacted "Redacted message; no PII"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    JOB_STEPS {
+                string id PK "ULID. Example: 01HJOBSTEP1"
+                string job_id FK "FK → jobs.id"
+                string step_kind "ocr|extract|map|generate_tasks|schedule_lesson|persist"
+                string status "queued|running|succeeded|failed|skipped"
+                string input_asset_id FK "FK → assets.id (nullable)"
+                string output_asset_id FK "FK → assets.id (nullable)"
+                string error_code "Short code (nullable)"
+                string error_message_redacted "Redacted message; no PII (nullable)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    LESSON_INSTANCES {
+                string id PK "ULID. Example: 01HLINSTAB"
+                string lesson_template_id FK "FK → lesson_templates.id"
+                string child_id FK "FK → children.id (personalised recipient)"
+                string title "Personalised title (optional override)"
+                string overview_asset_id FK "FK → assets.id (personalised explanation)"
+                string style "story|visual|puzzle|experiment"
+                int difficulty "1..5"
+                string personalization_params_json "JSON snapshot of parameters/profile used"
+                string created_by_user_id FK "FK → users.id (nullable)"
+                string status "draft|active|archived"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
+
+    LESSON_TEMPLATES {
+                string id PK "ULID. Example: 01HLTMPLAB"
+                string topic_id FK "FK → curriculum_topics.id"
+                string title "Template. Example: Place Value — Tens & Ones"
+                string overview_asset_id FK "FK → assets.id (explanation/notes PDF/JSON)"
+                string style "story|visual|puzzle|experiment. Example: story"
+                int difficulty "1..5 (relative). Example: 2"
+                string status "active|archived. Example: active"
+                string created_by "ai|user. Example: ai"
+                string created_by_user_id FK "FK → users.id (nullable if ai)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
     }
 
     PROGRESS {
-        TEXT id PK
-        TEXT child_id FK
-        TEXT topic_id FK
-        REAL mastery  "0..1"
-        INTEGER attempts_count
-        INTEGER last_practiced_at
-        TEXT history_json
-        INTEGER created_at
-        INTEGER updated_at
+                string id PK "ULID. Example: 01HPROG001"
+                string child_id FK "FK → children.id"
+                string topic_id FK "FK → curriculum_topics.id"
+                float mastery "0..1 mastery estimate"
+                int attempts_count "Total attempts contributing"
+                int last_practiced_at "Epoch ms (nullable)"
+                string history_json "Optional compact history (may be replaced by events)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
     }
 
-    ASSETS ||--o{ TASK_INSTANCES : "solution_explanation"
-
-    ASSETS {
-        TEXT id PK
-        TEXT owner_child_id FK
-        TEXT type  "image|pdf|stroke_blob|task_definition|ocr_text"
-        TEXT r2_bucket
-        TEXT r2_key
-        TEXT mime_type
-        INTEGER size_bytes
-        TEXT checksum_sha256
-        INTEGER created_at
+    PROGRESS_EVENTS {
+                string id PK "ULID. Example: 01HPEVT001"
+                string child_id FK "FK → children.id"
+                string topic_id FK "FK → curriculum_topics.id"
+                string attempt_id FK "FK → attempts.id (nullable for manual/system)"
+                string reason "attempt|manual_adjust|system"
+                float delta_mastery "Signed change"
+                float mastery_after "Resulting mastery (0..1)"
+                int created_at "Epoch ms event time"
     }
 
-    
-
-    ACCESS_REQUESTS {
-        TEXT id PK
-        TEXT requester_user_id FK
-        TEXT target_parent_user_id FK
-        TEXT target_parent_email
-        TEXT desired_persona_role  "parent|tutor|teacher|family"
-        TEXT desired_access_level  "viewer|contributor|manager"
-        TEXT status  "pending|accepted|declined|expired|canceled"
-        TEXT token
-        INTEGER expires_at
-        TEXT message
-        INTEGER created_at
-        INTEGER updated_at
-        INTEGER acted_at
-        TEXT acted_by_user_id FK
+    REQUEST_ASSETS {
+                string id PK "ULID. Example: 01HREQASSETX"
+                string request_id FK "FK → generation_requests.id"
+                string asset_id FK "FK → assets.id"
+                string role "image|email|document|description|other"
+                int created_at "Epoch ms created"
     }
 
     SUBSCRIPTIONS {
-        TEXT id PK
-        TEXT user_id FK
-        TEXT provider  "stripe"
-        TEXT provider_customer_id
-        TEXT provider_subscription_id
-        TEXT plan_id
-        TEXT status  "trialing|active|past_due|canceled|incomplete|incomplete_expired"
-        INTEGER current_period_end
-        INTEGER cancel_at_period_end  "0|1"
-        INTEGER created_at
-        INTEGER updated_at
+                string id PK "ULID. Example: 01HSUBABC"
+                string user_id FK "FK → users.id"
+                string provider "stripe"
+                string provider_customer_id "Stripe customer. Example: cus_1234"
+                string provider_subscription_id UK "Stripe sub. Example: sub_1234"
+                string plan_id "Business plan key. Example: premium-monthly"
+                string status "trialing|active|past_due|canceled|incomplete|incomplete_expired"
+                int current_period_end "Epoch ms period end"
+                boolean cancel_at_period_end "True if will cancel at period end"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
     }
 
-    %% Generation & ingestion entities are modeled in docs/erd/erd-generation.mmd
+    TASK_INSTANCES {
+                string id PK "ULID. Example: 01HTASKINS"
+                string task_template_id FK "FK → task_templates.id (nullable for manual)"
+                string topic_id FK "FK → curriculum_topics.id"
+                string lesson_instance_id FK "FK → lesson_instances.id (nullable)"
+                string child_id FK "FK → children.id"
+                string role "example|practice|assessment. Example: practice"
+                string example_root_task_instance_id FK "FK → task_instances.id (nullable; practice refers back to example)"
+                string title "Task title. Example: Add two-digit numbers"
+                string style "story|visual|puzzle|experiment. Example: visual"
+                int difficulty "1..5 (relative difficulty). Example: 3"
+                string definition_asset_id FK "FK → assets.id (task definition JSON/PDF)"
+                string answer_type "numeric|text|multiple_choice|expression|sequence"
+                string expected_answer_json "Serialized correct answer (typed by answer_type)"
+                string solution_explanation_asset_id FK "FK → assets.id (step-by-step solution/explanation)"
+                string created_by "ai|user. Example: ai"
+                string created_by_user_id FK "FK → users.id (nullable if ai)"
+                string status "active|archived. Example: active"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
 
+    TASK_SET_INSTANCES {
+                string id PK "ULID. Example: 01HSETINS1"
+                string set_template_id FK "FK → task_set_templates.id (nullable for ad-hoc)"
+                string child_id FK "FK → children.id"
+                string type "exam|quiz|sequence"
+                string title "Instance title (optional)"
+                string description "Optional notes"
+                int time_limit_ms "Total time (nullable)"
+                float passing_score "0..1 threshold (nullable)"
+                string status "draft|running|completed|canceled"
+                string created_by_user_id FK "FK → users.id (nullable)"
+                int started_at "Epoch ms (nullable)"
+                int completed_at "Epoch ms (nullable)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
 
-    %% Relationships (one-to-many where possible)
-    USERS ||--o{ CHILDREN : "primary_parent"
-    USERS ||--o{ CHILD_ACCESS : "has"
-    CHILDREN ||--o{ CHILD_ACCESS : "memberships"
+    TASK_SET_INSTANCE_ITEMS {
+                string id PK "ULID. Example: 01HSETIIT1"
+                string set_instance_id FK "FK → task_set_instances.id"
+                string task_instance_id FK "FK → task_instances.id"
+                int order_index "0‑based display order"
+                int points "Score weight per item (nullable)"
+                int item_time_limit_ms "Per-item time limit (nullable)"
+                string depends_on_item_id FK "FK → task_set_instance_items.id (nullable)"
+                string propagation_mode "none|carry_numeric|carry_text|expression (nullable)"
+                string propagation_label "Optional label for carried value"
+                int created_at "Epoch ms created"
+    }
 
-    LESSON_TEMPLATES ||--o{ LESSON_INSTANCES : "instantiates"
-    CURRICULUM_TOPICS ||--o{ TASK_TEMPLATES : "templates"
-    LESSON_TEMPLATES ||--o{ TASK_TEMPLATES : "includes"
-    LESSON_INSTANCES ||--o{ TASK_INSTANCES : "includes"
-    TASK_TEMPLATES ||--o{ TASK_INSTANCES : "materializes"
-    TASK_INSTANCES ||--o{ TASK_INSTANCES : "refers_example"
-    CHILDREN ||--o{ ATTEMPTS : "has"
-    TASK_INSTANCES ||--o{ ATTEMPTS : "attempts"
+    TASK_SET_INSTANCE_LESSONS {
+                string id PK "ULID. Example: 01HSTIL1"
+                string set_instance_id FK "FK → task_set_instances.id"
+                string lesson_instance_id FK "FK → lesson_instances.id"
+                int created_at "Epoch ms created"
+    }
 
-    CHILDREN ||--o{ PROGRESS : "has"
-    CURRICULUM_TOPICS ||--o{ PROGRESS : "tracked"
+    TASK_SET_TEMPLATES {
+                string id PK "ULID. Example: 01HSETABC"
+                string topic_id FK "FK → curriculum_topics.id (nullable; cross-topic sets allowed)"
+                string type "exam|quiz|sequence. Example: exam"
+                string title "Set title. Example: KS2 Arithmetic Mock A"
+                string description "Optional notes"
+                int time_limit_ms "Total time limit (nullable for untimed)"
+                float passing_score "0..1 threshold (nullable)"
+                string status "active|archived. Example: active"
+                string created_by "ai|user. Example: user"
+                string created_by_user_id FK "FK → users.id (nullable if ai)"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
 
-    CHILDREN ||--o{ ASSETS : "owns (optional)"
+    TASK_SET_TEMPLATE_ITEMS {
+                string id PK "ULID. Example: 01HSETITM1"
+                string set_template_id FK "FK → task_set_templates.id"
+                string task_template_id FK "FK → task_templates.id"
+                int order_index "0‑based display order"
+                int points "Score weight per item (nullable)"
+                int item_time_limit_ms "Per-item time limit (nullable)"
+                string depends_on_item_id FK "FK → task_set_template_items.id (nullable; sequence dependency)"
+                string propagation_mode "none|carry_numeric|carry_text|expression (nullable)"
+                string propagation_label "Optional label for carried value"
+                int created_at "Epoch ms created"
+    }
 
-    USERS ||--o{ SUBSCRIPTIONS : "has"
+    TASK_SET_TEMPLATE_LESSONS {
+                string id PK "ULID. Example: 01HSTTL1"
+                string set_template_id FK "FK → task_set_templates.id"
+                string lesson_template_id FK "FK → lesson_templates.id"
+                int created_at "Epoch ms created"
+    }
 
-    USERS ||--o{ ACCESS_REQUESTS : "requests"
-    USERS ||--o{ ACCESS_REQUESTS : "targets" 
+    TASK_TEMPLATES {
+                string id PK "ULID. Example: 01HTMPLABC"
+                string topic_id FK "FK → curriculum_topics.id"
+                string lesson_template_id FK "FK → lesson_templates.id (nullable)"
+                string title "Template title. Example: Two-digit addition with carry"
+                string style "story|visual|puzzle|experiment. Example: visual"
+                int difficulty "1..5 (relative). Example: 3"
+                string variable_schema_json "JSON schema for parameters (e.g., a,b where a+b<=20)"
+                string rubric_json "Grading/rubric metadata (optional)"
+                string definition_asset_id FK "FK → assets.id (template description/examples)"
+                string created_by "ai|user. Example: user"
+                string created_by_user_id FK "FK → users.id (nullable if ai)"
+                string status "active|archived. Example: active"
+                int created_at "Epoch ms created"
+                int updated_at "Epoch ms updated"
+    }
 
-    %% See docs/erd/erd-generation.mmd for JOBS and related relationships
-
-    %% Asset references from attempts
-    ASSETS ||--o{ ATTEMPTS : "answer_asset"
-    ASSETS ||--o{ ATTEMPTS : "strokes_asset"
-    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : "consists_of"
-    TASK_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : "appears_in"
-    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : "consists_of"
-    TASK_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : "appears_in"
-
-    %% Additional user relationships
-    USERS ||--o{ TASK_TEMPLATES : "created_by (optional)"
-    USERS ||--o{ LESSON_TEMPLATES : "created_by (optional)"
-    USERS ||--o{ CHILD_ACCESS : "invited_by (optional)"
+    USERS ||--o{ CHILDREN : primary_parent
+    USERS ||--o{ CHILD_ACCESS : has
+    CHILDREN ||--o{ CHILD_ACCESS : memberships
+    USERS ||--o{ ACCESS_REQUESTS : requests
+    USERS ||--o{ SUBSCRIPTIONS : subscribes
+    USERS ||--o{ CONSENT_RECORDS : grants
+    CHILDREN ||--o{ CONSENT_RECORDS : consents_for
+    CHILDREN ||--o{ CHILD_PROFILE : profiles
+    USERS ||--o{ CHILD_PROFILE : authored
+    USERS ||--o{ CHILD_PROFILE : edited
+    CHILD_PROFILE ||--o{ CHILD_PROFILE_ITEMS : items
+    CHILDREN ||--o{ CHILD_OBSERVATIONS : observations
+    USERS ||--o{ CHILD_OBSERVATIONS : authored
+    CHILDREN ||--o{ ASSETS : owns
+    ASSETS ||--o{ CHILDREN : avatar
+    CURRICULUM_SUBJECTS ||--o{ CURRICULUM_TOPICS : has
+    CURRICULUM_TOPICS ||--o{ CURRICULUM_PREREQS : requires
+    CURRICULUM_TOPICS ||--o{ CURRICULUM_PREREQS : prerequisite_of
+    CURRICULUM_TOPICS ||--o{ LESSON_TEMPLATES : explains
+    LESSON_TEMPLATES ||--o{ LESSON_INSTANCES : instantiates
+    CURRICULUM_TOPICS ||--o{ TASK_TEMPLATES : templates
+    LESSON_TEMPLATES ||--o{ TASK_TEMPLATES : includes
+    LESSON_INSTANCES ||--o{ TASK_INSTANCES : includes
+    TASK_TEMPLATES ||--o{ TASK_INSTANCES : materializes
+    TASK_INSTANCES ||--o{ TASK_INSTANCES : refers_example
+    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : consists_of
+    TASK_TEMPLATES ||--o{ TASK_SET_TEMPLATE_ITEMS : appears_in
+    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : consists_of
+    TASK_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : appears_in
+    TASK_SET_TEMPLATES ||--o{ TASK_SET_TEMPLATE_LESSONS : covers
+    LESSON_TEMPLATES ||--o{ TASK_SET_TEMPLATE_LESSONS : linked
+    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : covers
+    LESSON_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : linked
+    USERS ||--o{ TASK_TEMPLATES : created_by
+    USERS ||--o{ LESSON_TEMPLATES : created_by
+    USERS ||--o{ TASK_INSTANCES : created_by
+    USERS ||--o{ LESSON_INSTANCES : created_by
+    ASSETS ||--o{ TASK_TEMPLATES : definition
+    ASSETS ||--o{ TASK_INSTANCES : definition
+    ASSETS ||--o{ TASK_INSTANCES : solution_explanation
+    ASSETS ||--o{ LESSON_TEMPLATES : overview
+    ASSETS ||--o{ LESSON_INSTANCES : overview
+    CHILDREN ||--o{ ATTEMPTS : has
+    TASK_INSTANCES ||--o{ ATTEMPTS : attempts
+    TASK_SET_INSTANCES ||--o{ ATTEMPTS : context
+    TASK_SET_INSTANCE_ITEMS ||--o{ ATTEMPTS : context_item
+    ASSETS ||--o{ ATTEMPTS : answer
+    ASSETS ||--o{ ATTEMPTS : strokes
+    CHILDREN ||--o{ PROGRESS : has
+    CURRICULUM_TOPICS ||--o{ PROGRESS : tracked
+    CHILDREN ||--o{ PROGRESS_EVENTS : has
+    CURRICULUM_TOPICS ||--o{ PROGRESS_EVENTS : tracked
+    ATTEMPTS ||--o{ PROGRESS_EVENTS : contributes
+    USERS ||--o{ GENERATION_REQUESTS : requested
+    CHILDREN ||--o{ GENERATION_REQUESTS : targeted
+    GENERATION_REQUESTS ||--o{ REQUEST_ASSETS : inputs
+    ASSETS ||--o{ REQUEST_ASSETS : asset
+    GENERATION_REQUESTS ||--o{ JOBS : enqueues
+    CHILDREN ||--o{ JOBS : for_child
+    ASSETS ||--o{ JOBS : input
+    ASSETS ||--o{ JOBS : output
+    ASSETS ||--o{ JOBS : error
+    JOBS ||--o{ JOB_STEPS : has
+    ASSETS ||--o{ JOB_STEPS : step_input
+    ASSETS ||--o{ JOB_STEPS : step_output

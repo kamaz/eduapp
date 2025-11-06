@@ -8,6 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "erd:combine": "node ./devtools/scripts/merge-erds.mjs",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "dev:mobile": "turbo run dev --filter=mobile",
@@ -40,6 +41,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "prettier": "^3.6.2",
+    "supabase": "^2.54.11",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
