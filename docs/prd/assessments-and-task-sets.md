@@ -23,11 +23,11 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
 - `task_set_templates`
   - Fields: `id`, `type` (exam|quiz|sequence), `title`, `description`, `time_limit_ms?`, `passing_score?`, `status`, `created_by`, `created_by_user_id?`, `created_at`, `updated_at`
 - `task_set_template_items`
-  - Fields: `id`, `set_template_id`, `task_template_id`, `order_index`, `points?`, `item_time_limit_ms?`, `depends_on_item_id?`, `propagation_mode?` (none|carry_numeric|carry_text|expression), `propagation_label?`, `created_at`
+  - Fields: `id`, `set_template_id`, `task_template_id`, `order_id?`, `points?`, `time_limit_ms?`, `depends_on_id?`, `asset_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
 - `task_set_instances`
   - Fields: `id`, `set_template_id?`, `child_id`, `type`, `title?`, `description?`, `time_limit_ms?`, `passing_score?`, `status`, `created_by_user_id?`, `started_at?`, `completed_at?`, `created_at`, `updated_at`
 - `task_set_instance_items`
-  - Fields: `id`, `set_instance_id`, `task_instance_id`, `order_index`, `points?`, `item_time_limit_ms?`, `depends_on_item_id?`, `propagation_mode?`, `propagation_label?`, `created_at`
+  - Fields: `id`, `set_instance_id`, `task_instance_id`, `order_index`, `points?`, `time_limit_ms?`, `depends_on_id?`, `created_at`
 - `attempts` (extension)
   - Adds: `task_set_instance_id?`, `task_set_instance_item_id?`
 
@@ -35,7 +35,7 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
 
 - Exams: `type=exam` with `time_limit_ms`, optional `passing_score`, ordered tasks; report/export at the set instance level.
 - Mini Quizzes: `type=quiz`, usually shorter and may be untimed.
-- Sequences: `type=sequence` with item dependencies and propagation to feed intermediate answers into the next step, guiding learners toward a final solution.
+- Sequences: `type=sequence` with item dependencies; items may embed lightweight `question_json` + `config_json` and `answer_json` when not referencing a separate task template.
 
 ## Out of Scope (for MVP)
 

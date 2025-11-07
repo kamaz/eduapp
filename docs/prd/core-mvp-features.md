@@ -114,7 +114,7 @@ Tracks engagement, learning gains, and parental satisfaction for iteration.
   - Lesson Templates (explanations/notes, style, difficulty) are canonical per topic.
   - Lesson Instances are personalised per child (can vary characters, context, tone) and store the parameters used.
 - Tasks use a template → instance pattern:
-  - Task Templates define variable schema and rubric; can be created from uploads (photos/PDFs) or authored.
+  - Task Templates define task kind (title/style/difficulty) and scheduling hints (per‑task time limit, dependency, optional order); can be created from uploads (photos/PDFs) or authored.
   - Task Instances are personalised per child/session with `role` and typed solutions.
   - `role`: example | practice | assessment; practice items reference their example instance.
   - `answer_type` and `expected_answer_json` capture the canonical solution; optional `solution_explanation_asset_id` links to worked steps.

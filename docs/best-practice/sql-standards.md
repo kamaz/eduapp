@@ -94,7 +94,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
   - When embedding JSON in SQL, keep JSON double quotes and escape only the SQL layer (single quotes) by doubling as above.
     - Example (Postgres): `'{"focus":"modal_verbs","sentences":6}'` is valid; the JSON quotes remain `"…"` while the SQL literal is wrapped in `'…'`.
   - PostgreSQL only: for large/complex JSON, prefer dollar‑quoted strings to avoid heavy escaping:
-    - `parameters_json = $$ { "focus": "modal_verbs", "sentences": 6 } $$`
+    - `config_json = $$ { "focus": "modal_verbs", "sentences": 6 } $$`
   - SQLite/D1: dollar‑quoting is not supported; continue to wrap in single quotes and double embedded single quotes as needed.
 
 - Practical tips for seeds/migrations

@@ -4,7 +4,7 @@ This document defines what “templates” and “instances” are across Lesson
 
 ## Why this split exists
 
-- Reuse and authoring: Adults (or AI) create canonical materials once as templates (with variables and rubric where appropriate).
+- Reuse and authoring: Adults (or AI) create canonical materials once as templates (with structure and scheduling hints where appropriate).
 - Personalisation: The system materialises child‑specific instances from templates using the active profile, preferences, and progress.
 - Audit and reproducibility: Instances snapshot the parameters used for personalisation to explain and reproduce outcomes.
 - Iteration: When a child struggles, we can generate alternate instances of the same template (e.g., different character, analogy, or representation) without mutating the template.
@@ -26,7 +26,7 @@ This document defines what “templates” and “instances” are across Lesson
 ## Task Templates and Instances
 
 - Task Template
-  - Purpose: defines the variable schema (e.g., a,b with constraints), rubric, and “what kind of problem this is”.
+  - Purpose: defines the task kind (title/style/difficulty) and scheduling hints such as per‑task time limit, dependency on another task template, and an optional order for display/sequence.
   - Source: created by upload + OCR/extract (e.g., parent photo or book page) or user/AI authoring.
   - Links: optionally associated to a Lesson Template; appears in Task Set Templates.
 
@@ -43,8 +43,8 @@ This document defines what “templates” and “instances” are across Lesson
 
 - Task Set Template
   - Purpose: defines a reusable composition of tasks (exam|quiz|sequence) with ordering, optional time limits, and pass thresholds.
-  - Items: ordered entries that reference Task Templates, with optional per‑item time limit, points, and simple dependencies.
-  - Dependencies/Propagation: encode that an item can depend on a prior item and optionally “carry” a value (numeric/text/expression) forward.
+  - Items: ordered entries that reference Task Templates, with optional per‑item time limit, points, and simple dependencies (`depends_on_id`).
+- Dependencies: an item can depend on a prior item. For lightweight authoring, items can embed `question_json` + `config_json` and `answer_json`, or reference a reusable Task Template.
   - Links: can be linked to one or more Lesson Templates that provide coverage.
 
 - Task Set Instance

@@ -26,7 +26,7 @@ Usage
 
 Partitioning summary
 
-- Tasks: add `definition_asset_id` to point at full task definition (JSON/PDF) in R2.
+- Tasks: add `asset_id` to point at full task definition (JSON/PDF) in R2.
 - Attempts: add `answer_asset_id`, `strokes_asset_id`, and a small `summary_json` for querying; avoid large `outcome_json`.
 - Jobs: add `input_asset_id`, `output_asset_id`, `error_asset_id`; keep JSON columns as small meta only.
 - Sharing: add `child_access` (active memberships) and `access_requests` (invitations/approvals) to enable multi-person live interactions.
