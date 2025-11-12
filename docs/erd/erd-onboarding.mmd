@@ -65,7 +65,7 @@ erDiagram
         string provider "stripe"
         string provider_customer_id "Stripe customer. Example: cus_1234"
         string provider_subscription_id UK "Stripe sub. Example: sub_1234"
-        string plan_id "Business plan key. Example: premium-monthly"
+        string plan_id FK "FK → subscription_plans.id"
         string status "trialing|active|past_due|canceled|incomplete|incomplete_expired"
         int current_period_end "Epoch ms period end"
         boolean cancel_at_period_end "True if will cancel at period end"
@@ -73,17 +73,46 @@ erDiagram
         int updated_at "Epoch ms updated"
     }
 
-    CONSENT_RECORDS {
-        string id PK "ULID. Example: 01HCONSENTX"
-        string user_id FK "FK → users.id (granting parent)"
-        string child_id FK "FK → children.id (subject child)"
-        string consent_type "data_processing|wearables|third_party_sharing|email_notifications"
-        string action "granted|revoked"
-        string version "Policy version. Example: v1"
-        string scope "Optional scope label. Example: wellbeing_data"
-        string reason "Optional note or context"
-        boolean was_primary_parent "Snapshot if user was primary at the time"
-        int created_at "Epoch ms event time"
+    SUBSCRIPTION_PLANS {
+        string id PK "ULID. Example: plan_free"
+        string key UK "Unique code. Example: basic_monthly"
+        string title "Display name"
+        string description "Optional marketing copy"
+        string interval "day|week|month|year"
+        int interval_count "Multiplier (default 1)"
+        string currency "ISO 4217 (e.g., GBP)"
+        int amount_cents "Price in minor units"
+        int trial_days "Optional free trial days"
+        string features_json "JSON entitlements/limits"
+        string provider_product_id "Stripe product id"
+        string provider_price_id "Stripe price id"
+        string status "active|archived"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    CONSENT_POLICIES {
+        string id PK "ULID. Example: 01HCONSPL1"
+        string group_key UK "e.g., terms_of_service, privacy_policy"
+        int version "Policy version"
+        string title "Display title"
+        string locale "e.g., en-GB"
+        string asset_id FK "FK → assets.id (policy document)"
+        string status "draft|active|archived"
+        int effective_at "Epoch ms (nullable)"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
+    }
+
+    USER_CONSENTS {
+        string id PK "ULID. Example: 01HUSERCONS1"
+        string user_id FK "FK → users.id"
+        string policy_id FK "FK → consent_policies.id"
+        string group_key "Denormalised group key"
+        int version "Accepted policy version"
+        int accepted_at "Epoch ms accepted"
+        int created_at "Epoch ms created"
+        int updated_at "Epoch ms updated"
     }
 
     CHILD_PROFILE {
@@ -138,8 +167,9 @@ erDiagram
     CHILDREN ||--o{ CHILD_ACCESS : memberships
     USERS ||--o{ ACCESS_REQUESTS : requests
     USERS ||--o{ SUBSCRIPTIONS : subscribes
-    USERS ||--o{ CONSENT_RECORDS : grants
-    CHILDREN ||--o{ CONSENT_RECORDS : consents_for
+    SUBSCRIPTION_PLANS ||--o{ SUBSCRIPTIONS : chosen_plan
+    USERS ||--o{ USER_CONSENTS : accepts
+    CONSENT_POLICIES ||--o{ USER_CONSENTS : current
 
     CHILDREN ||--o{ CHILD_PROFILE : profiles
     USERS ||--o{ CHILD_PROFILE : authored

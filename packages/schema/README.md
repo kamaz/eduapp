@@ -22,7 +22,7 @@ Notes
 Usage
 
 - Migrations and types will be added in upcoming commits aligned to PRD Next Steps.
-- Target tables include: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions, idempotency.
+- Target tables include: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_policies, user_consents, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions, idempotency.
 
 Partitioning summary
 

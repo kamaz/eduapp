@@ -117,7 +117,7 @@ Tracks engagement, learning gains, and parental satisfaction for iteration.
   - Task Templates define task kind (title/style/difficulty) and scheduling hints (per‑task time limit, dependency, optional order); can be created from uploads (photos/PDFs) or authored.
   - Task Instances are personalised per child/session with `role` and typed solutions.
   - `role`: example | practice | assessment; practice items reference their example instance.
-  - `answer_type` and `expected_answer_json` capture the canonical solution; optional `solution_explanation_asset_id` links to worked steps.
+  - `answer_type` and `expected_answer_json` capture the canonical solution; optional `solution_asset_id` links to worked steps.
 - Parents can upload photos/worksheets or paste examples; the system extracts a Task Template and can generate personalised Tasks for a specific child from that template.
 - Enables easy search and auto‑tagging of uploaded materials.
 - Supports curriculum versioning for regional or future expansions (e.g., Polish curriculum phase 2).

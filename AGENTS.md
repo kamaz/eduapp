@@ -57,7 +57,7 @@
 - Rate limit generation, uploads, and auth endpoints; add idempotency keys for attempt submissions.
 - Stripe via Checkout; never store card data; validate webhooks.
 - Use signed, short-lived R2 URLs; validate MIME and size on uploads.
-- Consents are captured as audited events in `consent_records` per (user_id, child_id, consent_type) with action (granted|revoked), policy version, optional scope/reason, and timestamp. Do not store consent flags on `children`.
+- Consents (simplified): Maintain versioned `consent_policies` (group_key + version) and current `user_consents` per user/group. Auditing can be added later; do not store consent flags on `children`.
 
 ## Onboarding Data (MVP shape)
 
@@ -68,7 +68,7 @@
 ## MVP Implementation Priorities (from PRD Next Steps)
 
 1. Define DO interface (messages, flush policy, idempotency keys).
-2. D1 schema: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_records, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions.
+2. D1 schema: users, children, child_access (with is_primary_parent), access_requests, child_profile, child_profile_items, child_observations, consent_policies, user_consents, curriculum, tasks, attempts, progress, scheduled_lessons, assets, jobs, subscriptions.
 3. R2 presigned upload and OCR stub wiring.
 4. Generation job contract in Worker; store outputs in R2, metadata in D1.
 5. Minimal client flow: onboarding → create child + authored profile → session start → attempt → flush → parent dashboard reads D1.
@@ -114,6 +114,17 @@
 - DB (Supabase local): pnpm --filter @eduapp/supabase-emulator dev
 - Shared packages build: pnpm -w build
 - Clean: pnpm clean (removes all node_modules across workspaces, dist folders, and .turbo cache; run pnpm install afterwards)
+
+## DB Seeding & Testing (agents)
+
+- Start emulator: `pnpm --filter @eduapp/supabase-emulator dev`
+- Reset and import schema + seeds: `pnpm --filter @eduapp/supabase-emulator db:reset` or `pnpm --filter @eduapp/supabase-emulator db:import`
+  - Imports in order: schema → curriculum → subscription plans → consent policies → demo families.
+
+### Seed Data Naming
+
+- Use lowercase snake_case for all seed IDs and keys.
+- Split multi-part tokens with `_` instead of uppercase boundaries. Example: `famA` → `fam_a` (e.g., `usr_fam_a_parent`, `fb_fam_b_p1`).
 
 ## PR Checklist
 

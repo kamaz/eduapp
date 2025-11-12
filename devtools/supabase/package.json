@@ -13,9 +13,12 @@
     "start": "supabase start",
     "stop": "supabase stop",
     "status": "supabase status",
-    "db:import": "pnpm db:import:schema && pnpm db:import:curriculum",
+    "db:import": "pnpm db:import:schema && pnpm db:import:curriculum && pnpm db:import:subscription && pnpm db:import:consents && pnpm db:import:families",
     "db:import:schema": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/schema/plsql/schema.sql",
     "db:import:curriculum": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/english-year-5.sql",
+    "db:import:subscription": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/subscriptions.sql",
+    "db:import:consents": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/consents.sql",
+    "db:import:families": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/families.sql",
     "db:clear": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -c \"DROP SCHEMA IF EXISTS eduapp CASCADE;\"",
     "db:reset": "pnpm db:clear && pnpm db:import",
     "clean": "supabase stop && docker volume prune -f || true"

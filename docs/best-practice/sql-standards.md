@@ -21,6 +21,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 - Primary key: `id` (TEXT ULID/UUID) on every table.
 - Foreign keys: `<referenced_table_singular>_id` (user_id, child_id, topic_id).
+- Asset references: Always name the FK column `asset_id` when referencing `assets` (consistent across tables like lesson_templates, task_templates, task_set_template_items, consent_policies).
 - Booleans: `is_<predicate>`; INTEGER 0/1 in SQLite; BOOLEAN in Postgres.
 - Timestamps: `created_at`, `updated_at` epoch ms (INTEGER in SQLite, BIGINT in Postgres); soft-delete `deleted_at` where needed.
 - JSON: `<name>_json` (TEXT in SQLite; JSONB in Postgres).
@@ -43,6 +44,22 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
   - Child-owned rows: `ON DELETE CASCADE` (progress, attempts, profile_items).
   - Optional references: `ON DELETE SET NULL` (created_by_user_id, optional lesson_template_id).
   - Primary relationships that must not be orphaned: `ON DELETE RESTRICT`.
+
+## Date/Time Strategy (epoch ms)
+
+- Store UTC epoch milliseconds in integer columns for all timestamps (`*_at`).
+  - Type: INTEGER in SQLite/D1; BIGINT in Postgres.
+  - Rationale:
+    - Cross‑engine portability (SQLite lacks a native timestamptz type).
+    - Natural interop with JS/TypeScript (`Date.now()` emits ms).
+    - Timezone‑neutral storage; simple numeric indexing and ordering.
+- Conversions (convenience):
+  - Postgres: `to_timestamp(created_at/1000.0)` → `timestamptz` in queries.
+  - SQLite: `datetime(created_at/1000, 'unixepoch')` → ISO text.
+- Seeding (avoid overflow):
+  - Postgres: use interval math, then convert, e.g. `(EXTRACT(EPOCH FROM NOW() - INTERVAL '1 day')*1000)::bigint`.
+  - Avoid subtracting large integer literals like `EXTRACT(EPOCH)*1000 - 86400000*60` (can overflow 32‑bit ints).
+  - SQLite: `strftime('%s','now')*1000` or `strftime('%s','now','-1 day')*1000`.
 
 ## Views & Materialized Views
 
@@ -113,7 +130,8 @@ Use short, unambiguous prefixes with ULIDs/UUIDs for readability and debugging (
 | assets                    | ast\_     | ast_01HABC...  |
 | child_access              | cacc\_    | cacc_01HABC... |
 | access_requests           | areq\_    | areq_01HABC... |
-| consent_records           | cons\_    | cons_01HABC... |
+| consent_policies          | cpol\_    | cpol_01HABC... |
+| user_consents             | ucon\_    | ucon_01HABC... |
 | child_profile             | cpro\_    | cpro_01HABC... |
 | child_profile_items       | cpri\_    | cpri_01HABC... |
 | child_observations        | cob\_     | cob_01HABC...  |

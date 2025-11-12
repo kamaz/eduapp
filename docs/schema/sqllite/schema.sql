@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS child_access (
   child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   persona_role TEXT NOT NULL,
-  access_level TEXT NOT NULL,
+  access_level TEXT NOT NULL CHECK (access_level IN ('parent','teacher','tutor','family')),
   is_primary_parent INTEGER DEFAULT 0,
   invited_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
   revoked_at INTEGER,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS access_requests (
   target_parent_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
   target_parent_email TEXT,
   desired_persona_role TEXT NOT NULL,
-  desired_access_level TEXT NOT NULL,
+  desired_access_level TEXT NOT NULL CHECK (desired_access_level IN ('parent','teacher','tutor','family')),
   status TEXT NOT NULL,
   token TEXT UNIQUE,
   expires_at INTEGER,
@@ -88,21 +88,32 @@ CREATE TABLE IF NOT EXISTS access_requests (
   acted_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL
 );
 
--- CONSENT RECORDS
-CREATE TABLE IF NOT EXISTS consent_records (
+-- CONSENT POLICIES & USER CONSENTS (simplified; audit handled separately)
+CREATE TABLE IF NOT EXISTS consent_policies (
+  id TEXT PRIMARY KEY,
+  group_key TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  title TEXT,
+  locale TEXT,
+  asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
+  status TEXT NOT NULL,
+  effective_at INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  UNIQUE(group_key, version)
+);
+
+CREATE TABLE IF NOT EXISTS user_consents (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
-  consent_type TEXT NOT NULL,
-  action TEXT NOT NULL,
-  version TEXT NOT NULL,
-  scope TEXT,
-  reason TEXT,
-  was_primary_parent INTEGER,
-  created_at INTEGER NOT NULL
+  policy_id TEXT NOT NULL REFERENCES consent_policies(id) ON DELETE CASCADE,
+  group_key TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  accepted_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  UNIQUE(user_id, group_key)
 );
-CREATE INDEX IF NOT EXISTS idx_consent_child ON consent_records(child_id);
-CREATE INDEX IF NOT EXISTS idx_consent_user ON consent_records(user_id);
 
 -- CHILD PROFILE
 CREATE TABLE IF NOT EXISTS child_profile (
@@ -144,13 +155,31 @@ CREATE TABLE IF NOT EXISTS child_observations (
 CREATE INDEX IF NOT EXISTS idx_child_obs_child ON child_observations(child_id);
 
 -- SUBSCRIPTIONS
-CREATE TABLE IF NOT EXISTS subscriptions (
+CREATE TABLE IF NOT EXISTS subscription_plans (
+  id TEXT PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  title TEXT,
+  description TEXT,
+  interval TEXT NOT NULL,
+  interval_count INTEGER NOT NULL DEFAULT 1,
+  currency TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL,
+  trial_days INTEGER,
+  features_json TEXT,
+  provider_product_id TEXT,
+  provider_price_id TEXT,
+  status TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_subscriptions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   provider TEXT NOT NULL,
   provider_customer_id TEXT,
   provider_subscription_id TEXT UNIQUE,
-  plan_id TEXT,
+  plan_id TEXT REFERENCES subscription_plans(id) ON DELETE SET NULL,
   status TEXT NOT NULL,
   current_period_end INTEGER,
   cancel_at_period_end INTEGER DEFAULT 0,
@@ -215,7 +244,7 @@ CREATE TABLE IF NOT EXISTS lesson_instances (
   lesson_template_id TEXT REFERENCES lesson_templates(id) ON DELETE SET NULL,
   child_id TEXT REFERENCES children(id) ON DELETE CASCADE,
   title TEXT,
-  overview_asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
+  asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
   style TEXT,
   difficulty INTEGER,
   personalization_params_json TEXT,
@@ -254,10 +283,10 @@ CREATE TABLE IF NOT EXISTS task_instances (
   title TEXT,
   style TEXT,
   difficulty INTEGER,
-  definition_asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
+  asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
   answer_type TEXT,
   expected_answer_json TEXT,
-  solution_explanation_asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
+  solution_asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
   created_by TEXT,
   created_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
   status TEXT,

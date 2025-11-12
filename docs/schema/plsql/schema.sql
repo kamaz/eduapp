@@ -60,7 +60,7 @@ create table if not exists child_access (
   child_id text not null references children(id) on delete cascade,
   user_id text not null references users(id) on delete cascade,
   persona_role text not null,
-  access_level text not null,
+  access_level text not null check (access_level in ('parent','teacher','tutor','family')),
   is_primary_parent boolean default false,
   invited_by_user_id text references users(id) on delete set null,
   revoked_at bigint,
@@ -78,7 +78,7 @@ create table if not exists access_requests (
   target_parent_user_id text references users(id) on delete set null,
   target_parent_email text,
   desired_persona_role text not null,
-  desired_access_level text not null,
+  desired_access_level text not null check (desired_access_level in ('parent','teacher','tutor','family')),
   status text not null,
   token text unique,
   expires_at bigint,
@@ -89,21 +89,32 @@ create table if not exists access_requests (
   acted_by_user_id text references users(id) on delete set null
 );
 
--- CONSENT RECORDS
-create table if not exists consent_records (
+-- CONSENT POLICIES & USER CONSENTS (simplified; audit handled separately)
+create table if not exists consent_policies (
+  id text primary key,
+  group_key text not null,
+  version integer not null,
+  title text,
+  locale text,
+  asset_id text references assets(id) on delete set null,
+  status text not null,
+  effective_at bigint,
+  created_at bigint not null,
+  updated_at bigint not null,
+  unique(group_key, version)
+);
+
+create table if not exists user_consents (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
-  child_id text not null references children(id) on delete cascade,
-  consent_type text not null,
-  action text not null,
-  version text not null,
-  scope text,
-  reason text,
-  was_primary_parent boolean,
-  created_at bigint not null
+  policy_id text not null references consent_policies(id) on delete cascade,
+  group_key text not null,
+  version integer not null,
+  accepted_at bigint not null,
+  created_at bigint not null,
+  updated_at bigint not null,
+  unique(user_id, group_key)
 );
-create index if not exists idx_consent_child on consent_records(child_id);
-create index if not exists idx_consent_user on consent_records(user_id);
 
 -- CHILD PROFILE
 create table if not exists child_profile (
@@ -145,13 +156,31 @@ create table if not exists child_observations (
 create index if not exists idx_child_obs_child on child_observations(child_id);
 
 -- SUBSCRIPTIONS
-create table if not exists subscriptions (
+create table if not exists subscription_plans (
+  id text primary key,
+  key text unique not null,
+  title text,
+  description text,
+  interval text not null,
+  interval_count integer not null default 1,
+  currency text not null,
+  amount_cents integer not null,
+  trial_days integer,
+  features_json jsonb,
+  provider_product_id text,
+  provider_price_id text,
+  status text not null,
+  created_at bigint not null,
+  updated_at bigint not null
+);
+
+create table if not exists user_subscriptions (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
   provider text not null,
   provider_customer_id text,
   provider_subscription_id text unique,
-  plan_id text,
+  plan_id text references subscription_plans(id) on delete set null,
   status text not null,
   current_period_end bigint,
   cancel_at_period_end boolean default false,
@@ -216,7 +245,7 @@ create table if not exists lesson_instances (
   lesson_template_id text references lesson_templates(id) on delete set null,
   child_id text references children(id) on delete cascade,
   title text,
-  overview_asset_id text references assets(id) on delete set null,
+  asset_id text references assets(id) on delete set null,
   style text,
   difficulty integer,
   personalization_params_json jsonb,
@@ -255,10 +284,10 @@ create table if not exists task_instances (
   title text,
   style text,
   difficulty integer,
-  definition_asset_id text references assets(id) on delete set null,
+  asset_id text references assets(id) on delete set null,
   answer_type text,
   expected_answer_json jsonb,
-  solution_explanation_asset_id text references assets(id) on delete set null,
+  solution_asset_id text references assets(id) on delete set null,
   created_by text,
   created_by_user_id text references users(id) on delete set null,
   status text,
