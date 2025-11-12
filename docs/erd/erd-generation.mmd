@@ -14,13 +14,7 @@ erDiagram
         int completed_at "Epoch ms completed (nullable)"
     }
 
-    REQUEST_ASSETS {
-        string id PK "ULID. Example: 01HREQASSETX"
-        string request_id FK "FK → generation_requests.id"
-        string asset_id FK "FK → assets.id"
-        string role "image|email|document|description|other"
-        int created_at "Epoch ms created"
-    }
+    %% request_assets removed; inputs referenced via jobs.input_asset_id or payloads
 
     JOBS {
         string id PK "ULID. Example: 01HJOBABC"
@@ -56,8 +50,7 @@ erDiagram
     %% Relationships
     USERS_REF_ONBOARDING ||--o{ GENERATION_REQUESTS : requested
     CHILDREN_REF_ONBOARDING ||--o{ GENERATION_REQUESTS : targeted
-    GENERATION_REQUESTS ||--o{ REQUEST_ASSETS : inputs
-    ASSETS_REF_ONBOARDING ||--o{ REQUEST_ASSETS : asset
+    %% request_assets removed
 
     GENERATION_REQUESTS ||--o{ JOBS : enqueues
     CHILDREN_REF_ONBOARDING ||--o{ JOBS : for_child

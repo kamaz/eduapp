@@ -2,11 +2,11 @@
 PRAGMA foreign_keys = ON;
 
 -- Assets for policy documents
-INSERT OR IGNORE INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
-('ast_policy_tos_v1', NULL, 'policy', 'docs', 'policies/terms-of-service-v1.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
-('ast_policy_tos_v2', NULL, 'policy', 'docs', 'policies/terms-of-service-v2.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
-('ast_policy_priv_v1', NULL, 'policy', 'docs', 'policies/privacy-policy-v1.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
-('ast_policy_priv_v2', NULL, 'policy', 'docs', 'policies/privacy-policy-v2.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_policy_tos_v1', 'policy', 'docs', 'policies/terms-of-service-v1.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
+('ast_policy_tos_v2', 'policy', 'docs', 'policies/terms-of-service-v2.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
+('ast_policy_priv_v1', 'policy', 'docs', 'policies/privacy-policy-v1.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000),
+('ast_policy_priv_v2', 'policy', 'docs', 'policies/privacy-policy-v2.md', 'text/markdown', NULL, NULL, strftime('%s','now')*1000);
 
 -- Multiple versions per group (latest active)
 INSERT OR IGNORE INTO consent_policies (id, group_key, version, title, locale, asset_id, status, effective_at, created_at, updated_at) VALUES

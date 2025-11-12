@@ -23,7 +23,6 @@ create table if not exists users (
 -- CHILDREN
 create table if not exists children (
   id text primary key,
-  primary_parent_user_id text not null references users(id) on delete restrict,
   alias text,
   given_name text,
   family_name text,
@@ -33,18 +32,15 @@ create table if not exists children (
   email text unique,
   avatar_asset_id text,
   locale text,
-  dob_year integer,
-  dob_month integer,
+  dob bigint,
   created_at bigint not null,
   updated_at bigint not null,
   deleted_at bigint
 );
-create index if not exists idx_children_primary_parent on children(primary_parent_user_id);
 
 -- ASSETS
 create table if not exists assets (
   id text primary key,
-  owner_child_id text references children(id) on delete set null,
   type text not null,
   r2_bucket text not null,
   r2_key text not null,
@@ -431,14 +427,6 @@ create table if not exists generation_requests (
   completed_at bigint
 );
 create unique index if not exists ux_gen_req_idem on generation_requests(idempotency_key) where idempotency_key is not null;
-
-create table if not exists request_assets (
-  id text primary key,
-  request_id text not null references generation_requests(id) on delete cascade,
-  asset_id text not null references assets(id) on delete cascade,
-  role text not null,
-  created_at bigint not null
-);
 
 create table if not exists jobs (
   id text primary key,

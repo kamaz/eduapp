@@ -90,7 +90,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 ## Examples (in repo)
 
-- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_templates, task_instances, task_set_templates, task_set_template_items, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, request_assets, subscriptions.
+- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_templates, task_instances, task_set_templates, task_set_template_items, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, user_subscriptions.
 - Indexes: idx_children_primary_parent, idx_attempts_child, ux_gen_req_idem, ux_jobs_idem.
 
 ## Style & Formatting
@@ -135,7 +135,7 @@ Use short, unambiguous prefixes with ULIDs/UUIDs for readability and debugging (
 | child_profile             | cpro\_    | cpro_01HABC... |
 | child_profile_items       | cpri\_    | cpri_01HABC... |
 | child_observations        | cob\_     | cob_01HABC...  |
-| subscriptions             | subs\_    | subs_01HABC... |
+| user_subscriptions        | subs\_    | subs_01HABC... |
 | curriculum_subjects       | csub\_    | csub_01HABC... |
 | curriculum_topics         | ctop\_    | ctop_01HABC... |
 | curriculum_prereqs        | cprq\_    | cprq_01HABC... |
@@ -153,6 +153,5 @@ Use short, unambiguous prefixes with ULIDs/UUIDs for readability and debugging (
 | progress                  | prog\_    | prog_01HABC... |
 | progress_events           | pe\_      | pe_01HABC...   |
 | generation_requests       | grq\_     | grq_01HABC...  |
-| request_assets            | rqa\_     | rqa_01HABC...  |
 | jobs                      | job\_     | job_01HABC...  |
 | job_steps                 | js\_      | js_01HABC...   |

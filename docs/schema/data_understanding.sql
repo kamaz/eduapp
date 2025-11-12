@@ -27,9 +27,7 @@ select * from eduapp.consent_policies;
 
 -- user and things oriented about them
 
--- start
--- schema
--- - why do we have owner_child_id / ideally we would remove this
+-- assets: no owner_child_id; assets referenced by other tables as needed
 select * from eduapp.assets;
 
 
@@ -41,7 +39,6 @@ select * from eduapp.users;
 select * from eduapp.user_subscriptions;
 select * from eduapp.subscription_plans;
 -- schema changes:
--- - align naming to the `user_consents` to be `user_subscriptions`
 select * from eduapp.user_subscriptions where user_id = 'usr_fam_b_p1';
 
 -- consents
@@ -54,14 +51,10 @@ select * from eduapp.users where id = 'usr_fam_b_p1';
 select * from eduapp.child_access where user_id = 'usr_fam_b_p1';
 -- view from child / parent perspective to know who has access to child / profile and their progress
 select * from eduapp.child_access where child_id = 'ch_fam_b_c1';
--- schema
--- - does not need primary parent user id as that comes from child_access
--- - missing dob_day - maybe instead of splitting this to separate values we need dob and remove all dob_year, dob_month, dob_day
--- seed
--- - missing nickname
--- - missing avatar_asset_id
--- - missing email
-select * from eduapp.children where primary_parent_user_id = 'usr_fam_b_p1';
+
+-- Primary parents and memberships are tracked in child_access
+select c.* from eduapp.children c
+join eduapp.child_access ca on ca.child_id = c.id and ca.is_primary_parent = true;
 
 -- seed: 
 -- - missing child profile 
@@ -76,9 +69,3 @@ select * from eduapp.child_profile_items;
 -- seed: 
 -- - missing child profile 
 select * from eduapp.child_observations;
-
--- assets why do we have have child as a owner of an assets 
-
--- what is this and what its purpose?
-select * from eduapp.request_assets ;
-

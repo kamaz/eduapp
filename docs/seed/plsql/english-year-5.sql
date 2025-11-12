@@ -28,10 +28,10 @@ INSERT INTO task_templates (id, topic_id, lesson_template_id, title, style, diff
 ON CONFLICT (id) DO NOTHING;
 
 -- assets referencing existing PDFs in docs (for demo linking)
-INSERT INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
 VALUES
-('ast_eng_appendix2_vgp_pdf', NULL, 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Appendix_2_-_Vocabulary_grammar_and_punctuation.pdf', 'application/pdf', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000),
-('ast_eng_glossary_pdf', NULL, 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Glossary.pdf', 'application/pdf', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000)
+('ast_eng_appendix2_vgp_pdf', 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Appendix_2_-_Vocabulary_grammar_and_punctuation.pdf', 'application/pdf', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000),
+('ast_eng_glossary_pdf', 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Glossary.pdf', 'application/pdf', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000)
 ON CONFLICT (id) DO NOTHING;
 
 -- lesson template for Vocabulary, Grammar and Punctuation (Y5)
@@ -47,8 +47,8 @@ ON CONFLICT (id) DO NOTHING;
 
 -- OPTIONAL: attach the scanned lesson sheet image as an asset
 -- Place the JPEG at docs/seed/seed-assets/speech-grammar-lesson-template.jpeg (or adjust r2_key below)
-INSERT INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
-VALUES ('ast_eng_y5_vgp_speech_sheet_jpg', NULL, 'image', 'docs', 'seed-assets/speech-grammar-lesson-template.jpeg', 'image/jpeg', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000)
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
+VALUES ('ast_eng_y5_vgp_speech_sheet_jpg', 'image', 'docs', 'seed-assets/speech-grammar-lesson-template.jpeg', 'image/jpeg', NULL, NULL, EXTRACT(EPOCH FROM NOW())*1000)
 ON CONFLICT (id) DO NOTHING;
 
 -- Lesson template based on the Speech worksheet (Direct vs Reported speech)

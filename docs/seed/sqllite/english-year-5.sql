@@ -24,9 +24,9 @@ INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, s
 ('tt_eng_y5_w_comp_plan', 'ctop_eng_y5_w_comp', 'lt_eng_y5_w_comp_1', 'Plan persuasive letter', 'visual', 3, NULL, NULL, NULL, NULL, 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 -- assets referencing existing PDFs in docs (for demo linking)
-INSERT OR IGNORE INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
-('ast_eng_appendix2_vgp_pdf', NULL, 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Appendix_2_-_Vocabulary_grammar_and_punctuation.pdf', 'application/pdf', NULL, NULL, strftime('%s','now')*1000),
-('ast_eng_glossary_pdf', NULL, 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Glossary.pdf', 'application/pdf', NULL, NULL, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_eng_appendix2_vgp_pdf', 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Appendix_2_-_Vocabulary_grammar_and_punctuation.pdf', 'application/pdf', NULL, NULL, strftime('%s','now')*1000),
+('ast_eng_glossary_pdf', 'pdf', 'docs', 'national-curriculum/uk/current/english/English_Glossary.pdf', 'application/pdf', NULL, NULL, strftime('%s','now')*1000);
 
 -- lesson template for Vocabulary, Grammar and Punctuation (Y5)
 INSERT OR IGNORE INTO lesson_templates (id, topic_id, title, asset_id, overview_json, style, difficulty, time_limit_ms, order_id, status, created_by, created_by_user_id, created_at, updated_at) VALUES
@@ -39,8 +39,8 @@ INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, s
 
 -- OPTIONAL: attach the scanned lesson sheet image as an asset
 -- Place the JPEG at docs/seed/seed-assets/speech-grammar-lesson-template.jpeg (or adjust r2_key below)
-INSERT OR IGNORE INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
-('ast_eng_y5_vgp_speech_sheet_jpg', NULL, 'image', 'docs', 'seed-assets/speech-grammar-lesson-template.jpeg', 'image/jpeg', NULL, NULL, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_eng_y5_vgp_speech_sheet_jpg', 'image', 'docs', 'seed-assets/speech-grammar-lesson-template.jpeg', 'image/jpeg', NULL, NULL, strftime('%s','now')*1000);
 
 -- Lesson template based on the Speech worksheet (Direct vs Reported speech)
 INSERT OR IGNORE INTO lesson_templates (id, topic_id, title, asset_id, overview_json, style, difficulty, time_limit_ms, order_id, status, created_by, created_by_user_id, created_at, updated_at) VALUES
@@ -58,9 +58,9 @@ INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, s
 ('tt_eng_y5_vgp_reported_to_direct', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_speech_direct_reported', 'Rewrite reported speech as direct speech with correct punctuation', 'visual', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 -- OCR text assets (overview and items JSON), place files under docs/seed/seed-assets
-INSERT OR IGNORE INTO assets (id, owner_child_id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
-('ast_eng_y5_vgp_speech_overview_txt', NULL, 'ocr_text', 'docs', 'seed-assets/speech-grammar-lesson-template-overview.txt', 'text/plain', NULL, NULL, strftime('%s','now')*1000),
-('ast_eng_y5_vgp_speech_items_json', NULL, 'ocr_text', 'docs', 'seed-assets/speech-grammar-lesson-template-items.json', 'application/json', NULL, NULL, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_eng_y5_vgp_speech_overview_txt', 'ocr_text', 'docs', 'seed-assets/speech-grammar-lesson-template-overview.txt', 'text/plain', NULL, NULL, strftime('%s','now')*1000),
+('ast_eng_y5_vgp_speech_items_json', 'ocr_text', 'docs', 'seed-assets/speech-grammar-lesson-template-items.json', 'application/json', NULL, NULL, strftime('%s','now')*1000);
 
 -- Update lesson to point to OCR overview text (keeps JPG as supporting asset)
 -- overview_json and asset_id were set at insert time above

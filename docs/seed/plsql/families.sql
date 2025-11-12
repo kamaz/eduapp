@@ -6,8 +6,13 @@ INSERT INTO users (id, firebase_uid, email, display_name, billing_customer_id, s
 VALUES ('usr_fam_a_parent', 'fb_fam_a_parent', 'parentA@example.com', 'Parent A', 'cus_fam_a', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO children (id, primary_parent_user_id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob_year, dob_month, created_at, updated_at)
-VALUES ('ch_fam_a_child1', 'usr_fam_a_parent', 'littleA', 'Alex', 'Alpha', 'Alex', 'Alex', 'Lex', NULL, NULL, 'en-GB', 2016, 5, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+-- Avatar for Family A child
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
+VALUES ('ast_avatar_fam_a_c1', 'avatar', 'avatars', 'seed/fam_a_c1.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO children (id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob, created_at, updated_at)
+VALUES ('ch_fam_a_child1', 'littleA', 'Alex', 'Alpha', 'Alex', 'Alex', 'Lex', 'ch_fam_a_child1@internal.local', 'ast_avatar_fam_a_c1', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2016-05-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO child_access (id, child_id, user_id, persona_role, access_level, is_primary_parent, invited_by_user_id, revoked_at, created_at, updated_at)
@@ -32,9 +37,15 @@ INSERT INTO users (id, firebase_uid, email, display_name, billing_customer_id, s
 VALUES ('usr_fam_b_p2', 'fb_fam_b_p2', 'p2B@example.com', 'P2 B', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO children (id, primary_parent_user_id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob_year, dob_month, created_at, updated_at) VALUES
-('ch_fam_b_c1', 'usr_fam_b_p1', 'bee1', 'Bella', 'Beta', 'Bella', 'Bella', NULL, NULL, NULL, 'en-GB', 2015, 9, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
-('ch_fam_b_c2', 'usr_fam_b_p1', 'bee2', 'Ben', 'Beta', 'Ben', 'Ben', NULL, NULL, NULL, 'en-GB', 2018, 3, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+-- Avatars for Family B children
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_avatar_fam_b_c1', 'avatar', 'avatars', 'seed/fam_b_c1.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ast_avatar_fam_b_c2', 'avatar', 'avatars', 'seed/fam_b_c2.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO children (id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob, created_at, updated_at) VALUES
+('ch_fam_b_c1', 'bee1', 'Bella', 'Beta', 'Bella', 'Bella', 'Bell', 'ch_fam_b_c1@internal.local', 'ast_avatar_fam_b_c1', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2015-09-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ch_fam_b_c2', 'bee2', 'Ben', 'Beta', 'Ben', 'Ben', 'Benny', 'ch_fam_b_c2@internal.local', 'ast_avatar_fam_b_c2', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2018-03-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO child_access (id, child_id, user_id, persona_role, access_level, is_primary_parent, invited_by_user_id, revoked_at, created_at, updated_at) VALUES
@@ -69,8 +80,13 @@ INSERT INTO users (id, firebase_uid, email, display_name, created_at, updated_at
 VALUES ('usr_fam_c_gp2', 'fb_fam_c_gp2', 'gp2C@example.com', 'GP2 C', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO children (id, primary_parent_user_id, alias, given_name, family_name, preferred_name, short_name, locale, dob_year, dob_month, created_at, updated_at)
-VALUES ('ch_fam_c_c1', 'usr_fam_c_p1', 'charlie', 'Chris', 'Gamma', 'Chris', 'Chris', 'en-GB', 2014, 7, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+-- Avatar for Family C child
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at)
+VALUES ('ast_avatar_fam_c_c1', 'avatar', 'avatars', 'seed/fam_c_c1.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO children (id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob, created_at, updated_at)
+VALUES ('ch_fam_c_c1', 'charlie', 'Chris', 'Gamma', 'Chris', 'Chris', 'CJ', 'ch_fam_c_c1@internal.local', 'ast_avatar_fam_c_c1', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2014-07-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO child_access (id, child_id, user_id, persona_role, access_level, is_primary_parent, invited_by_user_id, created_at, updated_at) VALUES
@@ -103,10 +119,17 @@ INSERT INTO users (id, firebase_uid, email, display_name, created_at, updated_at
 VALUES ('usr_fam_d_p2', 'fb_fam_d_p2', 'p2D@example.com', 'P2 D', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO children (id, primary_parent_user_id, alias, given_name, family_name, preferred_name, short_name, locale, dob_year, dob_month, created_at, updated_at) VALUES
-('ch_fam_d_c1', 'usr_fam_d_p1', 'delta1', 'Dina', 'Delta', 'Dina', 'Dina', 'en-GB', 2013, 2, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
-('ch_fam_d_c2', 'usr_fam_d_p1', 'delta2', 'Dan', 'Delta', 'Dan', 'Dan', 'en-GB', 2016, 6, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
-('ch_fam_d_c3', 'usr_fam_d_p1', 'delta3', 'Daisy', 'Delta', 'Daisy', 'Daisy', 'en-GB', 2019, 11, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+-- Avatars for Family D children
+INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
+('ast_avatar_fam_d_c1', 'avatar', 'avatars', 'seed/fam_d_c1.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ast_avatar_fam_d_c2', 'avatar', 'avatars', 'seed/fam_d_c2.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ast_avatar_fam_d_c3', 'avatar', 'avatars', 'seed/fam_d_c3.png', 'image/png', NULL, NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO children (id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob, created_at, updated_at) VALUES
+('ch_fam_d_c1', 'delta1', 'Dina', 'Delta', 'Dina', 'Dina', 'Dee', 'ch_fam_d_c1@internal.local', 'ast_avatar_fam_d_c1', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2013-02-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ch_fam_d_c2', 'delta2', 'Dan', 'Delta', 'Dan', 'Dan', 'Danny', 'ch_fam_d_c2@internal.local', 'ast_avatar_fam_d_c2', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2016-06-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('ch_fam_d_c3', 'delta3', 'Daisy', 'Delta', 'Daisy', 'Daisy', 'Day', 'ch_fam_d_c3@internal.local', 'ast_avatar_fam_d_c3', 'en-GB', (EXTRACT(EPOCH FROM TIMESTAMP '2019-11-01')*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO child_access (id, child_id, user_id, persona_role, access_level, is_primary_parent, invited_by_user_id, created_at, updated_at) VALUES
@@ -127,4 +150,41 @@ INSERT INTO user_consents (id, user_id, policy_id, group_key, version, accepted_
 ('ucon_fam_d_p1_priv', 'usr_fam_d_p1', 'cpol_privacy_v2', 'privacy_policy', 2, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
 ('ucon_fam_d_p2_tos', 'usr_fam_d_p2', 'cpol_tos_v2', 'terms_of_service', 2, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
 ('ucon_fam_d_p2_priv', 'usr_fam_d_p2', 'cpol_privacy_v2', 'privacy_policy', 2, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+-- Access requests
+INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
+('areq_fam_b_p2_to_p1', 'usr_fam_b_p2', 'usr_fam_b_p1', 'p1B@example.com', 'parent', 'parent', 'approved', 'tok_ar_fam_b_p2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Request access to children', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, 'usr_fam_b_p1')
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
+('areq_fam_c_gp2_to_p1', 'usr_fam_c_gp2', 'usr_fam_c_p1', 'p1C@example.com', 'grandparent', 'family', 'pending', 'tok_ar_fam_c_gp2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Grandparent access request', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- Child profiles (created by primary parent)
+INSERT INTO child_profile (id, child_id, created_by_user_id, updated_by_user_id, authored_by_child, persona_role, status, learning_style, profile_summary, sensitivities, created_at, updated_at) VALUES
+('cprof_fam_a_c1', 'ch_fam_a_child1', 'usr_fam_a_parent', 'usr_fam_a_parent', false, 'parent', 'active', 'visual', 'Curious and enjoys puzzles.', 'loud_sounds', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_b_c1', 'ch_fam_b_c1', 'usr_fam_b_p1', 'usr_fam_b_p1', false, 'parent', 'active', 'auditory', 'Loves reading aloud.', 'bright_lights', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_b_c2', 'ch_fam_b_c2', 'usr_fam_b_p1', 'usr_fam_b_p1', false, 'parent', 'active', 'kinesthetic', 'Enjoys hands-on activities.', 'none', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_c_c1', 'ch_fam_c_c1', 'usr_fam_c_p1', 'usr_fam_c_p1', false, 'parent', 'active', 'visual', 'Strong interest in art.', 'none', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_d_c1', 'ch_fam_d_c1', 'usr_fam_d_p1', 'usr_fam_d_p1', false, 'parent', 'active', 'auditory', 'Great storyteller.', 'none', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_d_c2', 'ch_fam_d_c2', 'usr_fam_d_p1', 'usr_fam_d_p1', false, 'parent', 'active', 'visual', 'Enjoys drawing.', 'none', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprof_fam_d_c3', 'ch_fam_d_c3', 'usr_fam_d_p1', 'usr_fam_d_p1', false, 'parent', 'active', 'kinesthetic', 'Likes building blocks.', 'none', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+-- Child profile items
+INSERT INTO child_profile_items (id, profile_id, type, value, created_at) VALUES
+('cprofitem_fam_a_c1_interest1', 'cprof_fam_a_c1', 'interest', 'puzzles', (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprofitem_fam_b_c1_book1', 'cprof_fam_b_c1', 'book', 'The Gruffalo', (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprofitem_fam_b_c2_game1', 'cprof_fam_b_c2', 'game', 'LEGO', (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprofitem_fam_c_c1_movie1', 'cprof_fam_c_c1', 'movie', 'Coco', (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cprofitem_fam_d_c3_interest1', 'cprof_fam_d_c3', 'interest', 'animals', (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
+ON CONFLICT (id) DO NOTHING;
+
+-- Child observations
+INSERT INTO child_observations (id, child_id, user_id, note_type, body, status, superseded_by_observation_id, created_at, updated_at) VALUES
+('cobs_fam_a_c1_1', 'ch_fam_a_child1', 'usr_fam_a_parent', 'observation', 'Enjoyed today''s reading task.', 'active', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cobs_fam_b_c1_1', 'ch_fam_b_c1', 'usr_fam_b_p1', 'observation', 'Did well with phonics.', 'active', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cobs_fam_b_c2_1', 'ch_fam_b_c2', 'usr_fam_b_p1', 'observation', 'Struggled with focus after 20 minutes.', 'active', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cobs_fam_c_c1_1', 'ch_fam_c_c1', 'usr_fam_c_p1', 'observation', 'Loved the art worksheet.', 'active', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint),
+('cobs_fam_d_c1_1', 'ch_fam_d_c1', 'usr_fam_d_p1', 'observation', 'Great progress with numbers.', 'active', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)
 ON CONFLICT (id) DO NOTHING;

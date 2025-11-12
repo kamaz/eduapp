@@ -26,7 +26,7 @@ Design
 
 - Auth provider: Firebase Auth (client). Worker validates Firebase ID tokens on every request.
 - Role model: parent, child (no direct auth), tutor/teacher (later), admin.
-- Mapping: D1 stores firebase_uid → user_id mapping. Tenant boundary anchored to children.primary_parent_user_id with per-child membership via child_access.
+- Mapping: D1 stores firebase_uid → user_id mapping. Tenant boundary enforced via child_access per-child memberships (primary indicated by is_primary_parent).
 
 Controls
 
@@ -38,7 +38,7 @@ Controls
 
 Child primary parent & sharing policy (must)
 
-- Only a Parent can create a Child; creator becomes Primary (children.primary_parent_user_id).
+- Only a Parent can create a Child; creator becomes Primary (child_access.is_primary_parent = true for that (child,user)).
 - child_access controls who can see a Child: user_id, persona_role (parent|tutor|teacher|family), access_level (viewer|contributor|manager), is_primary_parent (boolean).
 - Only Primary can:
   - Invite/remove Parents.

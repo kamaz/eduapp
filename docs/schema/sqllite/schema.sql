@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS users (
 -- CHILDREN
 CREATE TABLE IF NOT EXISTS children (
   id TEXT PRIMARY KEY,
-  primary_parent_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   alias TEXT,
   given_name TEXT,
   family_name TEXT,
@@ -32,18 +31,15 @@ CREATE TABLE IF NOT EXISTS children (
   email TEXT UNIQUE,
   avatar_asset_id TEXT,
   locale TEXT,
-  dob_year INTEGER,
-  dob_month INTEGER,
+  dob INTEGER,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   deleted_at INTEGER
 );
-CREATE INDEX IF NOT EXISTS idx_children_primary_parent ON children(primary_parent_user_id);
 
 -- ASSETS
 CREATE TABLE IF NOT EXISTS assets (
   id TEXT PRIMARY KEY,
-  owner_child_id TEXT REFERENCES children(id) ON DELETE SET NULL,
   type TEXT NOT NULL,
   r2_bucket TEXT NOT NULL,
   r2_key TEXT NOT NULL,
@@ -430,14 +426,6 @@ CREATE TABLE IF NOT EXISTS generation_requests (
   completed_at INTEGER
 );
 CREATE UNIQUE INDEX IF NOT EXISTS ux_gen_req_idem ON generation_requests(idempotency_key) WHERE idempotency_key IS NOT NULL;
-
-CREATE TABLE IF NOT EXISTS request_assets (
-  id TEXT PRIMARY KEY,
-  request_id TEXT NOT NULL REFERENCES generation_requests(id) ON DELETE CASCADE,
-  asset_id TEXT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
-  role TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
 
 CREATE TABLE IF NOT EXISTS jobs (
   id TEXT PRIMARY KEY,

@@ -20,7 +20,7 @@
 ### Child Identity & Onboarding
 
 - Where: D1 (`children` canonical identity) + D1 (`child_profile`, `child_profile_items`, `child_observations`); DO caches transient session state.
-- Children (identity): id, primary_parent_user_id, alias (pseudonymous), given_name (optional), family_name (optional), preferred_name (optional), short_name, nickname, internal email (routing only), avatar_asset_id (FK assets), locale (optional), DOB fields, timestamps.
+- Children (identity): id, alias (pseudonymous), given_name (optional), family_name (optional), preferred_name (optional), short_name, nickname, internal email (routing only), avatar_asset_id (FK assets), locale (optional), dob (epoch‑ms, UTC midnight), timestamps.
 - Child Profile (structured per-user perspective): one active profile per (child_id, user_id).
   - `child_profile`: id, child_id, created_by_user_id, updated_by_user_id (nullable), authored_by_child (boolean), persona_role (parent|tutor|teacher|family), status (active|archived), learning_style, profile_summary, sensitivities, timestamps.
   - `child_profile_items`: id, profile_id, type (interest|book|movie|game), value, created_at.
@@ -32,15 +32,15 @@
 
 - Where: D1 (children, child_access)
 - What: child_access rows define which users can access a child and at what permission level
-  - child_id, user_id, persona_role (parent|tutor|teacher|family), access_level (viewer|contributor|manager), is_primary_parent (boolean), created_at
-  - Constraints:
-    - Exactly one Primary per child: children.primary_parent_user_id references users.id
-    - Unique membership per (child_id, user_id)
-    - Only Primary can: invite/remove Parents, grant/revoke Parent management (manager) rights
-    - Parents (Primary or invited) can: invite/remove Tutors, Teachers, Family (viewer/contributor), unless Primary restricts
-    - No one can remove the Primary; Primary can revoke any other membership
-  - Audit: store inviter_user_id, revoked_at for revoked memberships (optional follow-up)
-  - Idempotency: dedupe invitations by (child_id, target_user_id, persona_role)
+- child_id, user_id, persona_role (parent|tutor|teacher|family), access_level (parent|teacher|tutor|family), is_primary_parent (boolean), created_at
+- Constraints:
+  - Exactly one Primary per child: marked by child_access.is_primary_parent = true (one per child)
+  - Unique membership per (child_id, user_id)
+  - Only Primary can: invite/remove Parents, grant/revoke Parent management (manager) rights
+  - Parents (Primary or invited) can: invite/remove Tutors, Teachers, Family (viewer/contributor), unless Primary restricts
+  - No one can remove the Primary; Primary can revoke any other membership
+- Audit: store inviter_user_id, revoked_at for revoked memberships (optional follow-up)
+- Idempotency: dedupe invitations by (child_id, target_user_id, persona_role)
 
 ### Curriculum & Topics
 
@@ -80,7 +80,7 @@
 ### Assets & Media
 
 - Where: R2 (actual blobs), D1 (assets) for metadata, DO for transient references
-- What: r2_url, type (scan/pdf/stroke_blob), ocr_text (optional), created_at, owned_by_child_id
+- What: r2_url, type (scan/pdf/stroke_blob), ocr_text (optional), created_at
 - Purpose: re-ingest scanned worksheets, printable delivery, archival
 
 ### Embeddings & Semantic Metadata
@@ -97,7 +97,7 @@
 
 ### Billing & Subscription
 
-- Where: D1 (subscriptions) + Stripe (truth)
+- Where: D1 (user_subscriptions) + Stripe (truth)
 - What: stripe_customer_id, plan, status, billing dates
 - Purpose: enforce paid features, reporting
 
@@ -169,7 +169,7 @@ Teacher (later)
 
 ## Indexing & performance guidance (D1 & Vectorize)
 
-- D1 indexes: children.primary_parent_user_id, child_access.child_id, child_access.user_id,
+- D1 indexes: child_access.child_id, child_access.user_id,
   access_requests.requester_user_id, access_requests.target_parent_user_id, access_requests.target_parent_email, access_requests.token,
   attempts.child_id, progress.child_id, scheduled_lessons.child_id, curriculum_topics.subject.
 - Pagination: always use cursor-based pagination for lists.
@@ -223,7 +223,7 @@ Generation pipeline (internal in Workers)
 - Authenticate all client connections with Firebase ID tokens. Worker validates and maps to user_id.
 - For DO WebSocket join, Worker issues short-lived signed session token for DO to validate.
 - Access checks:
-  - Tenant boundary anchored to children.primary_parent_user_id.
+- Tenant boundary anchored to child_access per-child memberships (primary indicated via is_primary_parent).
   - Per-request authorization via child_access membership: must have appropriate access_level for operation.
   - Only Primary can grant/revoke Parent management and invite/remove Parents; Parents can share with Tutor/Teacher/Family unless restricted.
 - Enforce rate limits and quotas (per-child and per-parent) to avoid abuse.

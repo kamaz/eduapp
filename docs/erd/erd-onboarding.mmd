@@ -12,7 +12,6 @@ erDiagram
 
     CHILDREN {
         string id PK "ULID. Example: 01HCHILDABC"
-        string primary_parent_user_id FK "FK → users.id (creator/owner)"
         string alias "Pseudonymous display. Example: Explorer Fox"
         string given_name "Legal given name (optional). Example: Charlie"
         string family_name "Legal family name (optional). Example: Smith"
@@ -22,8 +21,7 @@ erDiagram
         string email UK "Internal routing email only; not deliverable. Example: child_01HCHILDABC@internal"
         string avatar_asset_id FK "FK → assets.id (optional avatar image)"
         string locale "Child content locale (optional). Example: en-GB"
-        int dob_year "Year of birth (optional). Example: 2015"
-        int dob_month "Month (1..12, optional). Example: 6"
+        int dob "Epoch ms (UTC midnight) for date of birth"
         int created_at "Epoch ms created"
         int updated_at "Epoch ms updated"
         int deleted_at "Epoch ms soft delete (nullable)"
@@ -34,7 +32,7 @@ erDiagram
         string child_id FK "FK → children.id"
         string user_id FK "FK → users.id (member)"
         string persona_role "parent|tutor|teacher|family. Example: parent"
-        string access_level "viewer|contributor|manager. Example: contributor"
+        string access_level "parent|teacher|tutor|family"
         boolean is_primary_parent "True only for primary parent membership"
         string invited_by_user_id FK "FK → users.id (inviter)"
         int revoked_at "Epoch ms revoked (nullable)"
@@ -48,8 +46,8 @@ erDiagram
         string target_parent_user_id FK "FK → users.id (nullable)"
         string target_parent_email "Email when parent unknown"
         string desired_persona_role "parent|tutor|teacher|family"
-        string desired_access_level "viewer|contributor|manager"
-        string status "pending|accepted|declined|expired|canceled"
+        string desired_access_level "parent|teacher|tutor|family"
+        string status "pending|approved|declined|expired|canceled"
         string token UK "Single-use HMAC token"
         int expires_at "Epoch ms expiry"
         string message "Optional short message"
@@ -59,7 +57,7 @@ erDiagram
         string acted_by_user_id FK "FK → users.id (nullable)"
     }
 
-    SUBSCRIPTIONS {
+    USER_SUBSCRIPTIONS {
         string id PK "ULID. Example: 01HSUBABC"
         string user_id FK "FK → users.id"
         string provider "stripe"
@@ -152,7 +150,7 @@ erDiagram
 
     ASSETS {
         string id PK "ULID. Example: 01HASSETABC"
-        string owner_child_id FK "FK → children.id (optional owner)"
+        %% owner_child_id removed; assets are not owned by a child
         string type "image|pdf|stroke_blob|task_definition|ocr_text"
         string r2_bucket "R2 bucket name"
         string r2_key "R2 object key"
@@ -162,12 +160,11 @@ erDiagram
         int created_at "Epoch ms created"
     }
 
-    USERS ||--o{ CHILDREN : primary_parent
     USERS ||--o{ CHILD_ACCESS : has
     CHILDREN ||--o{ CHILD_ACCESS : memberships
     USERS ||--o{ ACCESS_REQUESTS : requests
-    USERS ||--o{ SUBSCRIPTIONS : subscribes
-    SUBSCRIPTION_PLANS ||--o{ SUBSCRIPTIONS : chosen_plan
+    USERS ||--o{ USER_SUBSCRIPTIONS : subscribes
+    SUBSCRIPTION_PLANS ||--o{ USER_SUBSCRIPTIONS : chosen_plan
     USERS ||--o{ USER_CONSENTS : accepts
     CONSENT_POLICIES ||--o{ USER_CONSENTS : current
 
@@ -178,5 +175,4 @@ erDiagram
 
     CHILDREN ||--o{ CHILD_OBSERVATIONS : observations
     USERS ||--o{ CHILD_OBSERVATIONS : authored
-    CHILDREN ||--o{ ASSETS : owns
     ASSETS ||--o{ CHILDREN : avatar
