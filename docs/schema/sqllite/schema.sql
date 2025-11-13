@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS access_requests (
   id TEXT PRIMARY KEY,
   requester_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   target_parent_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  target_child_id TEXT REFERENCES children(id) ON DELETE SET NULL,
   target_parent_email TEXT,
   desired_persona_role TEXT NOT NULL,
   desired_access_level TEXT NOT NULL CHECK (desired_access_level IN ('parent','teacher','tutor','family')),

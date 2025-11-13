@@ -45,6 +45,7 @@ erDiagram
         string requester_user_id FK "FK → users.id (requester)"
         string target_parent_user_id FK "FK → users.id (nullable)"
         string target_parent_email "Email when parent unknown"
+        string target_child_id FK "FK → children.id (nullable)"
         string desired_persona_role "parent|tutor|teacher|family"
         string desired_access_level "parent|teacher|tutor|family"
         string status "pending|approved|declined|expired|canceled"

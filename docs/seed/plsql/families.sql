@@ -153,11 +153,11 @@ INSERT INTO user_consents (id, user_id, policy_id, group_key, version, accepted_
 ON CONFLICT (id) DO NOTHING;
 
 -- Access requests
-INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
-('areq_fam_b_p2_to_p1', 'usr_fam_b_p2', 'usr_fam_b_p1', 'p1B@example.com', 'parent', 'parent', 'approved', 'tok_ar_fam_b_p2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Request access to children', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, 'usr_fam_b_p1')
+INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_child_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
+('areq_fam_b_p2_to_p1', 'usr_fam_b_p2', 'usr_fam_b_p1', 'ch_fam_b_c1', 'p1B@example.com', 'parent', 'parent', 'approved', 'tok_ar_fam_b_p2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Request access to child c1', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, 'usr_fam_b_p1')
 ON CONFLICT (id) DO NOTHING;
-INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
-('areq_fam_c_gp2_to_p1', 'usr_fam_c_gp2', 'usr_fam_c_p1', 'p1C@example.com', 'grandparent', 'family', 'pending', 'tok_ar_fam_c_gp2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Grandparent access request', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, NULL, NULL)
+INSERT INTO access_requests (id, requester_user_id, target_parent_user_id, target_child_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
+('areq_fam_c_gp2_to_p1', 'usr_fam_c_gp2', 'usr_fam_c_p1', 'ch_fam_c_c1', 'p1C@example.com', 'grandparent', 'family', 'pending', 'tok_ar_fam_c_gp2', (EXTRACT(EPOCH FROM NOW() + INTERVAL '7 days')*1000)::bigint, 'Grandparent access request to child c1', (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, NULL, NULL)
 ON CONFLICT (id) DO NOTHING;
 
 -- Child profiles (created by primary parent)

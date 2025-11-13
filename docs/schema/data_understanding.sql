@@ -25,9 +25,7 @@ select * from eduapp.subscription_plans;
 -- consents
 select * from eduapp.consent_policies;
 
--- user and things oriented about them
-
--- assets: no owner_child_id; assets referenced by other tables as needed
+-- assets 
 select * from eduapp.assets;
 
 
@@ -35,10 +33,11 @@ select * from eduapp.assets;
 -- - addresses ? maybe
 select * from eduapp.users;
 
--- subscription 
-select * from eduapp.user_subscriptions;
+-- subscription plan
 select * from eduapp.subscription_plans;
+
 -- schema changes:
+-- - align naming to the `user_consents` to be `user_subscriptions`
 select * from eduapp.user_subscriptions where user_id = 'usr_fam_b_p1';
 
 -- consents
@@ -48,24 +47,29 @@ select * from eduapp.user_consents where user_id = 'usr_fam_b_p1';
 
 -- child
 select * from eduapp.users where id = 'usr_fam_b_p1';
+
+-- access level can't be `owner` that has to be parent 
 select * from eduapp.child_access where user_id = 'usr_fam_b_p1';
 -- view from child / parent perspective to know who has access to child / profile and their progress
 select * from eduapp.child_access where child_id = 'ch_fam_b_c1';
+select * from eduapp.children where id = 'ch_fam_b_c1';
+-- maybe we need json for profile summary/ sensitivities 
+-- seed:
+-- we need examples or when we have profile created by child and parents with a little bit reacher informations
+select * from eduapp.child_profile where child_id = 'ch_fam_b_c1';
+-- I think that has to be more descriptive 
+-- maybe we need things that it likes and does not like
+-- scheme
+-- we are missing description field and what child liked and maybe what they don't like to better understand what works and what doesn't
+select * from eduapp.child_profile_items where profile_id = 'cprof_fam_b_c1';
 
--- Primary parents and memberships are tracked in child_access
-select c.* from eduapp.children c
-join eduapp.child_access ca on ca.child_id = c.id and ca.is_primary_parent = true;
-
--- seed: 
--- - missing child profile 
+-- request can be by user or can be made by parent to add to user
 select * from eduapp.access_requests; 
 
--- seed: 
--- - missing child profile 
-select * from eduapp.child_profile;
--- seed: 
--- - missing child profile 
-select * from eduapp.child_profile_items;
--- seed: 
--- - missing child profile 
+
+-- they have to be more descriptive 
 select * from eduapp.child_observations;
+
+
+
+

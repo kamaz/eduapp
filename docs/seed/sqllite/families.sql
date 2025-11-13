@@ -115,9 +115,9 @@ INSERT OR IGNORE INTO user_consents (id, user_id, policy_id, group_key, version,
 -- Additional: Access Requests, Child Profiles, Observations
 
 -- Access requests
-INSERT OR IGNORE INTO access_requests (id, requester_user_id, target_parent_user_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
-('areq_fam_b_p2_to_p1', 'usr_fam_b_p2', 'usr_fam_b_p1', 'p1B@example.com', 'parent', 'parent', 'approved', 'tok_ar_fam_b_p2', strftime('%s','now','+7 days')*1000, 'Request access to children', strftime('%s','now')*1000, strftime('%s','now')*1000, strftime('%s','now')*1000, 'usr_fam_b_p1'),
-('areq_fam_c_gp2_to_p1', 'usr_fam_c_gp2', 'usr_fam_c_p1', 'p1C@example.com', 'grandparent', 'family', 'pending', 'tok_ar_fam_c_gp2', strftime('%s','now','+7 days')*1000, 'Grandparent access request', strftime('%s','now')*1000, strftime('%s','now')*1000, NULL, NULL);
+INSERT OR IGNORE INTO access_requests (id, requester_user_id, target_parent_user_id, target_child_id, target_parent_email, desired_persona_role, desired_access_level, status, token, expires_at, message, created_at, updated_at, acted_at, acted_by_user_id) VALUES
+('areq_fam_b_p2_to_p1', 'usr_fam_b_p2', 'usr_fam_b_p1', 'ch_fam_b_c1', 'p1B@example.com', 'parent', 'parent', 'approved', 'tok_ar_fam_b_p2', strftime('%s','now','+7 days')*1000, 'Request access to child c1', strftime('%s','now')*1000, strftime('%s','now')*1000, strftime('%s','now')*1000, 'usr_fam_b_p1'),
+('areq_fam_c_gp2_to_p1', 'usr_fam_c_gp2', 'usr_fam_c_p1', 'ch_fam_c_c1', 'p1C@example.com', 'grandparent', 'family', 'pending', 'tok_ar_fam_c_gp2', strftime('%s','now','+7 days')*1000, 'Grandparent access request to child c1', strftime('%s','now')*1000, strftime('%s','now')*1000, NULL, NULL);
 
 -- Child profiles (created by primary parent)
 INSERT OR IGNORE INTO child_profile (id, child_id, created_by_user_id, updated_by_user_id, authored_by_child, persona_role, status, learning_style, profile_summary, sensitivities, created_at, updated_at) VALUES

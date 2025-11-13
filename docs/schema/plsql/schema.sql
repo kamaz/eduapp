@@ -73,6 +73,7 @@ create table if not exists access_requests (
   requester_user_id text not null references users(id) on delete cascade,
   target_parent_user_id text references users(id) on delete set null,
   target_parent_email text,
+  target_child_id text references children(id) on delete set null,
   desired_persona_role text not null,
   desired_access_level text not null check (desired_access_level in ('parent','teacher','tutor','family')),
   status text not null,
