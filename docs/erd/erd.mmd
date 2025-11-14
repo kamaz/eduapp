@@ -110,8 +110,10 @@ erDiagram
                 string persona_role "parent|tutor|teacher|family"
                 string status "active|archived"
                 string learning_style "story|visual|puzzle|experiment"
-                string profile_summary "Short sanitized summary. Example: Loves LEGO & space"
-                string sensitivities "Short tags CSV. Example: fine-motor-challenges"
+                string profile_summary "Short sanitized summary in natural language. Example: Loves LEGO & space and story games."
+                string sensitivities "Free-text notes on sensitivities or conditions that affect learning. Example: Sensitive to loud sounds in busy rooms."
+                string profile_summary_tags_json "JSON array of tags derived from summary. Example: ['visual','puzzles','stories']"
+                string sensitivities_tags_json "JSON array of tags for sensitivities. Example: ['loud_sounds','rushing','tiny_print']"
                 int created_at "Epoch ms created"
                 int updated_at "Epoch ms updated"
     }
@@ -119,8 +121,12 @@ erDiagram
     CHILD_PROFILE_ITEMS {
                 string id PK "ULID item"
                 string profile_id FK "FK → child_profile.id"
-                string type "interest|book|movie|game"
-                string value "Short tag or title. Example: LEGO, Finding Nemo"
+                string type "interest|book|movie|game|activity"
+                string value "Display title for the item. Example: 'The Gruffalo', 'Coco', 'Acting out stories'"
+                string description "Optional longer description, often first-person for child-authored items."
+                string preference "like|dislike|neutral"
+                string tags_json "JSON array of tags for categorisation. Example: ['book','bedtime','funny']"
+                string resource_url "Optional external URL for the resource (e.g., Wikipedia page for a book/movie)."
                 int created_at "Epoch ms created"
     }
 

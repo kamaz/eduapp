@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Personalised learning for children with AI-generated activities aligned to the UK National Curriculum.",
-  "packageManager": "pnpm@10.0.0",
+  "packageManager": "pnpm@10.22.0",
   "engines": {
     "node": ">=22"
   },
@@ -41,7 +41,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "prettier": "^3.6.2",
-    "supabase": "^2.54.11",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",

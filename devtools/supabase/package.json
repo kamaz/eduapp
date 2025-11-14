@@ -8,7 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "init": "pnpm exec supabase init",
+    "init": "supabase init",
     "dev": "supabase start",
     "start": "supabase start",
     "stop": "supabase stop",
@@ -23,8 +23,8 @@
     "db:reset": "pnpm db:clear && pnpm db:import",
     "clean": "supabase stop && docker volume prune -f || true"
   },
-  "devDependencies": {},
-  "dependencies": {
+  "devDependencies": {
     "supabase": "^2.54.11"
-  }
+  },
+  "dependencies": {}
 }

@@ -41,9 +41,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      supabase:
-        specifier: ^2.54.11
-        version: 2.54.11
       turbo:
         specifier: ^2.5.8
         version: 2.5.8
@@ -201,8 +198,14 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  devtools/supabase:
+  devtools/sqllite:
     dependencies:
+      supabase:
+        specifier: ^2.54.11
+        version: 2.54.11
+
+  devtools/supabase:
+    devDependencies:
       supabase:
         specifier: ^2.54.11
         version: 2.54.11

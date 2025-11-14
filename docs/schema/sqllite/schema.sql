@@ -124,6 +124,8 @@ CREATE TABLE IF NOT EXISTS child_profile (
   learning_style TEXT,
   profile_summary TEXT,
   sensitivities TEXT,
+   profile_summary_tags_json TEXT,
+   sensitivities_tags_json TEXT,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   UNIQUE(child_id, created_by_user_id, status)
@@ -134,6 +136,10 @@ CREATE TABLE IF NOT EXISTS child_profile_items (
   profile_id TEXT NOT NULL REFERENCES child_profile(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
   value TEXT NOT NULL,
+  description TEXT,
+  preference TEXT CHECK (preference IN ('like','dislike','neutral')),
+  tags_json TEXT,
+  resource_url TEXT,
   created_at INTEGER NOT NULL
 );
 

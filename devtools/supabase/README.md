@@ -17,7 +17,17 @@ Commands
 - `pnpm db:reset` — clear then import schema (destructive)
 - `pnpm clean` — stop services and prune leftover Docker volumes (destructive)
 
-Typical workflow
+## Install
+
+You have to allow builds for installation to be successful as mentioned in [PR](https://github.com/supabase/cli/issues/3489).
+
+Example:
+
+```shell
+pnpm add supabase --save-dev --allow-build=supabase
+```
+
+## Typical workflow
 
 1. Start services
 

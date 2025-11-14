@@ -53,23 +53,11 @@ select * from eduapp.child_access where user_id = 'usr_fam_b_p1';
 -- view from child / parent perspective to know who has access to child / profile and their progress
 select * from eduapp.child_access where child_id = 'ch_fam_b_c1';
 select * from eduapp.children where id = 'ch_fam_b_c1';
--- maybe we need json for profile summary/ sensitivities 
--- seed:
--- we need examples or when we have profile created by child and parents with a little bit reacher informations
 select * from eduapp.child_profile where child_id = 'ch_fam_b_c1';
--- I think that has to be more descriptive 
--- maybe we need things that it likes and does not like
--- scheme
--- we are missing description field and what child liked and maybe what they don't like to better understand what works and what doesn't
 select * from eduapp.child_profile_items where profile_id = 'cprof_fam_b_c1';
-
--- request can be by user or can be made by parent to add to user
-select * from eduapp.access_requests; 
-
+select * from eduapp.child_profile_items where profile_id = 'cprof_fam_b_c1_child_voice';
+-- request can be done by user or can be made by parent to add to user
+select * from eduapp.access_requests where target_child_id = 'ch_fam_b_c1'; 
 
 -- they have to be more descriptive 
 select * from eduapp.child_observations;
-
-
-
-

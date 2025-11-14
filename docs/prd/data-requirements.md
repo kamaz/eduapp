@@ -22,8 +22,8 @@
 - Where: D1 (`children` canonical identity) + D1 (`child_profile`, `child_profile_items`, `child_observations`); DO caches transient session state.
 - Children (identity): id, alias (pseudonymous), given_name (optional), family_name (optional), preferred_name (optional), short_name, nickname, internal email (routing only), avatar_asset_id (FK assets), locale (optional), dob (epoch‑ms, UTC midnight), timestamps.
 - Child Profile (structured per-user perspective): one active profile per (child_id, user_id).
-  - `child_profile`: id, child_id, created_by_user_id, updated_by_user_id (nullable), authored_by_child (boolean), persona_role (parent|tutor|teacher|family), status (active|archived), learning_style, profile_summary, sensitivities, timestamps.
-  - `child_profile_items`: id, profile_id, type (interest|book|movie|game), value, created_at.
+  - `child_profile`: id, child_id, created_by_user_id, updated_by_user_id (nullable), authored_by_child (boolean), persona_role (parent|tutor|teacher|family), status (active|archived), learning_style, profile_summary (natural-language summary), sensitivities (natural-language notes on what helps/hinders), profile_summary_tags_json (JSON array of tags derived from summary), sensitivities_tags_json (JSON array of tags for sensitivities), timestamps.
+  - `child_profile_items`: id, profile_id, type (interest|book|movie|game|activity), value (display title, e.g., book/movie/activity name), description (optional longer explanation, often first-person for child-authored items), preference (like|dislike|neutral), tags_json (JSON array of tags for categorisation), resource_url (optional external URL when item is not yet modelled as a first-class asset), created_at.
 - Observations (time series): `child_observations`: id, child_id, user_id, note_type, body, status (active|superseded|archived), superseded_by_observation_id (nullable), timestamps.
 - Purpose: richer AI personalization using multiple persona inputs without overwriting; auditability of who provided what.
 - Displayed to: parent dashboard, tutor/teacher views (as applicable), child UI (curated subset).

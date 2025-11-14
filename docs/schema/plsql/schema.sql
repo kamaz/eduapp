@@ -125,6 +125,8 @@ create table if not exists child_profile (
   learning_style text,
   profile_summary text,
   sensitivities text,
+   profile_summary_tags_json jsonb,
+   sensitivities_tags_json jsonb,
   created_at bigint not null,
   updated_at bigint not null,
   unique(child_id, created_by_user_id, status)
@@ -135,6 +137,10 @@ create table if not exists child_profile_items (
   profile_id text not null references child_profile(id) on delete cascade,
   type text not null,
   value text not null,
+  description text,
+  preference text check (preference in ('like','dislike','neutral')),
+  tags_json jsonb,
+  resource_url text,
   created_at bigint not null
 );
 
