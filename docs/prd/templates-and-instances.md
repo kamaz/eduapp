@@ -36,8 +36,7 @@ This document defines what “templates” and “instances” are across Lesson
     - Example: worked solution (step‑by‑step) demonstrating how to solve the pattern.
     - Practice: similar problem(s) to test understanding; may reference the example instance.
     - Assessment: summative item used in quizzes/exams.
-  - Solution: typed by `answer_type` with `expected_answer_json`; optional `solution_asset_id` for step‑by‑steps.
-  - Links: may reference `example_root_task_instance_id` for “jump back to example”.
+  - Solution: per-item answers live on Task Item Instances; Task Instances carry task-level metadata and optional `solution_asset_id` for step‑by‑step explanations.
 
 ## Task Set Templates and Instances (Exams, Quizzes, Sequences)
 
@@ -62,5 +61,5 @@ This document defines what “templates” and “instances” are across Lesson
 ## Storage summary (D1)
 
 - Templates: lesson_templates, task_set_templates, task_templates, task_item_templates
-- Instances: lesson_instances, task_set_instances, task_instances, task_set_instance_items (plus links between task_set_instances and lesson_instances)
-- Attempts: reference task_instance_id; optionally reference task_set_instance_id and task_set_instance_item_id when answered in a set.
+- Instances: lesson_instances, task_set_instances, task_instances, task_item_instances (task_set_instances link to lesson_instances)
+- Attempts: reference task_instance_id; optionally reference task_set_instance_id and task_item_instance_id when answered in a set.

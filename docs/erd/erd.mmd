@@ -318,18 +318,14 @@ erDiagram
     TASK_INSTANCES {
                 string id PK "ULID. Example: 01HTASKINS"
                 string task_template_id FK "FK → task_templates.id (nullable for manual)"
-                string topic_id FK "FK → curriculum_topics.id"
-                string lesson_instance_id FK "FK → lesson_instances.id (nullable)"
+                string task_set_instance_id FK "FK → task_set_instances.id (nullable)"
                 string child_id FK "FK → children.id"
                 string role "example|practice|assessment. Example: practice"
-                string example_root_task_instance_id FK "FK → task_instances.id (nullable; practice refers back to example)"
                 string title "Task title. Example: Add two-digit numbers"
                 string style "story|visual|puzzle|experiment. Example: visual"
                 int difficulty "1..5 (relative difficulty). Example: 3"
                 string asset_id FK "FK → assets.id (task definition JSON/PDF)"
-                string answer_type "numeric|text|multiple_choice|expression|sequence"
-                string expected_answer_json "Serialized correct answer (typed by answer_type)"
-                string solution_asset_id FK "FK → assets.id (step-by-step solution/explanation)"
+                string solution_asset_id FK "FK → assets.id (step-by-step solution/explanation or explanation asset)"
                 string created_by "ai|user. Example: ai"
                 string created_by_user_id FK "FK → users.id (nullable if ai)"
                 string status "active|archived. Example: active"
@@ -340,6 +336,7 @@ erDiagram
     TASK_SET_INSTANCES {
                 string id PK "ULID. Example: 01HSETINS1"
                 string set_template_id FK "FK → task_set_templates.id (nullable for ad-hoc)"
+                string lesson_instance_id FK "FK → lesson_instances.id"
                 string child_id FK "FK → children.id"
                 string type "exam|quiz|sequence"
                 string title "Instance title (optional)"
@@ -354,24 +351,18 @@ erDiagram
                 int updated_at "Epoch ms updated"
     }
 
-    TASK_SET_INSTANCE_ITEMS {
-                string id PK "ULID. Example: 01HSETIIT1"
-                string set_instance_id FK "FK → task_set_instances.id"
+    TASK_ITEM_INSTANCES {
+                string id PK "ULID. Example: 01HITEMINS1"
                 string task_instance_id FK "FK → task_instances.id"
+                string task_item_template_id FK "FK → task_item_templates.id (nullable; which template item this came from)"
                 int order_index "0‑based display order"
                 int points "Score weight per item (nullable)"
-                int time_limit_ms "Per-item time limit (nullable)"
-                string depends_on_id FK "FK → task_set_instance_items.id (nullable)"
+                int item_time_limit_ms "Per-item time limit (nullable)"
+                string answer_type "numeric|text|multiple_choice|expression|sequence"
+                string depends_on_id FK "FK → task_item_instances.id (nullable)"
                 string question_json "Inline question (resolved)"
                 string config_json "Resolved config"
                 string answer_json "Resolved expected answer"
-                int created_at "Epoch ms created"
-    }
-
-    TASK_SET_INSTANCE_LESSONS {
-                string id PK "ULID. Example: 01HSTIL1"
-                string set_instance_id FK "FK → task_set_instances.id"
-                string lesson_instance_id FK "FK → lesson_instances.id"
                 int created_at "Epoch ms created"
     }
 
@@ -426,13 +417,12 @@ erDiagram
     LESSON_TEMPLATES ||--o{ TASK_SET_TEMPLATES : groups_sets
     TASK_SET_TEMPLATES ||--o{ TASK_TEMPLATES : groups_tasks
     TASK_TEMPLATES ||--o{ TASK_ITEM_TEMPLATES : items
-    LESSON_INSTANCES ||--o{ TASK_INSTANCES : includes
+    LESSON_INSTANCES ||--o{ TASK_SET_INSTANCES : includes_sets
+    TASK_SET_INSTANCES ||--o{ TASK_INSTANCES : includes_tasks
     TASK_TEMPLATES ||--o{ TASK_INSTANCES : materializes
     TASK_INSTANCES ||--o{ TASK_INSTANCES : refers_example
-    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : consists_of
-    TASK_INSTANCES ||--o{ TASK_SET_INSTANCE_ITEMS : appears_in
-    TASK_SET_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : covers
-    LESSON_INSTANCES ||--o{ TASK_SET_INSTANCE_LESSONS : linked
+    TASK_SET_INSTANCES ||--o{ TASK_ITEM_INSTANCES : consists_of
+    TASK_INSTANCES ||--o{ TASK_ITEM_INSTANCES : appears_in
     USERS ||--o{ TASK_TEMPLATES : created_by
     USERS ||--o{ LESSON_TEMPLATES : created_by
     USERS ||--o{ TASK_INSTANCES : created_by
@@ -445,7 +435,7 @@ erDiagram
     CHILDREN ||--o{ ATTEMPTS : has
     TASK_INSTANCES ||--o{ ATTEMPTS : attempts
     TASK_SET_INSTANCES ||--o{ ATTEMPTS : context
-    TASK_SET_INSTANCE_ITEMS ||--o{ ATTEMPTS : context_item
+    TASK_ITEM_INSTANCES ||--o{ ATTEMPTS : context_item
     ASSETS ||--o{ ATTEMPTS : answer
     ASSETS ||--o{ ATTEMPTS : strokes
     CHILDREN ||--o{ PROGRESS : has

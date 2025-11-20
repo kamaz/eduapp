@@ -9,14 +9,14 @@ erDiagram
     CURRICULUM_TOPICS_REF_TASKS {}
     TASK_INSTANCES_REF_TASKS {}
     TASK_SET_INSTANCES_REF_TASKS {}
-    TASK_SET_INSTANCE_ITEMS_REF_TASKS {}
+    TASK_ITEM_INSTANCES_REF_TASKS {}
 
     ATTEMPTS {
         string id PK "ULID. Example: 01HATTEMPT1"
         string child_id FK "FK → children.id"
         string task_instance_id FK "FK → task_instances.id"
         string task_set_instance_id FK "FK → task_set_instances.id (nullable)"
-        string task_set_instance_item_id FK "FK → task_set_instance_items.id (nullable)"
+        string task_item_instance_id FK "FK → task_item_instances.id (nullable)"
         string attempt_client_id UK "Idempotency key from client/DO buffer"
         string source "digital|printed. Example: digital"
         string answer_asset_id FK "FK → assets.id (nullable; structured answer)"
@@ -57,7 +57,7 @@ erDiagram
     CHILDREN_REF_ONBOARDING ||--o{ ATTEMPTS : has
     TASK_INSTANCES_REF_TASKS ||--o{ ATTEMPTS : attempts
     TASK_SET_INSTANCES_REF_TASKS ||--o{ ATTEMPTS : context
-    TASK_SET_INSTANCE_ITEMS_REF_TASKS ||--o{ ATTEMPTS : context_item
+    TASK_ITEM_INSTANCES_REF_TASKS ||--o{ ATTEMPTS : context_item
 
     ASSETS_REF_ONBOARDING ||--o{ ATTEMPTS : answer
     ASSETS_REF_ONBOARDING ||--o{ ATTEMPTS : strokes

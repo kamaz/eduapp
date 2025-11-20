@@ -291,29 +291,6 @@ create table if not exists task_templates (
   updated_at bigint not null
 );
 
--- TASK INSTANCES (belong to a lesson instance and child)
-create table if not exists task_instances (
-  id text primary key,
-  task_template_id text references task_templates(id) on delete set null,
-  topic_id text references curriculum_topics(id) on delete set null,
-  lesson_instance_id text references lesson_instances(id) on delete set null,
-  child_id text references children(id) on delete cascade,
-  role text,
-  example_root_task_instance_id text references task_instances(id) on delete set null,
-  title text,
-  style text,
-  difficulty integer,
-  asset_id text references assets(id) on delete set null,
-  answer_type text,
-  expected_answer_json jsonb,
-  solution_asset_id text references assets(id) on delete set null,
-  created_by text,
-  created_by_user_id text references users(id) on delete set null,
-  status text,
-  created_at bigint not null,
-  updated_at bigint not null
-);
-
 -- TASK ITEM TEMPLATES (belong to a task template)
 create table if not exists task_item_templates (
   id text primary key,
@@ -329,9 +306,11 @@ create table if not exists task_item_templates (
   created_at bigint not null
 );
 
+-- TASK SET INSTANCES (belong to lessons)
 create table if not exists task_set_instances (
   id text primary key,
   set_template_id text references task_set_templates(id) on delete set null,
+  lesson_instance_id text not null references lesson_instances(id) on delete cascade,
   child_id text not null references children(id) on delete cascade,
   type text,
   title text,
@@ -346,24 +325,36 @@ create table if not exists task_set_instances (
   updated_at bigint not null
 );
 
-create table if not exists task_set_instance_items (
+create table if not exists task_instances (
   id text primary key,
-  set_instance_id text not null references task_set_instances(id) on delete cascade,
+  task_template_id text references task_templates(id) on delete set null,
+  task_set_instance_id text references task_set_instances(id) on delete set null,
+  child_id text references children(id) on delete cascade,
+  role text,
+  title text,
+  style text,
+  difficulty integer,
+  asset_id text references assets(id) on delete set null,
+  solution_asset_id text references assets(id) on delete set null,
+  created_by text,
+  created_by_user_id text references users(id) on delete set null,
+  status text,
+  created_at bigint not null,
+  updated_at bigint not null
+);
+
+create table if not exists task_item_instances (
+  id text primary key,
   task_instance_id text not null references task_instances(id) on delete cascade,
+  task_item_template_id text references task_item_templates(id) on delete set null,
   order_index integer,
   points integer,
   item_time_limit_ms integer,
-  depends_on_id text references task_set_instance_items(id) on delete set null,
+  depends_on_id text references task_item_instances(id) on delete set null,
+  answer_type text,
   question_json jsonb,
   config_json jsonb,
   answer_json jsonb,
-  created_at bigint not null
-);
-
-create table if not exists task_set_instance_lessons (
-  id text primary key,
-  set_instance_id text not null references task_set_instances(id) on delete cascade,
-  lesson_instance_id text not null references lesson_instances(id) on delete cascade,
   created_at bigint not null
 );
 
@@ -373,7 +364,7 @@ create table if not exists attempts (
   child_id text not null references children(id) on delete cascade,
   task_instance_id text not null references task_instances(id) on delete cascade,
   task_set_instance_id text references task_set_instances(id) on delete set null,
-  task_set_instance_item_id text references task_set_instance_items(id) on delete set null,
+  task_item_instance_id text references task_item_instances(id) on delete set null,
   attempt_client_id text,
   source text,
   answer_asset_id text references assets(id) on delete set null,

@@ -90,7 +90,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 ## Examples (in repo)
 
-- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_set_templates, task_templates, task_item_templates, task_instances, task_set_instances, task_set_instance_items, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, user_subscriptions.
+- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_set_templates, task_templates, task_item_templates, task_instances, task_set_instances, task_item_instances, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, user_subscriptions.
 - Indexes: idx_children_primary_parent, idx_attempts_child, ux_gen_req_idem, ux_jobs_idem.
 
 ## Style & Formatting
@@ -123,34 +123,33 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 Use short, unambiguous prefixes with ULIDs/UUIDs for readability and debugging (generated in the application layer).
 
-| Table                     | ID Prefix | Example        |
-| ------------------------- | --------- | -------------- |
-| users                     | usr\_     | usr_01HABC...  |
-| children                  | ch\_      | ch_01HABC...   |
-| assets                    | ast\_     | ast_01HABC...  |
-| child_access              | cacc\_    | cacc_01HABC... |
-| access_requests           | areq\_    | areq_01HABC... |
-| consent_policies          | cpol\_    | cpol_01HABC... |
-| user_consents             | ucon\_    | ucon_01HABC... |
-| child_profile             | cpro\_    | cpro_01HABC... |
-| child_profile_items       | cpri\_    | cpri_01HABC... |
-| child_observations        | cob\_     | cob_01HABC...  |
-| user_subscriptions        | subs\_    | subs_01HABC... |
-| curriculum_subjects       | csub\_    | csub_01HABC... |
-| curriculum_topics         | ctop\_    | ctop_01HABC... |
-| curriculum_prereqs        | cprq\_    | cprq_01HABC... |
-| lesson_templates          | lt\_      | lt_01HABC...   |
-| lesson_instances          | li\_      | li_01HABC...   |
-| task_templates            | tt\_      | tt_01HABC...   |
-| task_instances            | ti\_      | ti_01HABC...   |
-| task_set_templates        | tst\_     | tst_01HABC...  |
-| task_item_templates       | titem\_   | titem_01HABC.. |
-| task_set_instances        | tsi\_     | tsi_01HABC...  |
-| task_set_instance_items   | tsii\_    | tsii_01HABC... |
-| task_set_instance_lessons | tsil\_    | tsil_01HABC... |
-| attempts                  | att\_     | att_01HABC...  |
-| progress                  | prog\_    | prog_01HABC... |
-| progress_events           | pe\_      | pe_01HABC...   |
-| generation_requests       | grq\_     | grq_01HABC...  |
-| jobs                      | job\_     | job_01HABC...  |
-| job_steps                 | js\_      | js_01HABC...   |
+| Table               | ID Prefix | Example        |
+| ------------------- | --------- | -------------- |
+| users               | usr\_     | usr_01HABC...  |
+| children            | ch\_      | ch_01HABC...   |
+| assets              | ast\_     | ast_01HABC...  |
+| child_access        | cacc\_    | cacc_01HABC... |
+| access_requests     | areq\_    | areq_01HABC... |
+| consent_policies    | cpol\_    | cpol_01HABC... |
+| user_consents       | ucon\_    | ucon_01HABC... |
+| child_profile       | cpro\_    | cpro_01HABC... |
+| child_profile_items | cpri\_    | cpri_01HABC... |
+| child_observations  | cob\_     | cob_01HABC...  |
+| user_subscriptions  | subs\_    | subs_01HABC... |
+| curriculum_subjects | csub\_    | csub_01HABC... |
+| curriculum_topics   | ctop\_    | ctop_01HABC... |
+| curriculum_prereqs  | cprq\_    | cprq_01HABC... |
+| lesson_templates    | lt\_      | lt_01HABC...   |
+| lesson_instances    | li\_      | li_01HABC...   |
+| task_templates      | tt\_      | tt_01HABC...   |
+| task_instances      | ti\_      | ti_01HABC...   |
+| task_set_templates  | tst\_     | tst_01HABC...  |
+| task_item_templates | titem\_   | titem_01HABC.. |
+| task_set_instances  | tsi\_     | tsi_01HABC...  |
+| task_item_instances | tii\_     | tii_01HABC...  |
+| attempts            | att\_     | att_01HABC...  |
+| progress            | prog\_    | prog_01HABC... |
+| progress_events     | pe\_      | pe_01HABC...   |
+| generation_requests | grq\_     | grq_01HABC...  |
+| jobs                | job\_     | job_01HABC...  |
+| job_steps           | js\_      | js_01HABC...   |

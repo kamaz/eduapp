@@ -16,7 +16,7 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
   - Task Set Instances are created per child; they materialize concrete Task Instances and runtime state.
 - Task Set: a named collection (exam|quiz|sequence) with optional time limits and pass thresholds.
 - Set Item: an ordered entry in the set; can define per‑item limits, weights, and dependencies.
-- Attempt Context: attempts carry optional `task_set_instance_id` and `task_set_instance_item_id` to capture when a task was completed as part of a set.
+- Attempt Context: attempts carry optional `task_set_instance_id` and `task_item_instance_id` to capture when a task was completed as part of a set.
 
 ## Entities (D1)
 
@@ -27,11 +27,11 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
 - `task_item_templates`
   - Fields: `id`, `task_template_id`, `order_id?`, `points?`, `time_limit_ms?`, `depends_on_id?`, `asset_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
 - `task_set_instances`
-  - Fields: `id`, `set_template_id?`, `child_id`, `type`, `title?`, `description?`, `time_limit_ms?`, `passing_score?`, `status`, `created_by_user_id?`, `started_at?`, `completed_at?`, `created_at`, `updated_at`
-- `task_set_instance_items`
-  - Fields: `id`, `set_instance_id`, `task_instance_id`, `order_index`, `points?`, `item_time_limit_ms?`, `depends_on_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
+  - Fields: `id`, `set_template_id?`, `lesson_instance_id`, `child_id`, `type`, `title?`, `description?`, `time_limit_ms?`, `passing_score?`, `status`, `created_by_user_id?`, `started_at?`, `completed_at?`, `created_at`, `updated_at`
+- `task_item_instances`
+  - Fields: `id`, `task_instance_id`, `task_item_template_id?`, `order_index`, `points?`, `item_time_limit_ms?`, `depends_on_id?`, `answer_type?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
 - `attempts` (extension)
-  - Adds: `task_set_instance_id?`, `task_set_instance_item_id?`
+  - Adds: `task_set_instance_id?`, `task_item_instance_id?`
 
 ## Use Cases
 
