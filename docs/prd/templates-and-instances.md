@@ -28,7 +28,7 @@ This document defines what “templates” and “instances” are across Lesson
 - Task Template
   - Purpose: defines the task kind (title/style/difficulty) and scheduling hints such as per‑task time limit, dependency on another task template, and an optional order for display/sequence.
   - Source: created by upload + OCR/extract (e.g., parent photo or book page) or user/AI authoring.
-  - Links: optionally associated to a Lesson Template; appears in Task Set Templates.
+  - Links: belongs to a Task Set Template (via `set_template_id`) which in turn belongs to a Lesson Template; Task Item Templates hang off a Task Template and carry the per‑item question/config/answer JSON.
 
 - Task Instance
   - Purpose: a concrete exercise materialised for a child/session from a Task Template.
@@ -61,6 +61,6 @@ This document defines what “templates” and “instances” are across Lesson
 
 ## Storage summary (D1)
 
-- Templates: lesson_templates, task_templates, task_set_templates (+ task_set_template_items, links to lesson_templates)
-- Instances: lesson_instances, task_instances, task_set_instances (+ task_set_instance_items, links to lesson_instances)
+- Templates: lesson_templates, task_set_templates, task_templates, task_item_templates
+- Instances: lesson_instances, task_set_instances, task_instances, task_set_instance_items (plus links between task_set_instances and lesson_instances)
 - Attempts: reference task_instance_id; optionally reference task_set_instance_id and task_set_instance_item_id when answered in a set.

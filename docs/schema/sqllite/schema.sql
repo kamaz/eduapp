@@ -247,7 +247,6 @@ CREATE TABLE IF NOT EXISTS lesson_instances (
   lesson_template_id TEXT REFERENCES lesson_templates(id) ON DELETE SET NULL,
   child_id TEXT REFERENCES children(id) ON DELETE CASCADE,
   title TEXT,
-  asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
   style TEXT,
   difficulty INTEGER,
   personalization_params_json TEXT,
@@ -257,10 +256,26 @@ CREATE TABLE IF NOT EXISTS lesson_instances (
   updated_at INTEGER NOT NULL
 );
 
+-- TASK SET TEMPLATES (belong to lessons)
+CREATE TABLE IF NOT EXISTS task_set_templates (
+  id TEXT PRIMARY KEY,
+  lesson_template_id TEXT REFERENCES lesson_templates(id) ON DELETE SET NULL,
+  type TEXT,
+  title TEXT,
+  description TEXT,
+  time_limit_ms INTEGER,
+  passing_score REAL,
+  status TEXT,
+  created_by TEXT,
+  created_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+-- TASK TEMPLATES (belong to a task set)
 CREATE TABLE IF NOT EXISTS task_templates (
   id TEXT PRIMARY KEY,
-  topic_id TEXT REFERENCES curriculum_topics(id) ON DELETE SET NULL,
-  lesson_template_id TEXT REFERENCES lesson_templates(id) ON DELETE SET NULL,
+  set_template_id TEXT REFERENCES task_set_templates(id) ON DELETE SET NULL,
   title TEXT,
   style TEXT,
   difficulty INTEGER,
@@ -275,6 +290,7 @@ CREATE TABLE IF NOT EXISTS task_templates (
   updated_at INTEGER NOT NULL
 );
 
+-- TASK INSTANCES (belong to a lesson instance and child)
 CREATE TABLE IF NOT EXISTS task_instances (
   id TEXT PRIMARY KEY,
   task_template_id TEXT REFERENCES task_templates(id) ON DELETE SET NULL,
@@ -297,30 +313,14 @@ CREATE TABLE IF NOT EXISTS task_instances (
   updated_at INTEGER NOT NULL
 );
 
--- TASK SETS
-CREATE TABLE IF NOT EXISTS task_set_templates (
+-- TASK ITEM TEMPLATES (belong to a task template)
+CREATE TABLE IF NOT EXISTS task_item_templates (
   id TEXT PRIMARY KEY,
-  topic_id TEXT REFERENCES curriculum_topics(id) ON DELETE SET NULL,
-  type TEXT,
-  title TEXT,
-  description TEXT,
-  time_limit_ms INTEGER,
-  passing_score REAL,
-  status TEXT,
-  created_by TEXT,
-  created_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS task_set_template_items (
-  id TEXT PRIMARY KEY,
-  set_template_id TEXT NOT NULL REFERENCES task_set_templates(id) ON DELETE CASCADE,
   task_template_id TEXT NOT NULL REFERENCES task_templates(id) ON DELETE CASCADE,
   order_id INTEGER,
   points INTEGER,
   time_limit_ms INTEGER,
-  depends_on_id TEXT REFERENCES task_set_template_items(id) ON DELETE SET NULL,
+  depends_on_id TEXT REFERENCES task_item_templates(id) ON DELETE SET NULL,
   asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
   question_json TEXT,
   config_json TEXT,
@@ -356,13 +356,6 @@ CREATE TABLE IF NOT EXISTS task_set_instance_items (
   question_json TEXT,
   config_json TEXT,
   answer_json TEXT,
-  created_at INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS task_set_template_lessons (
-  id TEXT PRIMARY KEY,
-  set_template_id TEXT NOT NULL REFERENCES task_set_templates(id) ON DELETE CASCADE,
-  lesson_template_id TEXT NOT NULL REFERENCES lesson_templates(id) ON DELETE CASCADE,
   created_at INTEGER NOT NULL
 );
 

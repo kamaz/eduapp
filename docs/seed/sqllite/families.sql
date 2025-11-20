@@ -32,7 +32,7 @@ INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes
 ('ast_avatar_fam_b_c2', 'avatar', 'avatars', 'seed/fam_b_c2.png', 'image/png', NULL, NULL, strftime('%s','now')*1000);
 
 INSERT OR IGNORE INTO children (id, alias, given_name, family_name, preferred_name, short_name, nickname, email, avatar_asset_id, locale, dob, created_at, updated_at) VALUES
-('ch_fam_b_c1', 'bee1', 'Bella', 'Beta', 'Bella', 'Bella', 'Bell', 'ch_fam_b_c1@internal.local', 'ast_avatar_fam_b_c1', 'en-GB', strftime('%s','2015-09-01')*1000, strftime('%s','now')*1000, strftime('%s','now')*1000),
+('ch_fam_b_c1', 'bee1', 'Bella', 'Beta', 'Bella', 'Bella', 'Bell', 'ch_fam_b_c1@internal.local', 'ast_avatar_fam_b_c1', 'en-GB', strftime('%s','2016-09-01')*1000, strftime('%s','now')*1000, strftime('%s','now')*1000),
 ('ch_fam_b_c2', 'bee2', 'Ben', 'Beta', 'Ben', 'Ben', 'Benny', 'ch_fam_b_c2@internal.local', 'ast_avatar_fam_b_c2', 'en-GB', strftime('%s','2018-03-01')*1000, strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 INSERT OR IGNORE INTO child_access (id, child_id, user_id, persona_role, access_level, is_primary_parent, invited_by_user_id, created_at, updated_at) VALUES

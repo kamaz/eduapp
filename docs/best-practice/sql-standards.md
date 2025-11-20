@@ -12,7 +12,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 - Naming: plural nouns (users, children, assets, curriculum_topics).
 - Joins/associations:
-  - Semantic association: domain-specific name (child_access, task_set_template_items).
+  - Semantic association: domain-specific name (child_access, task_item_templates).
   - Generic many-to-many: <left>\_<right> in alphabetical order (only if truly generic).
 - Append-only/event tables: suffix with `_events` (progress_events).
 - Historical snapshots (if needed): suffix with `_history`.
@@ -21,7 +21,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 - Primary key: `id` (TEXT ULID/UUID) on every table.
 - Foreign keys: `<referenced_table_singular>_id` (user_id, child_id, topic_id).
-- Asset references: Always name the FK column `asset_id` when referencing `assets` (consistent across tables like lesson_templates, task_templates, task_set_template_items, consent_policies).
+- Asset references: Always name the FK column `asset_id` when referencing `assets` (consistent across tables like lesson_templates, task_templates, task_item_templates, consent_policies).
 - Booleans: `is_<predicate>`; INTEGER 0/1 in SQLite; BOOLEAN in Postgres.
 - Timestamps: `created_at`, `updated_at` epoch ms (INTEGER in SQLite, BIGINT in Postgres); soft-delete `deleted_at` where needed.
 - JSON: `<name>_json` (TEXT in SQLite; JSONB in Postgres).
@@ -90,7 +90,7 @@ These conventions keep our SQLite/D1 and PostgreSQL schemas consistent, portable
 
 ## Examples (in repo)
 
-- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_templates, task_instances, task_set_templates, task_set_template_items, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, user_subscriptions.
+- Tables: users, children, child_access, access_requests, curriculum_subjects, curriculum_topics, lesson_templates, lesson_instances, task_set_templates, task_templates, task_item_templates, task_instances, task_set_instances, task_set_instance_items, attempts, progress, progress_events, assets, jobs, job_steps, generation_requests, user_subscriptions.
 - Indexes: idx_children_primary_parent, idx_attempts_child, ux_gen_req_idem, ux_jobs_idem.
 
 ## Style & Formatting
@@ -144,10 +144,9 @@ Use short, unambiguous prefixes with ULIDs/UUIDs for readability and debugging (
 | task_templates            | tt\_      | tt_01HABC...   |
 | task_instances            | ti\_      | ti_01HABC...   |
 | task_set_templates        | tst\_     | tst_01HABC...  |
-| task_set_template_items   | tsti\_    | tsti_01HABC... |
+| task_item_templates       | titem\_   | titem_01HABC.. |
 | task_set_instances        | tsi\_     | tsi_01HABC...  |
 | task_set_instance_items   | tsii\_    | tsii_01HABC... |
-| task_set_template_lessons | tstl\_    | tstl_01HABC... |
 | task_set_instance_lessons | tsil\_    | tsil_01HABC... |
 | attempts                  | att\_     | att_01HABC...  |
 | progress                  | prog\_    | prog_01HABC... |

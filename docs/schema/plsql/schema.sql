@@ -248,7 +248,6 @@ create table if not exists lesson_instances (
   lesson_template_id text references lesson_templates(id) on delete set null,
   child_id text references children(id) on delete cascade,
   title text,
-  asset_id text references assets(id) on delete set null,
   style text,
   difficulty integer,
   personalization_params_json jsonb,
@@ -258,10 +257,26 @@ create table if not exists lesson_instances (
   updated_at bigint not null
 );
 
+-- TASK SET TEMPLATES (belong to lessons)
+create table if not exists task_set_templates (
+  id text primary key,
+  lesson_template_id text references lesson_templates(id) on delete set null,
+  type text,
+  title text,
+  description text,
+  time_limit_ms integer,
+  passing_score double precision,
+  status text,
+  created_by text,
+  created_by_user_id text references users(id) on delete set null,
+  created_at bigint not null,
+  updated_at bigint not null
+);
+
+-- TASK TEMPLATES (belong to a task set)
 create table if not exists task_templates (
   id text primary key,
-  topic_id text references curriculum_topics(id) on delete set null,
-  lesson_template_id text references lesson_templates(id) on delete set null,
+  set_template_id text references task_set_templates(id) on delete set null,
   title text,
   style text,
   difficulty integer,
@@ -276,6 +291,7 @@ create table if not exists task_templates (
   updated_at bigint not null
 );
 
+-- TASK INSTANCES (belong to a lesson instance and child)
 create table if not exists task_instances (
   id text primary key,
   task_template_id text references task_templates(id) on delete set null,
@@ -298,30 +314,14 @@ create table if not exists task_instances (
   updated_at bigint not null
 );
 
--- TASK SETS
-create table if not exists task_set_templates (
+-- TASK ITEM TEMPLATES (belong to a task template)
+create table if not exists task_item_templates (
   id text primary key,
-  topic_id text references curriculum_topics(id) on delete set null,
-  type text,
-  title text,
-  description text,
-  time_limit_ms integer,
-  passing_score double precision,
-  status text,
-  created_by text,
-  created_by_user_id text references users(id) on delete set null,
-  created_at bigint not null,
-  updated_at bigint not null
-);
-
-create table if not exists task_set_template_items (
-  id text primary key,
-  set_template_id text not null references task_set_templates(id) on delete cascade,
   task_template_id text not null references task_templates(id) on delete cascade,
   order_id integer,
   points integer,
   time_limit_ms integer,
-  depends_on_id text references task_set_template_items(id) on delete set null,
+  depends_on_id text references task_item_templates(id) on delete set null,
   asset_id text references assets(id) on delete set null,
   question_json jsonb,
   config_json jsonb,
@@ -357,13 +357,6 @@ create table if not exists task_set_instance_items (
   question_json jsonb,
   config_json jsonb,
   answer_json jsonb,
-  created_at bigint not null
-);
-
-create table if not exists task_set_template_lessons (
-  id text primary key,
-  set_template_id text not null references task_set_templates(id) on delete cascade,
-  lesson_template_id text not null references lesson_templates(id) on delete cascade,
   created_at bigint not null
 );
 

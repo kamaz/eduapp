@@ -21,8 +21,15 @@ INSERT INTO lesson_templates (id, topic_id, title, asset_id, overview_json, styl
 ('lt_eng_y1_r_comp_1', 'ctop_eng_y1_r_comp', 'Y1 Reading Comp — Stories & talk', NULL, NULL, 'visual', 1, NULL, 1, 'active', 'user', NULL, EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000)
 ON CONFLICT (id) DO NOTHING;
 
--- task templates
-INSERT INTO task_templates (id, topic_id, lesson_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
-('tt_eng_y1_r_wr_cvc', 'ctop_eng_y1_r_wr', 'lt_eng_y1_r_wr_1', 'Read CVC words', 'visual', 1, NULL, NULL, 1, NULL, 'user', NULL, 'active', EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000),
-('tt_eng_y1_r_comp_seq', 'ctop_eng_y1_r_comp', 'lt_eng_y1_r_comp_1', 'Sequence story pictures', 'story', 1, NULL, NULL, 1, NULL, 'user', NULL, 'active', EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000)
+-- task set templates (one per lesson)
+INSERT INTO task_set_templates (id, lesson_template_id, type, title, description, time_limit_ms, passing_score, status, created_by, created_by_user_id, created_at, updated_at)
+VALUES
+('tst_eng_y1_r_wr_cvc', 'lt_eng_y1_r_wr_1', 'worksheet', 'Y1 Word Reading — CVC practice', NULL, NULL, NULL, 'active', 'user', NULL, EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000),
+('tst_eng_y1_r_comp_seq', 'lt_eng_y1_r_comp_1', 'worksheet', 'Y1 Reading Comp — Story sequencing', NULL, NULL, NULL, 'active', 'user', NULL, EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000)
+ON CONFLICT (id) DO NOTHING;
+
+-- task templates (each belongs to a set)
+INSERT INTO task_templates (id, set_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
+('tt_eng_y1_r_wr_cvc', 'tst_eng_y1_r_wr_cvc', 'Read CVC words', 'visual', 1, NULL, NULL, 1, NULL, 'user', NULL, 'active', EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000),
+('tt_eng_y1_r_comp_seq', 'tst_eng_y1_r_comp_seq', 'Sequence story pictures', 'story', 1, NULL, NULL, 1, NULL, 'user', NULL, 'active', EXTRACT(EPOCH FROM NOW())*1000, EXTRACT(EPOCH FROM NOW())*1000)
 ON CONFLICT (id) DO NOTHING;

@@ -18,10 +18,15 @@ INSERT OR IGNORE INTO lesson_templates (id, topic_id, title, asset_id, overview_
 ('lt_eng_y5_r_comp_1', 'ctop_eng_y5_r_comp', 'Y5 Reading Comp — Themes & conventions', NULL, NULL, 'story', 3, NULL, 1, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000),
 ('lt_eng_y5_w_comp_1', 'ctop_eng_y5_w_comp', 'Y5 Writing Comp — Audience & purpose', NULL, NULL, 'visual', 3, NULL, 1, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
 
--- task templates (examples)
-INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
-('tt_eng_y5_r_comp_themes', 'ctop_eng_y5_r_comp', 'lt_eng_y5_r_comp_1', 'Identify themes across chapters', 'story', 3, NULL, NULL, NULL, NULL, 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
-('tt_eng_y5_w_comp_plan', 'ctop_eng_y5_w_comp', 'lt_eng_y5_w_comp_1', 'Plan persuasive letter', 'visual', 3, NULL, NULL, NULL, NULL, 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
+-- task set templates for Reading/Writing (Y5)
+INSERT OR IGNORE INTO task_set_templates (id, lesson_template_id, type, title, description, time_limit_ms, passing_score, status, created_by, created_by_user_id, created_at, updated_at) VALUES
+('tst_eng_y5_r_comp_1', 'lt_eng_y5_r_comp_1', 'quiz', 'Y5 Reading Comp — Themes & conventions', NULL, NULL, NULL, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000),
+('tst_eng_y5_w_comp_1', 'lt_eng_y5_w_comp_1', 'quiz', 'Y5 Writing Comp — Audience & purpose', NULL, NULL, NULL, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
+
+-- task templates (examples) each belonging to a set
+INSERT OR IGNORE INTO task_templates (id, set_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
+('tt_eng_y5_r_comp_themes', 'tst_eng_y5_r_comp_1', 'Identify themes across chapters', 'story', 3, NULL, NULL, NULL, NULL, 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
+('tt_eng_y5_w_comp_plan', 'tst_eng_y5_w_comp_1', 'Plan persuasive letter', 'visual', 3, NULL, NULL, NULL, NULL, 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 -- assets referencing existing PDFs in docs (for demo linking)
 INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
@@ -32,10 +37,14 @@ INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes
 INSERT OR IGNORE INTO lesson_templates (id, topic_id, title, asset_id, overview_json, style, difficulty, time_limit_ms, order_id, status, created_by, created_by_user_id, created_at, updated_at) VALUES
 ('lt_eng_y5_vgp_1', 'ctop_eng_y5_vgp', 'Y5 VGP — Relative clauses and modal verbs', 'ast_eng_appendix2_vgp_pdf', NULL, 'visual', 3, NULL, 1, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
 
+-- task set template for core VGP lesson (non-speech)
+INSERT OR IGNORE INTO task_set_templates (id, lesson_template_id, type, title, description, time_limit_ms, passing_score, status, created_by, created_by_user_id, created_at, updated_at) VALUES
+('tst_eng_y5_vgp_1', 'lt_eng_y5_vgp_1', 'quiz', 'Y5 VGP — Relative clauses & modal verbs', NULL, NULL, NULL, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
+
 -- task templates for VGP (Y5) linking to the above lesson and PDFs
-INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
-('tt_eng_y5_vgp_relative_clauses', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_1', 'Recognise and use relative clauses', 'visual', 3, NULL, NULL, NULL, 'ast_eng_appendix2_vgp_pdf', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
-('tt_eng_y5_vgp_modal_verbs', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_1', 'Use modal verbs to indicate possibility', 'story', 3, NULL, NULL, NULL, 'ast_eng_glossary_pdf', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO task_templates (id, set_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
+('tt_eng_y5_vgp_relative_clauses', 'tst_eng_y5_vgp_1', 'Recognise and use relative clauses', 'visual', 3, NULL, NULL, NULL, 'ast_eng_appendix2_vgp_pdf', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
+('tt_eng_y5_vgp_modal_verbs', 'tst_eng_y5_vgp_1', 'Use modal verbs to indicate possibility', 'story', 3, NULL, NULL, NULL, 'ast_eng_glossary_pdf', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 -- OPTIONAL: attach the scanned lesson sheet image as an asset
 -- Place the JPEG at docs/seed/seed-assets/speech-grammar-lesson-template.jpeg (or adjust r2_key below)
@@ -51,11 +60,11 @@ UPDATE lesson_templates
 SET overview_text = 'There are two types of written speech: direct speech and reported speech. Direct speech is what a character actually says. Reported speech tells what a character said. Quick tip: Direct speech needs inverted commas (quotation marks).'
 WHERE id = 'lt_eng_y5_vgp_speech_direct_reported';
 
--- Task templates derived from the sheet
-INSERT OR IGNORE INTO task_templates (id, topic_id, lesson_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
-('tt_eng_y5_vgp_punctuate_direct_speech', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_speech_direct_reported', 'Punctuate direct speech with inverted commas', 'visual', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
-('tt_eng_y5_vgp_direct_to_reported', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_speech_direct_reported', 'Rewrite direct speech as reported speech', 'story', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
-('tt_eng_y5_vgp_reported_to_direct', 'ctop_eng_y5_vgp', 'lt_eng_y5_vgp_speech_direct_reported', 'Rewrite reported speech as direct speech with correct punctuation', 'visual', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
+-- Task templates derived from the sheet (speech set)
+INSERT OR IGNORE INTO task_templates (id, set_template_id, title, style, difficulty, time_limit_ms, depends_on_id, order_id, asset_id, created_by, created_by_user_id, status, created_at, updated_at) VALUES
+('tt_eng_y5_vgp_punctuate_direct_speech', 'tst_eng_y5_vgp_speech', 'Punctuate direct speech with inverted commas', 'visual', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
+('tt_eng_y5_vgp_direct_to_reported', 'tst_eng_y5_vgp_speech', 'Rewrite direct speech as reported speech', 'story', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000),
+('tt_eng_y5_vgp_reported_to_direct', 'tst_eng_y5_vgp_speech', 'Rewrite reported speech as direct speech with correct punctuation', 'visual', 3, NULL, NULL, NULL, 'ast_eng_y5_vgp_speech_sheet_jpg', 'user', NULL, 'active', strftime('%s','now')*1000, strftime('%s','now')*1000);
 
 -- OCR text assets (overview and items JSON), place files under docs/seed/seed-assets
 INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES
@@ -66,25 +75,18 @@ INSERT OR IGNORE INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes
 -- overview_json and asset_id were set at insert time above
 
 -- Task set template representing the worksheet with two sections (1 and 2)
-INSERT OR IGNORE INTO task_set_templates (id, topic_id, type, title, description, time_limit_ms, passing_score, status, created_by, created_by_user_id, created_at, updated_at) VALUES
-('tst_eng_y5_vgp_speech', 'ctop_eng_y5_vgp', 'quiz', 'Speech Worksheet — Direct & Reported', 'Section 1: reported→direct; Section 2: direct→reported', NULL, NULL, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
+INSERT OR IGNORE INTO task_set_templates (id, lesson_template_id, type, title, description, time_limit_ms, passing_score, status, created_by, created_by_user_id, created_at, updated_at) VALUES
+('tst_eng_y5_vgp_speech', 'lt_eng_y5_vgp_speech_direct_reported', 'quiz', 'Speech Worksheet — Direct & Reported', 'Section 1: reported→direct; Section 2: direct→reported', NULL, NULL, 'active', 'user', NULL, strftime('%s','now')*1000, strftime('%s','now')*1000);
 
--- Link the set to the lesson
-INSERT OR IGNORE INTO task_set_template_lessons (id, set_template_id, lesson_template_id, created_at) VALUES
-('tstl_eng_y5_vgp_speech_1', 'tst_eng_y5_vgp_speech', 'lt_eng_y5_vgp_speech_direct_reported', strftime('%s','now')*1000);
-
--- Section 1 (reported → direct): items a–d
-INSERT OR IGNORE INTO task_set_template_items (id, set_template_id, task_template_id, order_id, points, time_limit_ms, depends_on_id, asset_id, question_json, config_json, answer_json, created_at) VALUES
-('tsti_eng_y5_vgp_s1_a', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_reported_to_direct', 1, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Mum said that she couldn\'t come to the concert because she was working."}', '{"transform":"reported_to_direct"}', '{"expected":"\"I can\'t come to the concert because I\'m working,\" said Mum."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s1_b', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_reported_to_direct', 2, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"They asked Dinah if she had forgotten her bus fare."}', '{"transform":"reported_to_direct"}', '{"expected":"\"Have you forgotten your bus fare?\" they asked Dinah."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s1_c', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_reported_to_direct', 3, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Priti said that she wanted to go swimming."}', '{"transform":"reported_to_direct"}', '{"expected":"\"I want to go swimming,\" said Priti."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s1_d', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_reported_to_direct', 4, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Mum told Belinda that she had to hurry up or she would be late."}', '{"transform":"reported_to_direct"}', '{"expected":"\"Hurry up or you\'ll be late,\" Mum told Belinda."}', strftime('%s','now')*1000);
-
--- Section 2 (direct → reported): items a–d
-INSERT OR IGNORE INTO task_set_template_items (id, set_template_id, task_template_id, order_id, points, time_limit_ms, depends_on_id, asset_id, question_json, config_json, answer_json, created_at) VALUES
-('tsti_eng_y5_vgp_s2_a', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_direct_to_reported', 5, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Good morning, Mr Smith, and how are you feeling?\" asked the nurse."}', '{"transform":"direct_to_reported"}', '{"expected":"The nurse asked Mr Smith how he was feeling and wished him good morning."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s2_b', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_direct_to_reported', 6, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Don\'t forget to brush your teeth before you go to bed,\" Dad reminded me."}', '{"transform":"direct_to_reported"}', '{"expected":"Dad reminded me not to forget to brush my teeth before I went to bed."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s2_c', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_direct_to_reported', 7, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Shh! Try to be quieter, or you\'ll wake the baby,\" Mum whispered to me."}', '{"transform":"direct_to_reported"}', '{"expected":"Mum whispered to me to be quieter or I would wake the baby."}', strftime('%s','now')*1000),
-('tsti_eng_y5_vgp_s2_d', 'tst_eng_y5_vgp_speech', 'tt_eng_y5_vgp_direct_to_reported', 8, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"No scribble today, I only want to see your best writing,\" the teacher said."}', '{"transform":"direct_to_reported"}', '{"expected":"The teacher said that there was to be no scribbling today and that they only wanted to see our best writing."}', strftime('%s','now')*1000);
+-- Task item templates derived from the sheet
+INSERT OR IGNORE INTO task_item_templates (id, task_template_id, order_id, points, time_limit_ms, depends_on_id, asset_id, question_json, config_json, answer_json, created_at) VALUES
+('titem_eng_y5_vgp_s1_a', 'tt_eng_y5_vgp_reported_to_direct', 1, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Mum said that she couldn''t come to the concert because she was working."}', '{"transform":"reported_to_direct"}', '{"expected":"\"I can''t come to the concert because I''m working,\" said Mum."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s1_b', 'tt_eng_y5_vgp_reported_to_direct', 2, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"They asked Dinah if she had forgotten her bus fare."}', '{"transform":"reported_to_direct"}', '{"expected":"\"Have you forgotten your bus fare?\" they asked Dinah."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s1_c', 'tt_eng_y5_vgp_reported_to_direct', 3, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Priti said that she wanted to go swimming."}', '{"transform":"reported_to_direct"}', '{"expected":"\"I want to go swimming,\" said Priti."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s1_d', 'tt_eng_y5_vgp_reported_to_direct', 4, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as direct speech","text":"Mum told Belinda that she had to hurry up or she would be late."}', '{"transform":"reported_to_direct"}', '{"expected":"\"Hurry up or you''ll be late,\" Mum told Belinda."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s2_a', 'tt_eng_y5_vgp_direct_to_reported', 5, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Good morning, Mr Smith, and how are you feeling?\" asked the nurse."}', '{"transform":"direct_to_reported"}', '{"expected":"The nurse asked Mr Smith how he was feeling and wished him good morning."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s2_b', 'tt_eng_y5_vgp_direct_to_reported', 6, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Don''t forget to brush your teeth before you go to bed,\" Dad reminded me."}', '{"transform":"direct_to_reported"}', '{"expected":"Dad reminded me not to forget to brush my teeth before I went to bed."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s2_c', 'tt_eng_y5_vgp_direct_to_reported', 7, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"Shh! Try to be quieter, or you''ll wake the baby,\" Mum whispered to me."}', '{"transform":"direct_to_reported"}', '{"expected":"Mum whispered to me to be quieter or I would wake the baby."}', strftime('%s','now')*1000),
+('titem_eng_y5_vgp_s2_d', 'tt_eng_y5_vgp_direct_to_reported', 8, NULL, NULL, NULL, NULL, '{"prompt":"Rewrite as reported speech","text":"\"No scribble today, I only want to see your best writing,\" the teacher said."}', '{"transform":"direct_to_reported"}', '{"expected":"The teacher said that there was to be no scribbling today and that they only wanted to see our best writing."}', strftime('%s','now')*1000);
 
 -- (Inline question/config/answer are set in the INSERTs above for seed clarity.)

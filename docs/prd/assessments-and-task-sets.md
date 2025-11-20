@@ -21,13 +21,15 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
 ## Entities (D1)
 
 - `task_set_templates`
-  - Fields: `id`, `type` (exam|quiz|sequence), `title`, `description`, `time_limit_ms?`, `passing_score?`, `status`, `created_by`, `created_by_user_id?`, `created_at`, `updated_at`
-- `task_set_template_items`
-  - Fields: `id`, `set_template_id`, `task_template_id`, `order_id?`, `points?`, `time_limit_ms?`, `depends_on_id?`, `asset_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
+  - Fields: `id`, `lesson_template_id?`, `type` (exam|quiz|sequence), `title`, `description`, `time_limit_ms?`, `passing_score?`, `status`, `created_by`, `created_by_user_id?`, `created_at`, `updated_at`
+- `task_templates`
+  - Fields: `id`, `set_template_id?`, `title`, `style`, `difficulty`, `time_limit_ms?`, `depends_on_id?`, `order_id?`, `asset_id?`, `created_by`, `created_by_user_id?`, `status`, `created_at`, `updated_at`
+- `task_item_templates`
+  - Fields: `id`, `task_template_id`, `order_id?`, `points?`, `time_limit_ms?`, `depends_on_id?`, `asset_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
 - `task_set_instances`
   - Fields: `id`, `set_template_id?`, `child_id`, `type`, `title?`, `description?`, `time_limit_ms?`, `passing_score?`, `status`, `created_by_user_id?`, `started_at?`, `completed_at?`, `created_at`, `updated_at`
 - `task_set_instance_items`
-  - Fields: `id`, `set_instance_id`, `task_instance_id`, `order_index`, `points?`, `time_limit_ms?`, `depends_on_id?`, `created_at`
+  - Fields: `id`, `set_instance_id`, `task_instance_id`, `order_index`, `points?`, `item_time_limit_ms?`, `depends_on_id?`, `question_json?`, `config_json?`, `answer_json?`, `created_at`
 - `attempts` (extension)
   - Adds: `task_set_instance_id?`, `task_set_instance_item_id?`
 
@@ -44,8 +46,8 @@ Model exams, mini quizzes, and multi‑step sequences using a single, flexible g
 
 ## Notes
 
-- This model complements Lessons/Tasks: lessons still provide explanations; tasks are assessable units with typed solutions; sets add composition, timing, and ordering.
-- Linkage: set templates can link to one or more lesson templates; set instances can link to the personalised lesson instances active for the child.
+- This model complements Lessons/Tasks: lessons still provide explanations; task set templates group related tasks; task templates are assessable units with typed solutions; task item templates carry the per‑item question/config/answer JSON; sets add composition, timing, and ordering.
+- Linkage: task set templates belong to a lesson template; set instances can link to the personalised lesson instances active for the child.
 - For safety and privacy, normal auth and tenant isolation apply; group attempts inherit the same checks as standalone tasks.
 
 ## API shape (post‑MVP sketch)

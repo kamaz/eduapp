@@ -51,8 +51,7 @@ erDiagram
         string id PK "ULID. Example: 01HLINSTAB"
         string lesson_template_id FK "FK → lesson_templates.id"
         string child_id FK "FK → children.id (personalised recipient)"
-        string title "Personalised title (optional override)"
-        string asset_id FK "FK → assets.id (personalised explanation)"
+        string title "Personalised title (drawn from child interests/observations; optional override of template title)"
         string style "story|visual|puzzle|experiment"
         int difficulty "1..5"
         string personalization_params_json "JSON snapshot of parameters/profile used"
@@ -104,7 +103,6 @@ erDiagram
 
     TASK_SET_TEMPLATES {
         string id PK "ULID. Example: 01HSETABC"
-        string topic_id FK "FK → curriculum_topics.id (nullable; cross-topic sets allowed)"
         string type "exam|quiz|sequence. Example: exam"
         string title "Set title. Example: KS2 Arithmetic Mock A"
         string description "Optional notes"
@@ -117,14 +115,13 @@ erDiagram
         int updated_at "Epoch ms updated"
     }
 
-    TASK_SET_TEMPLATE_ITEMS {
-        string id PK "ULID. Example: 01HSETITM1"
-        string set_template_id FK "FK → task_set_templates.id"
+    TASK_ITEM_TEMPLATES {
+        string id PK "ULID. Example: 01HITEMTMP1"
         string task_template_id FK "FK → task_templates.id"
-        int order_id "Display order (1‑based)"
+        int order_id "Display order within the task (1‑based)"
         int points "Score weight per item (nullable)"
         int time_limit_ms "Per-item time limit (nullable)"
-        string depends_on_id FK "FK → task_set_template_items.id (nullable; sequence dependency)"
+        string depends_on_id FK "FK → task_item_templates.id (nullable; sequence dependency)"
         string asset_id FK "FK → assets.id (optional supporting asset)"
         string question_json "Inline question template (JSON; optional)"
         string config_json "Configuration for the template (JSON; optional)"
@@ -163,13 +160,6 @@ erDiagram
         int created_at "Epoch ms created"
     }
 
-    TASK_SET_TEMPLATE_LESSONS {
-        string id PK "ULID. Example: 01HSTTL1"
-        string set_template_id FK "FK → task_set_templates.id"
-        string lesson_template_id FK "FK → lesson_templates.id"
-        int created_at "Epoch ms created"
-    }
-
     TASK_SET_INSTANCE_LESSONS {
         string id PK "ULID. Example: 01HSTIL1"
         string set_instance_id FK "FK → task_set_instances.id"
@@ -187,7 +177,9 @@ erDiagram
     CURRICULUM_TOPICS ||--o{ LESSON_TEMPLATES : explains
     LESSON_TEMPLATES ||--o{ LESSON_INSTANCES : instantiates
     CURRICULUM_TOPICS ||--o{ TASK_TEMPLATES : templates
-    LESSON_TEMPLATES ||--o{ TASK_TEMPLATES : includes
+    LESSON_TEMPLATES ||--o{ TASK_SET_TEMPLATES : groups_sets
+    TASK_SET_TEMPLATES ||--o{ TASK_TEMPLATES : groups_tasks
+    TASK_TEMPLATES ||--o{ TASK_ITEM_TEMPLATES : items
     LESSON_INSTANCES ||--o{ TASK_INSTANCES : includes
     TASK_TEMPLATES ||--o{ TASK_INSTANCES : materializes
     TASK_INSTANCES ||--o{ TASK_INSTANCES : refers_example

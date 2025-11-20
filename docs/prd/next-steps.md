@@ -61,7 +61,7 @@
 
 - Introduce generic grouping for timed exams, mini quizzes, and multi‑step sequences using templates → instances.
 - Entities:
-  - Templates: `task_set_templates` and `task_set_template_items` (ordered, optional per‑item time limit, points, dependencies, propagation)
+  - Templates: `task_set_templates`, `task_templates`, and `task_item_templates` (ordered, optional per‑item time limit, points, dependencies, propagation)
   - Instances: `task_set_instances` and `task_set_instance_items` (child‑specific realisations)
 - Attempts include optional `task_set_instance_id` and `task_set_instance_item_id` to record context.
 - UI/UX:
