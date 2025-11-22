@@ -9,11 +9,15 @@ Contents
 - `sqllite/families.sql` — Four demo families with users, children, access, subscriptions, and user consents (SQLite/D1)
 - `sqllite/english-year-1.sql` — Year 1 English (SQLite/D1)
 - `sqllite/english-year-5.sql` — Year 5 English (SQLite/D1)
+- `sqllite/english-year-5-bella-instances.sql` — Example personalised lesson/task instances, attempts, and progress for Bella (Family B, Y5 VGP)
+- `sqllite/generation-jobs-bella.sql` — Example generation request + jobs/steps that produced Bella's VGP worksheet and task set
 - `plsql/subscriptions.sql` — Subscription plans (PostgreSQL)
 - `plsql/consents.sql` — Consent policies and assets (PostgreSQL)
 - `plsql/families.sql` — Four demo families with users, children, access, subscriptions, and user consents (PostgreSQL)
 - `plsql/english-year-1.sql` — Year 1 English (PostgreSQL)
 - `plsql/english-year-5.sql` — Year 5 English (PostgreSQL)
+- `plsql/english-year-5-bella-instances.sql` — Example personalised lesson/task instances, attempts, and progress for Bella (Family B, Y5 VGP)
+- `plsql/generation-jobs-bella.sql` — Example generation request + jobs/steps that produced Bella's VGP worksheet and task set
 
 How to apply
 
@@ -34,6 +38,8 @@ How to apply
   - Seed families: `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/families.sql`
   - Seed Year 1: `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/english-year-1.sql`
   - Seed Year 5: `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/english-year-5.sql`
+  - Seed personalised instances + attempts/progress for Bella (Y5 VGP): `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/english-year-5-bella-instances.sql`
+  - Seed generation requests + jobs/steps for Bella's worksheet: `psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f docs/seed/plsql/generation-jobs-bella.sql`
 
 Notes
 
