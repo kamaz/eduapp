@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     /* Base Options: */
+    "baseUrl": "src",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
@@ -19,8 +20,11 @@
     "module": "es2022",
     "noEmit": true,
     "lib": ["es2022"],
-    "types": ["./worker-configuration.d.ts", "@types/node", "@types/service-worker-mock"]
+    "types": ["./worker-configuration.d.ts", "@types/node", "@types/service-worker-mock"],
+    "paths": {
+      "~/*": ["./*"]
+    }
   },
   "exclude": ["node_modules", "dist", "tests"],
-  "include": ["src", "worker-configuration.d.ts"]
+  "include": ["src", "types/worker-configuration.d.ts", "types/hono.d.ts"]
 }

@@ -1,5 +1,5 @@
 -- Seed: Example generation request and jobs for Bella (Family B, Y5 VGP speech worksheet)
-set search_path=eduapp,public;
+set search_path=public;
 
 -- Generation request submitted by Bella's parent to create a personalised speech worksheet
 INSERT INTO generation_requests (id, requested_by_user_id, target_child_id, source, intent, notes, idempotency_key, status, created_at, updated_at, completed_at)

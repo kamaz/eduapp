@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "types": [
+      "vitest/globals",
+      "@cloudflare/vitest-pool-workers" // provides `cloudflare:test` types
+    ]
+  },
+  "include": [
+    "./**/*.ts",
+    "../types/env.d.ts", // output of `wrangler types`
+    "../types/worker-configuration.d.ts", // output of `wrangler types`
+    "../types/hono.d.ts" // output of `wrangler types`
+  ]
+}

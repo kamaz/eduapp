@@ -1,6 +1,6 @@
 -- Seed: Demo Families (PostgreSQL)
 -- Dependencies: subscription_plans, consent_policies must be seeded first.
-SET search_path=eduapp,public;
+SET search_path=public;
 -- FAMILY A: Single parent + 1 child, paid (basic_monthly)
 INSERT INTO users (id, firebase_uid, email, display_name, billing_customer_id, settings_json, created_at, updated_at)
 VALUES ('usr_fam_a_parent', 'fb_fam_a_parent', 'parentA@example.com', 'Parent A', 'cus_fam_a', NULL, (EXTRACT(EPOCH FROM NOW())*1000)::bigint, (EXTRACT(EPOCH FROM NOW())*1000)::bigint)

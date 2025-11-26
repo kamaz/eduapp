@@ -5,8 +5,14 @@
 -- - JSONB for JSON columns
 -- - BOOLEAN for flags
 
-create schema if not exists eduapp;
-set search_path=eduapp,public;
+set search_path=public;
+
+-- Local access: allow Supabase anon/authenticated roles to use the schema and tables.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on all tables in schema public to anon, authenticated;
+grant usage, select, update on all sequences in schema public to anon, authenticated;
+alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
+alter default privileges in schema public grant usage, select, update on sequences to anon, authenticated;
 
 -- USERS
 create table if not exists users (

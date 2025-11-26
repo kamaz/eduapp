@@ -21,7 +21,7 @@
     "db:import:families": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/families.sql",
     "db:import:instances": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/english-year-5-bella-instances.sql",
     "db:import:jobs": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/seed/plsql/generation-jobs-bella.sql",
-    "db:clear": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -c \"DROP SCHEMA IF EXISTS eduapp CASCADE;\"",
+    "db:clear": "psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -f ../../docs/schema/plsql/drop.sql",
     "db:reset": "pnpm db:clear && pnpm db:import",
     "clean": "supabase stop && docker volume prune -f || true"
   },

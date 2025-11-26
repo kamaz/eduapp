@@ -6,7 +6,8 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "cf-typegen": "wrangler types",
+    "generate": "pnpm run generate:types",
+    "generate:types": "wrangler types types/worker-configuration.d.ts",
     "lint": "pnpm -w exec eslint . --ext .ts",
     "check:format": "pnpm -w exec prettier --check .",
     "check:format:fix": "pnpm -w exec prettier --write .",
@@ -20,12 +21,18 @@
     "test:coverage": "vitest run tests --coverage"
   },
   "dependencies": {
-    "hono": "^4.10.1",
+    "@supabase/supabase-js": "^2.46.1",
+    "hono": "^4.10.6",
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^10.1.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "24.8.1",
+    "@cloudflare/vitest-pool-workers": "^0.10.10",
+    "@types/node": "24.10.1",
     "@types/service-worker-mock": "^2.0.4",
-    "wrangler": "^4.43.0"
+    "firebase": "^12.6.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.50.0"
   }
 }

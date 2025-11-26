@@ -1,5 +1,5 @@
 -- Seed: English Year 5 (KS2) for PostgreSQL
-SET search_path=eduapp,public;
+SET search_path=public;
 
 -- subject
 INSERT INTO curriculum_subjects (id, country_code, key, title, created_at, updated_at)

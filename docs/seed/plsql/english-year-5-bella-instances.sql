@@ -1,5 +1,5 @@
 -- Seed: Example lesson and task instances for Bella (Family B, child ch_fam_b_c1)
-set search_path=eduapp,public;
+set search_path=public;
 
 -- Lesson instance for Direct & Reported Speech lesson
 INSERT INTO lesson_instances (id, lesson_template_id, child_id, title, style, difficulty, personalization_params_json, created_by_user_id, status, created_at, updated_at)

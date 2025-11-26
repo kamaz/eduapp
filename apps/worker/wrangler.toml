@@ -1,0 +1,23 @@
+name = "worker"
+main = "src/index.ts"
+compatibility_date = "2025-10-11"
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
+
+[observability]
+enabled = true
+
+#
+# Optional examples (uncomment/adjust when needed):
+# [placement]
+# mode = "smart"
+#
+[vars]
+LOG_LEVEL = "info"
+#
+# [assets]
+# directory = "./public/"
+# binding = "ASSETS"
+#
+# [[services]]
+# binding = "MY_SERVICE"
+# service = "my-service"

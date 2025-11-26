@@ -13,7 +13,7 @@ Commands
 - `pnpm stop` — stop Supabase local stack
 - `pnpm status` — show connection info (ports, URLs)
 - `pnpm db:import` — import schema and seed data (curriculum, subscription plans, consent policies, demo families)
-- `pnpm db:clear` — drop the `eduapp` schema (destructive)
+- `pnpm db:clear` — drop and recreate the `public` schema (destructive)
 - `pnpm db:reset` — clear then import schema (destructive)
 - `pnpm clean` — stop services and prune leftover Docker volumes (destructive)
 

@@ -1,5 +1,5 @@
 -- Seed: Consent Policies (PostgreSQL)
-SET search_path=eduapp,public;
+SET search_path=public;
 
 -- Assets for policy documents
 INSERT INTO assets (id, type, r2_bucket, r2_key, mime_type, size_bytes, checksum_sha256, created_at) VALUES

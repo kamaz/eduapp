@@ -1,12 +1,13 @@
 import { Hono } from 'hono'
+import { userApp } from './user'
+import { logMiddleware } from './middleware/log'
+import { firebaseAuth } from './middleware/firebase-auth'
 
-// Start a Hono app
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono()
 
-app.get('/', (c) => c.text('Hello from Hono and Chanfana!'))
+app.use('*', logMiddleware)
+app.use('*', firebaseAuth)
 
-// You may also register routes for non OpenAPI directly on Hono
-// app.get('/test', (c) => c.text('Hono!'))
+app.route('/api/user', userApp)
 
-// Export the Hono app
 export default app
